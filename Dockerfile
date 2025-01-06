@@ -21,4 +21,3 @@ RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov ipython
 FROM base as production
 ENV PYTHONUNBUFFERED=1
 RUN pip install --no-cache-dir gunicorn
-

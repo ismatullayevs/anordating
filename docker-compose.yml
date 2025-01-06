@@ -11,8 +11,9 @@ services:
       - .env
     depends_on:
       - db
+    user: "1000:1000"
+    stop_grace_period: 2s
     command: python main.py
-    restart: unless-stopped
 
   db:
     image: postgres:15-alpine
