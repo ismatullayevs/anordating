@@ -1,13 +1,10 @@
-import time
-from app.core.config import settings
 import asyncio
-from app.core import db
 
 
 async def main():
     print("Hello, world!")
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(10)
 
 
 if __name__ == "__main__":

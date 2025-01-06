@@ -1,10 +1,13 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pathlib import Path
 
 
 class Settings(BaseSettings):
     DEBUG: bool = False
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    
     DATABASE_URL: str
+    MEDIA_PATH: Path = BASE_DIR / "media"
 
     DEFAULT_RATING: int = 1400
 
