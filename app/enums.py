@@ -24,3 +24,8 @@ class PreferredGenders(Enum):
     male = "male"
     female = "female"
     friends = "friends"
+
+
+class ReactionType(Enum):
+    like = "like"
+    dislike = "dislike"

@@ -1,9 +1,8 @@
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy.dialects import postgresql
 from app.models.base import Base, intpk, created_at, updated_at
-from sqlalchemy import text, String, BIGINT, ForeignKey
+from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
-from app.dto.enums import Genders, PreferredGenders, UILanguages
+from app.enums import Genders, PreferredGenders, UILanguages, ReactionType
 
 
 class User(Base):
@@ -38,3 +37,17 @@ class Preferences(Base):
     preferred_gender: Mapped[PreferredGenders] = mapped_column(index=True)
 
     user = relationship("User", back_populates="preferences")
+
+
+class Reaction(Base):
+    __tablename__ = "reaction"
+
+    id: Mapped[intpk]
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    reaction_type: Mapped[ReactionType] = mapped_column(index=True)
+
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
+
+    __table_args__ = (UniqueConstraint("from_user_id", "to_user_id"),)

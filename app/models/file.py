@@ -2,7 +2,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import ForeignKey, UniqueConstraint
 from app.models.base import Base, intpk, created_at
 from sqlalchemy import text, BIGINT
-from app.dto.enums import FileTypes
+from app.enums import FileTypes
 
 
 class File(Base):
