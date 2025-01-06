@@ -1,7 +1,8 @@
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import ForeignKey, UniqueConstraint
 from app.models.base import Base, intpk, created_at
-from sqlalchemy import text, BIGINT, String
+from sqlalchemy import text, BIGINT
+from app.dto.enums import FileTypes
 
 
 class File(Base):
@@ -12,7 +13,7 @@ class File(Base):
     telegram_unique_id: Mapped[str | None]
     telegram_path: Mapped[str | None]
     path: Mapped[str | None]
-    file_type: Mapped[str] = mapped_column(String(16))
+    file_type: Mapped[FileTypes]
     uploaded_at: Mapped[created_at]
 
 

@@ -16,11 +16,11 @@ class UILanguages(Enum):
 
 
 class Genders(Enum):
-    male = "m"
-    female = "f"
+    male = "male"
+    female = "female"
 
 
 class PreferredGenders(Enum):
-    male = "m"
-    female = "f"
-    friends = "a"
+    male = "male"
+    female = "female"
+    friends = "friends"
