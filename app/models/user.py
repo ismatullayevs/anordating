@@ -1,25 +1,19 @@
 from sqlalchemy.orm import mapped_column, Mapped
-from app.core.db import Base
-from typing import Annotated
-import datetime
-from sqlalchemy import text
-
-
-intpk = Annotated[int, mapped_column(primary_key=True)]
-created_at = Annotated[datetime.datetime, mapped_column(
-    server_default=text("TIMEZONE('utc', now())"))]
-updated_at = Annotated[datetime.datetime, mapped_column(
-    server_default=text("TIMEZONE('utc', now())"),
-    onupdate=datetime.datetime.now(datetime.timezone.utc))]
+from app.models.base import Base, intpk, created_at, updated_at
+from sqlalchemy import text, String
+from app.core.config import settings
 
 
 class User(Base):
     __tablename__ = "user_account"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[intpk]
     telegram_id: Mapped[int]
     name: Mapped[str]
     age: Mapped[int]
+    rating: Mapped[int] = mapped_column(server_default=text(str(settings.DEFAULT_RATING)))
+    is_active: Mapped[bool] = mapped_column(server_default=text("true"))
+    bio: Mapped[str | None] = mapped_column(String(255))
 
-    created_at: Mapped[datetime.datetime]
-    updated_at: Mapped[datetime.datetime]
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
