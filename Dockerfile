@@ -16,7 +16,7 @@ COPY . .
 FROM base as development
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov ipython
+RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov ipython watchdog[watchmedo]
 
 FROM base as production
 ENV PYTHONUNBUFFERED=1

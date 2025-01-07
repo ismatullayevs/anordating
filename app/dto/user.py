@@ -1,0 +1,43 @@
+from pydantic import BaseModel
+from app.enums import Genders, UILanguages, PreferredGenders
+from datetime import datetime
+from app.dto.file import FileDTO
+
+
+class PreferenceDTO(BaseModel):
+    user_id: int
+    min_age: int | None
+    max_age: int | None
+    preferred_gender: PreferredGenders
+
+
+class UserAddDTO(BaseModel):
+    telegram_id: int
+    name: str
+    age: int
+    bio: str | None
+    gender: Genders
+    latitude: float
+    longitude: float
+    ui_language: UILanguages
+
+
+class UserDTO(UserAddDTO):
+    id: int
+    rating: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class UserMediaRelDTO(UserDTO):
+    media: list[FileDTO]
+
+
+class UserPreferencesRelDTO(UserDTO):
+    preferences: PreferenceDTO
+
+
+class UserRelDTO(UserDTO):
+    media: list[FileDTO]
+    preferences: PreferenceDTO

@@ -3,6 +3,7 @@ from app.models.base import Base, intpk, created_at, updated_at
 from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
 from app.enums import Genders, PreferredGenders, UILanguages, ReactionType, ReportStatusTypes
+from app.models.file import UserMedia
 
 
 class User(Base):
@@ -15,10 +16,10 @@ class User(Base):
     rating: Mapped[int] = mapped_column(server_default=text(str(settings.DEFAULT_RATING)))
     is_active: Mapped[bool] = mapped_column(server_default=text("true"))
     bio: Mapped[str | None] = mapped_column(String(255))
-    media: Mapped[list["File"]] = relationship(secondary="user_media", backref="users") # type: ignore
+    media: Mapped[list["File"]] = relationship(secondary="user_media") # type: ignore
     gender: Mapped[Genders]
-    latitude: Mapped[float | None]
-    longitude: Mapped[float | None]
+    latitude: Mapped[float]
+    longitude: Mapped[float]
 
     ui_language: Mapped[UILanguages]
 

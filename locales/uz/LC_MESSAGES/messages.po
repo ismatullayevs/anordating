@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-07 11:11+0500\n"
-"PO-Revision-Date: 2025-01-07 11:12+0500\n"
+"POT-Creation-Date: 2025-01-07 18:07+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
 "Language-Team: uz <LL@li.org>\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: app/handlers.py:11
-msgid "Hello!"
-msgstr "Salom!"
+#: app/handlers.py:30
+msgid "Hello, {name}!"
+msgstr ""
 
