@@ -2,7 +2,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.models.base import Base, intpk, created_at, updated_at
 from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
-from app.enums import Genders, PreferredGenders, UILanguages, ReactionType
+from app.enums import Genders, PreferredGenders, UILanguages, ReactionType, ReportStatusTypes
 
 
 class User(Base):
@@ -51,3 +51,16 @@ class Reaction(Base):
     updated_at: Mapped[updated_at]
 
     __table_args__ = (UniqueConstraint("from_user_id", "to_user_id"),)
+
+
+class Report(Base):
+    __tablename__ = "report"
+
+    id: Mapped[intpk]
+    from_user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    to_user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    reason: Mapped[str]
+    status: Mapped[ReportStatusTypes] = mapped_column(index=True)
+    
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
