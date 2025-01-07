@@ -12,7 +12,6 @@ services:
     depends_on:
       - db
     user: "1000:1000"
-    stop_grace_period: 2s
     command: python main.py
 
   db:
