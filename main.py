@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from app.core.config import settings
-from app.handlers import router
+from app.handlers.registration import router as registration_router
 from app.middlewares import i18n_middleware
 
 
@@ -11,10 +11,9 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=settings.BOT_TOKEN)
 dp = Dispatcher()
 
-dp.message.middleware(i18n_middleware)
-dp.callback_query.middleware(i18n_middleware)
+i18n_middleware.setup(dp)
 
-dp.include_router(router)
+dp.include_router(registration_router)
 
 
 async def main():

@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 from app.enums import Genders, UILanguages, PreferredGenders
 from datetime import datetime
-from app.dto.file import FileDTO
+from app.dto.file import FileDTO, FileAddDTO
+from app.models.user import User
 
 
 class PreferenceDTO(BaseModel):
@@ -21,6 +22,14 @@ class UserAddDTO(BaseModel):
     longitude: float
     ui_language: UILanguages
 
+    class Meta:
+        orm_mode = True
+        orm_model = User
+
+
+class UserRelMediaAddDTO(UserAddDTO):
+    media: list[FileAddDTO]
+
 
 class UserDTO(UserAddDTO):
     id: int
@@ -30,11 +39,11 @@ class UserDTO(UserAddDTO):
     updated_at: datetime
 
 
-class UserMediaRelDTO(UserDTO):
+class UserRelMediaDTO(UserDTO):
     media: list[FileDTO]
 
 
-class UserPreferencesRelDTO(UserDTO):
+class UserRelPreferencesDTO(UserDTO):
     preferences: PreferenceDTO
 
 

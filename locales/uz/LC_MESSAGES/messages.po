@@ -2,13 +2,11 @@
 # Copyright (C) 2025 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
-#
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-07 18:07+0500\n"
+"POT-Creation-Date: 2025-01-08 14:49+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -19,7 +17,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: app/handlers.py:30
-msgid "Hello, {name}!"
+#: app/handlers/registration.py:41
+msgid "Male 👨‍🦱"
+msgstr "Erkak 👨‍🦱"
+
+#: app/handlers/registration.py:42
+msgid "Female 👩‍🦱"
+msgstr "Ayol 👩‍🦱"
+
+#: app/handlers/registration.py:65
+msgid "Hi! Please select a language"
+msgstr "Salom! Iltimos, tilni tanlang"
+
+#: app/handlers/registration.py:78
+msgid "What is your name?"
+msgstr "Ismingiz nima?"
+
+#: app/handlers/registration.py:85
+msgid "Please select a correct language"
+msgstr "Iltimos, to'g'ri tilni tanlang"
+
+#: app/handlers/registration.py:95
+msgid "How old are you?"
+msgstr "Yoshingiz?"
+
+#: app/handlers/registration.py:105
+msgid "Please enter a valid number"
+msgstr "Iltimos, to'g'ri raqam kiriting"
+
+#: app/handlers/registration.py:110
+msgid "What is your gender?"
+msgstr "Jinsingiz?"
+
+#: app/handlers/registration.py:125
+msgid "Tell us about yourself"
+msgstr "O'zingiz haqingizda aytib bering"
+
+#: app/handlers/registration.py:126 app/handlers/registration.py:135
+msgid "Skip"
+msgstr "O'tkazib yuborish"
+
+#: app/handlers/registration.py:132
+msgid "Please select a correct gender"
+msgstr "Iltimos, berilgan variantlardan birini tanlang"
+
+#: app/handlers/registration.py:139 app/handlers/registration.py:150
+msgid "Please upload photos of yourself"
+msgstr "Iltimos, rasmlaringizni joylashtiring"
+
+#: app/handlers/registration.py:155 app/handlers/registration.py:213
+msgid "Continue"
+msgstr "Davom ettirish"
+
+#: app/handlers/registration.py:159
+msgid "Please upload at least one photo"
+msgstr "Iltimos, kamida 1 ta rasm joylashtiring"
+
+#: app/handlers/registration.py:162
+msgid "Please share your location"
+msgstr "Iltimos, lokatsiya jo'nating"
+
+#: app/handlers/registration.py:203
+msgid "Please upload a photo or video"
+msgstr "Iltimos, rasm yoki video joylashtiring"
+
+#: app/handlers/registration.py:212
+msgid ""
+"Media has been uploaded. Upload more photos if you want or press "
+"\"Continue\""
 msgstr ""
+"Media fayl joylashtirildi. Ko'proq rasm joylashtiring yoki \"Davom "
+"ettirish\" tugmasini bosing"
+
+#: app/handlers/registration.py:244
+msgid "Registration has been completed!"
+msgstr "Registratsiya yakunlandi!"
+
+#: app/handlers/registration.py:259 app/handlers/registration.py:287
+msgid "You are not registered!"
+msgstr "Siz registratsiyadan o'tmagansiz!"
 
