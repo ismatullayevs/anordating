@@ -57,7 +57,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
         user = result.one_or_none()
 
     if user:
-        user_dto = UserDTO.model_validate(user, from_attributes=True)
         await i18n_middleware.set_locale(state, user.ui_language.name)
         await get_me(message)
         return

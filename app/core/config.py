@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str
     MEDIA_PATH: Path = BASE_DIR / "media"
+    REDIS_PASSWORD: str
 
     DEFAULT_RATING: int = 1400
 

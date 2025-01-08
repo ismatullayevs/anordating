@@ -19,4 +19,4 @@ def pydantic_to_sqlalchemy(schema: BaseModel):
     try:    
         return schema.Meta.orm_model(**parsed_schema) # type: ignore
     except AttributeError:
-        raise AttributeError(f"Meta.orm_model was not specified from schema {schema}.")
+        raise AttributeError(f"Schema {schema} doesn't have a Meta.orm_model attribute")
