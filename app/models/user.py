@@ -3,7 +3,6 @@ from app.models.base import Base, intpk, created_at, updated_at
 from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
 from app.enums import Genders, PreferredGenders, UILanguages, ReactionType, ReportStatusTypes
-from app.models.file import UserMedia
 
 
 class User(Base):

@@ -12,3 +12,28 @@ def make_row_keyboard(items: Iterable[str]) -> ReplyKeyboardMarkup:
 
     row = [KeyboardButton(text=item) for item in items]
     return ReplyKeyboardMarkup(keyboard=[row], resize_keyboard=True)
+
+
+def get_menu_keyboard() -> ReplyKeyboardMarkup:
+    """
+    Returns a menu keyboard
+    :return: ReplyKeyboardMarkup
+    """
+    keyboard = [
+        [KeyboardButton(text=_("🔎 Search")), KeyboardButton(text=_("👍 Likes"))],
+        [KeyboardButton(text=_("👤 My profile")), KeyboardButton(text=_("❤️ Matches"))],
+        [KeyboardButton(text=_("⛔️ Deactivate")), KeyboardButton(text=_("⚙️ Settings"))]
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+
+def get_search_keyboard() -> ReplyKeyboardMarkup:
+    """
+    Returns a search keyboard
+    :return: ReplyKeyboardMarkup
+    """
+    keyboard = [
+        [KeyboardButton(text=_("⏪")), KeyboardButton(text=_("👎")), KeyboardButton(text=_("👍"))],
+        [KeyboardButton(text=_("✍️ Report")), KeyboardButton(text=_("⬅️ Menu"))],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)

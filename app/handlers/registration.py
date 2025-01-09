@@ -1,17 +1,17 @@
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from aiogram.utils.media_group import MediaGroupBuilder
 from app.middlewares import i18n_middleware
 from app.models.user import User
 from app.core.db import session_factory
 from app.filters import IsHumanUser
-from app.keyboards import make_row_keyboard
+from app.keyboards import get_menu_keyboard, make_row_keyboard
 from app.dto.file import FileAddDTO, FileRelThumbnailAddDTO
-from app.dto.user import UserRelMediaAddDTO, UserRelMediaDTO
-from app.enums import FileTypes, UILanguages, Genders
+from app.dto.user import PreferenceAddDTO, UserRelAddDTO, UserRelMediaAddDTO, UserRelMediaDTO
+from app.enums import FileTypes, PreferredGenders, UILanguages, Genders
+from app.states import RegistrationStates
 from app.utils import validate_partial
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -23,33 +23,31 @@ router = Router()
 router.message.filter(IsHumanUser())
 
 
-class RegistrationStates(StatesGroup):
-    language = State()
-    name = State()
-    age = State()
-    gender = State()
-    bio = State()
-    media = State()
-    location = State()
-
-
 LANGUAGES = {
     "Uzbek 🇺🇿": UILanguages.uz,
     "Russian 🇷🇺": UILanguages.ru,
     "English 🇺🇸": UILanguages.en,
 }
 
+
+# use `__` so that pybabel could extract strings for translation
 GENDERS = (
     (__("Male 👨‍🦱"), Genders.male),
     (__("Female 👩‍🦱"), Genders.female),
 )
 
+GENDER_PREFERENCES = (
+    (__("Male 👨‍🦱"), PreferredGenders.male),
+    (__("Female 👩‍🦱"), PreferredGenders.female),
+    (__("Friends 👫"), PreferredGenders.friends),
+)
 
-def get_error_message(e: ValidationError):
+
+def get_error_message(e: ValidationError, default: str | None = None):
     errors = [err["msg"] for err in e.errors() if err["type"] == "notify_user"]
     if errors:
         return "\n".join(errors)
-    return _("An error occurred. Please try again")
+    return default or _("An error occurred. Please try again")
 
 
 @router.message(Command("start"))
@@ -93,7 +91,7 @@ async def set_language(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.name)
 
 
-@router.message(RegistrationStates.name)
+@router.message(RegistrationStates.name, F.text)
 async def set_name(message: types.Message, state: FSMContext):
     assert message.text
 
@@ -107,7 +105,7 @@ async def set_name(message: types.Message, state: FSMContext):
     await message.answer(_("How old are you?"))
 
 
-@router.message(RegistrationStates.age)
+@router.message(RegistrationStates.age, F.text)
 async def set_age(message: types.Message, state: FSMContext):
     assert message.text
 
@@ -157,7 +155,7 @@ async def skip_bio(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.media)
 
 
-@router.message(RegistrationStates.bio)
+@router.message(RegistrationStates.bio, F.text)
 async def set_bio(message: types.Message, state: FSMContext):
     assert message.text
 
@@ -248,13 +246,53 @@ async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(latitude=message.location.latitude)
     await state.update_data(longitude=message.location.longitude)
 
+    await message.answer(_("What kind of people do you want to see?"),
+                         reply_markup=make_row_keyboard(x[0].value for x in GENDER_PREFERENCES))
+    await state.set_state(RegistrationStates.gender_preferences)
+
+
+@router.message(RegistrationStates.gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
+async def set_preferred_gender(message: types.Message, state: FSMContext):
+    preferred_gender = None
+    for k, v in GENDER_PREFERENCES:
+        if k == message.text:
+            preferred_gender = v
+    assert preferred_gender
+
+    await state.update_data(preferred_gender=preferred_gender)
+    await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
+                         reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(RegistrationStates.age_preferences)
+
+
+@router.message(RegistrationStates.age_preferences, F.text)
+async def set_age_preferences(message: types.Message, state: FSMContext):
+    assert message.text and message.from_user
+
+    try:
+        min_age, max_age = map(int, message.text.split("-"))
+        validate_partial(PreferenceAddDTO, "min_age", min_age)
+        validate_partial(PreferenceAddDTO, "max_age", max_age)
+    except ValidationError as e:
+        return await message.answer(
+            get_error_message(e, _("Please enter a valid age range")))
+
+    await state.update_data(preferred_min_age=min_age)
+    await state.update_data(preferred_max_age=max_age)
+
     data = await state.get_data()
     media = []
     for m in data["media"]:
         v = json.loads(m)
         media.append(FileAddDTO.model_validate(v))
 
-    user = UserRelMediaAddDTO(
+    preferences = PreferenceAddDTO(
+        min_age=data["preferred_min_age"],
+        max_age=data["preferred_max_age"],
+        preferred_gender=data["preferred_gender"]
+    )
+
+    user = UserRelAddDTO(
         telegram_id=message.from_user.id,
         name=data["name"],
         age=data["age"],
@@ -264,6 +302,7 @@ async def set_location(message: types.Message, state: FSMContext):
         latitude=data["latitude"],
         longitude=data["longitude"],
         media=media,
+        preferences=preferences
     )
 
     user_db = user.to_orm()
@@ -274,7 +313,8 @@ async def set_location(message: types.Message, state: FSMContext):
     await state.set_state(None)
     data = await state.get_data()
     await state.set_data({"locale": data.get("locale")})
-    await message.answer(_("Registration has been completed!"))
+    await message.answer(_("Registration has been completed!"),
+                         reply_markup=get_menu_keyboard())
     await get_me(message)
 
 
