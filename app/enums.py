@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class FileTypes(Enum):
+class FileTypes(str, Enum):
     image = "image"
     video = "video"
     audio = "audio"
@@ -9,29 +9,29 @@ class FileTypes(Enum):
     other = "other"
 
 
-class UILanguages(Enum):
+class UILanguages(str, Enum):
     uz = "uz"
     ru = "ru"
     en = "en"
 
 
-class Genders(Enum):
+class Genders(str, Enum):
     male = "male"
     female = "female"
 
 
-class PreferredGenders(Enum):
+class PreferredGenders(str, Enum):
     male = "male"
     female = "female"
     friends = "friends"
 
 
-class ReactionType(Enum):
+class ReactionType(str, Enum):
     like = "like"
     dislike = "dislike"
 
 
-class ReportStatusTypes(Enum):
+class ReportStatusTypes(str, Enum):
     pending = "pending"
     reviewing = "reviewing"
     pending_info = "pending_info"

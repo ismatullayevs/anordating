@@ -10,11 +10,13 @@ from app.core.db import session_factory
 from app.filters import IsHumanUser
 from app.keyboards import make_row_keyboard
 from app.dto.file import FileAddDTO, FileRelThumbnailAddDTO
-from app.dto.user import UserRelMediaAddDTO, UserRelMediaDTO, UserDTO
+from app.dto.user import UserRelMediaAddDTO, UserRelMediaDTO
 from app.enums import FileTypes, UILanguages, Genders
-from app.utils import pydantic_to_sqlalchemy
+from app.utils import validate_partial
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+import json
+from pydantic import ValidationError
 
 
 router = Router()
@@ -43,6 +45,13 @@ GENDERS = (
 )
 
 
+def get_error_message(e: ValidationError):
+    errors = [err["msg"] for err in e.errors() if err["type"] == "notify_user"]
+    if errors:
+        return "\n".join(errors)
+    return _("An error occurred. Please try again")
+
+
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     assert message.from_user
@@ -69,8 +78,13 @@ async def cmd_start(message: types.Message, state: FSMContext):
 @router.message(RegistrationStates.language, F.text.in_(LANGUAGES.keys()))
 async def set_language(message: types.Message, state: FSMContext):
     assert message.text
-
     language = LANGUAGES[message.text]
+
+    try:
+        validate_partial(UserRelMediaAddDTO, "ui_language", language)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
+
     await i18n_middleware.set_locale(state, language.name)
     await state.update_data({"language": language})
 
@@ -79,17 +93,16 @@ async def set_language(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.name)
 
 
-@router.message(RegistrationStates.language)
-async def set_language_invalid(message: types.Message):
-    await message.answer(_("Please select a correct language"))
-
-
 @router.message(RegistrationStates.name)
 async def set_name(message: types.Message, state: FSMContext):
     assert message.text
 
-    await state.update_data(name=message.text)
+    try:
+        validate_partial(UserRelMediaAddDTO, "name", message.text)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
 
+    await state.update_data(name=message.text)
     await state.set_state(RegistrationStates.age)
     await message.answer(_("How old are you?"))
 
@@ -100,9 +113,9 @@ async def set_age(message: types.Message, state: FSMContext):
 
     try:
         age = int(message.text)
-    except ValueError:
-        await message.answer(_("Please enter a valid number"))
-        return
+        validate_partial(UserRelMediaAddDTO, "age", age)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
 
     await state.update_data(age=age)
 
@@ -119,6 +132,11 @@ async def set_gender(message: types.Message, state: FSMContext):
         if k == message.text:
             gender = v
 
+    try:
+        validate_partial(UserRelMediaAddDTO, "gender", gender)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
+
     await state.update_data(gender=gender)
 
     await message.answer(_("Tell us about yourself"),
@@ -126,15 +144,14 @@ async def set_gender(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.bio)
 
 
-@router.message(RegistrationStates.gender)
-async def set_gender_invalid(message: types.Message):
-    await message.answer(_("Please select a correct gender"))
-
-
 @router.message(RegistrationStates.bio, F.text == __("Skip"))
 async def skip_bio(message: types.Message, state: FSMContext):
-    await state.update_data(bio=None)
+    try:
+        validate_partial(UserRelMediaAddDTO, "bio", None)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
 
+    await state.update_data(bio=None)
     await message.answer(_("Please upload photos of yourself"),
                          reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(RegistrationStates.media)
@@ -143,6 +160,11 @@ async def skip_bio(message: types.Message, state: FSMContext):
 @router.message(RegistrationStates.bio)
 async def set_bio(message: types.Message, state: FSMContext):
     assert message.text
+
+    try:
+        validate_partial(UserRelMediaAddDTO, "bio", message.text)
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
 
     await state.update_data(bio=message.text)
 
@@ -199,13 +221,19 @@ async def set_media(message: types.Message, state: FSMContext):
                 mime_type=message.video.mime_type,
                 thumbnail=thumbnail,
             )
-    if file is None:
-        await message.answer(_("Please upload a photo or video"))
-        return
+    assert file is not None
 
     data = await state.get_data()
     media = data["media"] if "media" in data else []
+    file = file.model_dump_json()
     media.append(file)
+
+    try:
+        validate_partial(UserRelMediaAddDTO, "media",
+                         [json.loads(f) for f in media])
+    except ValidationError as e:
+        return await message.answer(get_error_message(e))
+
     data["media"] = media
     await state.set_data(data)
 
@@ -221,6 +249,11 @@ async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(longitude=message.location.longitude)
 
     data = await state.get_data()
+    media = []
+    for m in data["media"]:
+        v = json.loads(m)
+        media.append(FileAddDTO.model_validate(v))
+
     user = UserRelMediaAddDTO(
         telegram_id=message.from_user.id,
         name=data["name"],
@@ -230,10 +263,10 @@ async def set_location(message: types.Message, state: FSMContext):
         ui_language=data["language"],
         latitude=data["latitude"],
         longitude=data["longitude"],
-        media=data["media"],
+        media=media,
     )
 
-    user_db: User = pydantic_to_sqlalchemy(user)
+    user_db = user.to_orm()
     async with session_factory() as session:
         session.add(user_db)
         data = await session.commit()
