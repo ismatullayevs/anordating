@@ -3,10 +3,12 @@ from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
+from app.handlers.registration import get_profile
 from app.keyboards import get_menu_keyboard, get_search_keyboard
+from app.matching.algorithm import get_best_match
+from app.orm import get_user, get_user_by_telegram_id
 from app.states import (MenuStates, SearchStates, LikesStates, ProfileStates,
                         MatchesStates, DeactivateStates, LanguageStates)
-
 
 router = Router()
 
@@ -22,7 +24,19 @@ async def show_menu(message, state: FSMContext):
 
 @router.message(MenuStates.menu, F.text == __("🔎 Search"))
 async def search(message, state: FSMContext):
+    assert message.from_user
+
+    user = await get_user_by_telegram_id(message.from_user.id)
+    if not user:
+        return await message.answer(_("You need to create a profile first"))
+    
+    match_id = await get_best_match(user.id)
+    if not match_id:
+        return await message.answer(_("No matches found"))
+    
+    profile = await get_profile(match_id)
     await message.answer("Search", reply_markup=get_search_keyboard())
+    await message.answer_media_group(profile)
     await state.set_state(SearchStates.search)
 
 

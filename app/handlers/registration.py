@@ -1,3 +1,4 @@
+from random import randint
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
@@ -11,7 +12,8 @@ from app.keyboards import get_menu_keyboard, make_row_keyboard
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO, UserRelMediaDTO
 from app.enums import FileTypes, PreferredGenders, UILanguages, Genders
-from app.states import RegistrationStates
+from app.orm import get_user_by_telegram_id
+from app.states import MenuStates, RegistrationStates
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 import json
@@ -39,6 +41,18 @@ GENDER_PREFERENCES = (
     (__("Women 👩‍🦱"), PreferredGenders.female),
     (__("Friends 👫"), PreferredGenders.friends),
 )
+
+
+@router.message(Command("newuser"))
+async def cmd_new_user(message: types.Message, state: FSMContext):
+    assert message.from_user
+    await state.set_state(None)
+    data = await state.get_data()
+    await state.set_data({"locale": data.get("locale"), "testing": True})
+
+    await message.answer(_("Hi! Please select a language"),
+                         reply_markup=make_row_keyboard(LANGUAGES.keys()))
+    await state.set_state(RegistrationStates.language)
 
 
 @router.message(Command("start"))
@@ -240,8 +254,15 @@ async def set_preferred_gender(message: types.Message, state: FSMContext):
 
     await state.update_data(preferred_gender=preferred_gender)
     await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
-                         reply_markup=types.ReplyKeyboardRemove())
+                         reply_markup=make_row_keyboard([_("Skip")]))
     await state.set_state(RegistrationStates.age_preferences)
+
+
+@router.message(RegistrationStates.age_preferences, F.text == __("Skip"))
+async def skip_age_preferences(message: types.Message, state: FSMContext):
+    await state.update_data(preferred_min_age=None)
+    await state.update_data(preferred_max_age=None)
+    await save_user(message, state)
 
 
 @router.message(RegistrationStates.age_preferences, F.text)
@@ -261,6 +282,11 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
     await state.update_data(preferred_min_age=min_age)
     await state.update_data(preferred_max_age=max_age)
 
+    await save_user(message, state)
+
+
+async def save_user(message: types.Message, state: FSMContext):
+    assert message.from_user
     data = await state.get_data()
     media = []
     for m in data["media"]:
@@ -273,8 +299,13 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
         preferred_gender=data["preferred_gender"]
     )
 
+    if "testing" in data and data["testing"]:
+        telegram_id = randint(1000000000, 9999999999) # TODO: remove after testing
+    else:
+        telegram_id = message.from_user.id
+
     user = UserRelAddDTO(
-        telegram_id=message.from_user.id,
+        telegram_id=telegram_id,
         name=data["name"],
         age=data["age"],
         bio=data["bio"],
@@ -291,7 +322,7 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
         session.add(user_db)
         data = await session.commit()
 
-    await state.set_state(None)
+    await state.set_state(MenuStates.menu)
     data = await state.get_data()
     await state.set_data({"locale": data.get("locale")})
     await message.answer(_("Registration has been completed!"),
@@ -302,16 +333,23 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
 @router.message(Command('me'))
 async def get_me(message: types.Message):
     assert message.from_user
-
-    async with session_factory() as session:
-        query = select(User).where(User.telegram_id ==
-                                   message.from_user.id).options(selectinload(User.media))
-        result = await session.scalars(query)
-        user = result.one_or_none()
+    user = await get_user_by_telegram_id(message.from_user.id)
 
     if not user:
         await message.answer(_("You are not registered!"))
         return
+    
+    profile = await get_profile(user.id)
+    await message.answer_media_group(profile)
+
+
+async def get_profile(id: int):
+    async with session_factory() as session:
+        query = select(User).where(User.id ==
+                                   id).options(selectinload(User.media))
+        result = await session.scalars(query)
+        user = result.one_or_none()
+
 
     user_dto = UserRelMediaDTO.model_validate(user, from_attributes=True)
     caption = ", ".join(
@@ -325,7 +363,7 @@ async def get_me(message: types.Message):
         elif media.file_type == FileTypes.video:
             album_builder.add_video(media.telegram_id or media.path or '')
 
-    await message.answer_media_group(album_builder.build())
+    return album_builder.build()
 
 
 @router.message(Command('delete'))

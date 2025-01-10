@@ -28,8 +28,8 @@ class User(Base):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
 
-    preferences = relationship("Preferences", uselist=False,
-                               back_populates="user", cascade="all, delete-orphan")
+    preferences: Mapped["Preferences"] = relationship(
+        back_populates="user", cascade="all, delete-orphan")
 
 
 class Preferences(Base):
