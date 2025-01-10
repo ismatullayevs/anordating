@@ -8,15 +8,13 @@ from app.models.user import User
 from app.core.db import session_factory
 from app.filters import IsHumanUser
 from app.keyboards import get_menu_keyboard, make_row_keyboard
-from app.dto.file import FileAddDTO, FileRelThumbnailAddDTO
-from app.dto.user import PreferenceAddDTO, UserRelAddDTO, UserRelMediaAddDTO, UserRelMediaDTO
+from app.dto.file import FileAddDTO
+from app.dto.user import PreferenceAddDTO, UserRelAddDTO, UserRelMediaDTO
 from app.enums import FileTypes, PreferredGenders, UILanguages, Genders
 from app.states import RegistrationStates
-from app.utils import validate_partial
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 import json
-from pydantic import ValidationError
 
 
 router = Router()
@@ -37,17 +35,10 @@ GENDERS = (
 )
 
 GENDER_PREFERENCES = (
-    (__("Male 👨‍🦱"), PreferredGenders.male),
-    (__("Female 👩‍🦱"), PreferredGenders.female),
+    (__("Men 👨‍🦱"), PreferredGenders.male),
+    (__("Women 👩‍🦱"), PreferredGenders.female),
     (__("Friends 👫"), PreferredGenders.friends),
 )
-
-
-def get_error_message(e: ValidationError, default: str | None = None):
-    errors = [err["msg"] for err in e.errors() if err["type"] == "notify_user"]
-    if errors:
-        return "\n".join(errors)
-    return default or _("An error occurred. Please try again")
 
 
 @router.message(Command("start"))
@@ -78,11 +69,6 @@ async def set_language(message: types.Message, state: FSMContext):
     assert message.text
     language = LANGUAGES[message.text]
 
-    try:
-        validate_partial(UserRelMediaAddDTO, "ui_language", language)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
-
     await i18n_middleware.set_locale(state, language.name)
     await state.update_data({"language": language})
 
@@ -95,28 +81,29 @@ async def set_language(message: types.Message, state: FSMContext):
 async def set_name(message: types.Message, state: FSMContext):
     assert message.text
 
-    try:
-        validate_partial(UserRelMediaAddDTO, "name", message.text)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
+    if not 3 <= len(message.text) <= 30:
+        await message.answer(_("Name must be between 3 and 30 characters"))
+        return
 
     await state.update_data(name=message.text)
-    await state.set_state(RegistrationStates.age)
     await message.answer(_("How old are you?"))
+    await state.set_state(RegistrationStates.age)
 
 
 @router.message(RegistrationStates.age, F.text)
 async def set_age(message: types.Message, state: FSMContext):
     assert message.text
 
-    try:
-        age = int(message.text)
-        validate_partial(UserRelMediaAddDTO, "age", age)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
+    if not message.text.isdigit():
+        await message.answer(_("Please enter a valid age"))
+        return
+
+    age = int(message.text)
+    if not 18 <= age <= 100:
+        await message.answer(_("You must be between 18 and 100 years old"))
+        return
 
     await state.update_data(age=age)
-
     await message.answer(_("What is your gender?"),
                          reply_markup=make_row_keyboard(x[0].value for x in GENDERS))
     await state.set_state(RegistrationStates.gender)
@@ -130,13 +117,7 @@ async def set_gender(message: types.Message, state: FSMContext):
         if k == message.text:
             gender = v
 
-    try:
-        validate_partial(UserRelMediaAddDTO, "gender", gender)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
-
     await state.update_data(gender=gender)
-
     await message.answer(_("Tell us about yourself"),
                          reply_markup=make_row_keyboard([_("Skip")]))
     await state.set_state(RegistrationStates.bio)
@@ -144,11 +125,6 @@ async def set_gender(message: types.Message, state: FSMContext):
 
 @router.message(RegistrationStates.bio, F.text == __("Skip"))
 async def skip_bio(message: types.Message, state: FSMContext):
-    try:
-        validate_partial(UserRelMediaAddDTO, "bio", None)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
-
     await state.update_data(bio=None)
     await message.answer(_("Please upload photos of yourself"),
                          reply_markup=types.ReplyKeyboardRemove())
@@ -158,14 +134,11 @@ async def skip_bio(message: types.Message, state: FSMContext):
 @router.message(RegistrationStates.bio, F.text)
 async def set_bio(message: types.Message, state: FSMContext):
     assert message.text
-
-    try:
-        validate_partial(UserRelMediaAddDTO, "bio", message.text)
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
+    if len(message.text) > 255:
+        await message.answer(_("Bio must be less than 255 characters"))
+        return
 
     await state.update_data(bio=message.text)
-
     await message.answer(_("Please upload photos of yourself"),
                          reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(RegistrationStates.media)
@@ -174,69 +147,75 @@ async def set_bio(message: types.Message, state: FSMContext):
 @router.message(RegistrationStates.media, F.text == __("Continue"))
 async def continue_registration(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    if "media" not in data:
+    if "media" not in data or not data["media"]:
         await message.answer(_("Please upload at least one photo"))
         return
 
     await message.answer(_("Please share your location"),
                          reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(RegistrationStates.location,)
+    await state.set_state(RegistrationStates.location)
 
 
 @router.message(RegistrationStates.media, F.photo | F.video)
 async def set_media(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    if "media" in data and isinstance(data["media"], list) and len(data["media"]) >= 3:
+        await message.answer(_("You can upload at most 3 media"))
+        await message.answer(_("Please share your location"),
+                             reply_markup=types.ReplyKeyboardRemove())
+        await state.set_state(RegistrationStates.location)
+        return
+
     file = None
     if message.photo:
         p = message.photo[-1]
-        file = FileAddDTO(
-            telegram_id=p.file_id,
-            telegram_unique_id=p.file_unique_id,
-            file_type=FileTypes.image,
-            path=None,
-            duration=None,
-            file_size=p.file_size,
-            mime_type=None,
-        )
+        file = {
+            "telegram_id": p.file_id,
+            "telegram_unique_id": p.file_unique_id,
+            "file_type": FileTypes.image,
+            "path": None,
+            "duration": None,
+            "file_size": p.file_size,
+            "mime_type": None,
+        }
+
     elif message.video:
         if message.video.thumbnail:
             p = message.video.thumbnail
-            thumbnail = FileAddDTO(
-                telegram_id=p.file_id,
-                telegram_unique_id=p.file_unique_id,
-                file_type=FileTypes.image,
-                path=None,
-                duration=None,
-                file_size=p.file_size,
-                mime_type=None,
-            )
-            file = FileRelThumbnailAddDTO(
-                telegram_id=message.video.file_id,
-                telegram_unique_id=message.video.file_unique_id,
-                file_type=FileTypes.video,
-                path=None,
-                duration=message.video.duration,
-                file_size=message.video.file_size,
-                mime_type=message.video.mime_type,
-                thumbnail=thumbnail,
-            )
+            thumbnail = {
+                "telegram_id": p.file_id,
+                "telegram_unique_id": p.file_unique_id,
+                "file_type": FileTypes.image,
+                "path": None,
+                "duration": None,
+                "file_size": p.file_size,
+                "mime_type": None,
+            }
+            file = {
+                "telegram_id": message.video.file_id,
+                "telegram_unique_id": message.video.file_unique_id,
+                "file_type": FileTypes.video,
+                "path": None,
+                "duration": message.video.duration,
+                "file_size": message.video.file_size,
+                "mime_type": message.video.mime_type,
+                "thumbnail": thumbnail,
+            }
     assert file is not None
 
-    data = await state.get_data()
-    media = data["media"] if "media" in data else []
-    file = file.model_dump_json()
-    media.append(file)
-
-    try:
-        validate_partial(UserRelMediaAddDTO, "media",
-                         [json.loads(f) for f in media])
-    except ValidationError as e:
-        return await message.answer(get_error_message(e))
-
+    media = data["media"] if "media" in data and isinstance(
+        data["media"], list) else []
+    media.append(json.dumps(file))
     data["media"] = media
     await state.set_data(data)
 
-    await message.answer(_("Media has been uploaded. Upload more photos if you want or press \"Continue\""),
-                         reply_markup=make_row_keyboard([_("Continue")]))
+    if len(media) < 3:
+        await message.answer(_("Media has been uploaded. Upload more photos if you want or press \"Continue\""),
+                             reply_markup=make_row_keyboard([_("Continue")]))
+    else:
+        await message.answer(_("Please share your location"),
+                             reply_markup=types.ReplyKeyboardRemove())
+        await state.set_state(RegistrationStates.location)
 
 
 @router.message(RegistrationStates.location, F.location)
@@ -271,11 +250,13 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
 
     try:
         min_age, max_age = map(int, message.text.split("-"))
-        validate_partial(PreferenceAddDTO, "min_age", min_age)
-        validate_partial(PreferenceAddDTO, "max_age", max_age)
-    except ValidationError as e:
-        return await message.answer(
-            get_error_message(e, _("Please enter a valid age range")))
+    except ValueError:
+        return await message.answer(_("Please enter a valid age range"))
+
+    if not min_age < max_age:
+        return await message.answer(_("Min age must be less than max age"))
+    if not 18 <= min_age < max_age <= 100:
+        return await message.answer(_("Age range must be between 18 and 100"))
 
     await state.update_data(preferred_min_age=min_age)
     await state.update_data(preferred_max_age=max_age)

@@ -1,18 +1,26 @@
 from datetime import datetime
+
+from annotated_types import Ge, Le
 from app.enums import Genders, ReactionType, UILanguages, PreferredGenders
 from app.dto.file import FileDTO, FileAddDTO
 from app.models.user import Preferences, Reaction, User, Report
-from pydantic import BaseModel, AfterValidator
-from typing import Annotated, Type
+from pydantic import Field, model_validator
+from typing import Annotated
 from aiogram.utils.i18n import gettext as _
-from app.validators import validate_age, validate_media_length, validate_name, validate_preferred_max_age, validate_preferred_min_age
 from app.dto.base import BaseModelWithOrm
 
 
 class PreferenceAddDTO(BaseModelWithOrm[Preferences]):
-    min_age: Annotated[int | None, AfterValidator(validate_preferred_min_age)]
-    max_age: Annotated[int | None, AfterValidator(validate_preferred_max_age)]
+    min_age: Annotated[int | None, Field(ge=18, le=100)]
+    max_age: Annotated[int | None, Field(ge=18, le=100)]
     preferred_gender: PreferredGenders
+
+    @model_validator(mode="after")
+    def validate_min_max_age(self):
+        if self.min_age and self.max_age:
+            if self.min_age > self.max_age:
+                raise ValueError("Min age must be less than max age")
+        return self
 
     @property
     def orm_model(self):
@@ -25,9 +33,9 @@ class PreferenceDTO(PreferenceAddDTO):
 
 class UserAddDTO(BaseModelWithOrm[User]):
     telegram_id: int
-    name: Annotated[str, AfterValidator(validate_name)]
-    age: Annotated[int, AfterValidator(validate_age)]
-    bio: str | None
+    name: Annotated[str, Field(max_length=30, min_length=3)]
+    age: Annotated[int, Field(ge=18, le=100)]
+    bio: Annotated[str | None, Field(max_length=255)]
     gender: Genders
     latitude: float
     longitude: float
@@ -39,7 +47,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
 
 
 class UserRelMediaAddDTO(UserAddDTO):
-    media: Annotated[list[FileAddDTO], AfterValidator(validate_media_length)]
+    media: Annotated[list[FileAddDTO], Ge(1), Le(3)]
 
 
 class UserRelPreferencesAddDTO(UserAddDTO):

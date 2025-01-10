@@ -25,7 +25,8 @@ class File(Base):
 class UserMedia(Base):
     __tablename__ = "user_media"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), primary_key=True)
-    file_id: Mapped[int] = mapped_column(ForeignKey("file.id", ondelete="CASCADE"), primary_key=True)
+    id: Mapped[intpk]
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("file.id", ondelete="CASCADE"), index=True)
 
     __table_args__ = (UniqueConstraint("user_id", "file_id"),)
