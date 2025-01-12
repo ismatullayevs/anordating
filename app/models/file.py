@@ -1,11 +1,11 @@
+from sqlalchemy import ForeignKey, UniqueConstraint, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from app.models.base import Base, intpk, created_at
-from sqlalchemy import String
 from app.enums import FileTypes
 
 
-class File(Base):
+class File(AsyncAttrs, Base):
     __tablename__ = "file"
 
     id: Mapped[intpk]
@@ -22,7 +22,7 @@ class File(Base):
     thumbnail: Mapped["File"] = relationship("File")
 
 
-class UserMedia(Base):
+class UserMedia(AsyncAttrs, Base):
     __tablename__ = "user_media"
 
     id: Mapped[intpk]

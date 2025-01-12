@@ -3,20 +3,18 @@ from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
-from aiogram.utils.media_group import MediaGroupBuilder
 from app.middlewares import i18n_middleware
-from app.models.user import User
 from app.core.db import session_factory
 from app.filters import IsHumanUser
-from app.keyboards import get_menu_keyboard, make_row_keyboard
+from app.keyboards import get_ask_location_keyboard, get_menu_keyboard, make_row_keyboard
 from app.dto.file import FileAddDTO
-from app.dto.user import PreferenceAddDTO, UserRelAddDTO, UserRelMediaDTO
+from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes, PreferredGenders, UILanguages, Genders
-from app.orm import get_user_by_telegram_id
 from app.states import MenuStates, RegistrationStates
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from app.utils import get_user
 import json
+from app.utils import get_profile_card
+from sqlalchemy.exc import NoResultFound
 
 
 router = Router()
@@ -36,6 +34,7 @@ GENDERS = (
     (__("Female 👩‍🦱"), Genders.female),
 )
 
+# TODO: use function returns a localized dict
 GENDER_PREFERENCES = (
     (__("Men 👨‍🦱"), PreferredGenders.male),
     (__("Women 👩‍🦱"), PreferredGenders.female),
@@ -62,20 +61,17 @@ async def cmd_start(message: types.Message, state: FSMContext):
     data = await state.get_data()
     await state.set_data({"locale": data.get("locale")})
 
-    async with session_factory() as session:
-        query = select(User).where(User.telegram_id ==
-                                   message.from_user.id)
-        result = await session.scalars(query)
-        user = result.one_or_none()
-
-    if user:
+    try:
+        user = await get_user(telegram_id=message.from_user.id, with_media=True)
         await i18n_middleware.set_locale(state, user.ui_language.name)
-        await get_me(message)
-        return
 
-    await message.answer(_("Hi! Please select a language"),
-                         reply_markup=make_row_keyboard(LANGUAGES.keys()))
-    await state.set_state(RegistrationStates.language)
+        from app.handlers.menu import show_menu
+        await show_menu(message, state)
+        await state.set_state(MenuStates.menu)
+    except NoResultFound:
+        await message.answer(_("Hi! Please select a language"),
+                             reply_markup=make_row_keyboard(LANGUAGES.keys()))
+        await state.set_state(RegistrationStates.language)
 
 
 @router.message(RegistrationStates.language, F.text.in_(LANGUAGES.keys()))
@@ -91,13 +87,22 @@ async def set_language(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.name)
 
 
+@router.message(RegistrationStates.language)
+async def set_language_invalid(message: types.Message, state: FSMContext):
+    await message.answer(_("Please select one of the given languages"))
+
+
 @router.message(RegistrationStates.name, F.text)
 async def set_name(message: types.Message, state: FSMContext):
     assert message.text
 
-    if not 3 <= len(message.text) <= 30:
-        await message.answer(_("Name must be between 3 and 30 characters"))
-        return
+    if len(message.text) < 3:
+        return await message.answer(_("Name must be at least 3 characters long"))
+    elif len(message.text) > 30:
+        return await message.answer(_("Name must be less than 30 characters"))
+
+    if not message.text.isalpha():
+        return await message.answer(_("Name can only contain letters"))
 
     await state.update_data(name=message.text)
     await message.answer(_("How old are you?"))
@@ -108,14 +113,15 @@ async def set_name(message: types.Message, state: FSMContext):
 async def set_age(message: types.Message, state: FSMContext):
     assert message.text
 
-    if not message.text.isdigit():
-        await message.answer(_("Please enter a valid age"))
-        return
+    try:
+        age = int(message.text)
+    except ValueError:
+        return await message.answer(_("Please enter a number"))
 
-    age = int(message.text)
-    if not 18 <= age <= 100:
-        await message.answer(_("You must be between 18 and 100 years old"))
-        return
+    if age < 18:
+        return await message.answer(_("You must be at least 18 years old to use this bot"))
+    elif age > 100:
+        return await message.answer(_("You must be less than 100 years old to use this bot"))
 
     await state.update_data(age=age)
     await message.answer(_("What is your gender?"),
@@ -131,18 +137,24 @@ async def set_gender(message: types.Message, state: FSMContext):
         if k == message.text:
             gender = v
 
+    msg = _("Tell us more about yourself. Who are you looking for?")
     await state.update_data(gender=gender)
-    await message.answer(_("Tell us about yourself"),
-                         reply_markup=make_row_keyboard([_("Skip")]))
+    await message.answer(msg, reply_markup=make_row_keyboard([_("Skip")]))
     await state.set_state(RegistrationStates.bio)
+
+
+@router.message(RegistrationStates.gender)
+async def set_gender_invalid(message: types.Message):
+    await message.answer(_("Please select one of the given options"))
 
 
 @router.message(RegistrationStates.bio, F.text == __("Skip"))
 async def skip_bio(message: types.Message, state: FSMContext):
     await state.update_data(bio=None)
-    await message.answer(_("Please upload photos of yourself"),
-                         reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(RegistrationStates.media)
+
+    await message.answer(_("Select preferred gender"),
+                         reply_markup=make_row_keyboard(x[0].value for x in GENDER_PREFERENCES))
+    await state.set_state(RegistrationStates.gender_preferences)
 
 
 @router.message(RegistrationStates.bio, F.text)
@@ -153,6 +165,65 @@ async def set_bio(message: types.Message, state: FSMContext):
         return
 
     await state.update_data(bio=message.text)
+
+    await message.answer(_("Select preferred gender"),
+                         reply_markup=make_row_keyboard(x[0].value for x in GENDER_PREFERENCES))
+    await state.set_state(RegistrationStates.gender_preferences)
+
+
+@router.message(RegistrationStates.gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
+async def set_preferred_gender(message: types.Message, state: FSMContext):
+    preferred_gender = None
+    for k, v in GENDER_PREFERENCES:
+        if k == message.text:
+            preferred_gender = v
+    assert preferred_gender
+
+    await state.update_data(preferred_gender=preferred_gender)
+    await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
+                         reply_markup=make_row_keyboard([_("Skip")]))
+    await state.set_state(RegistrationStates.age_preferences)
+
+
+@router.message(RegistrationStates.age_preferences, F.text == __("Skip"))
+async def skip_age_preferences(message: types.Message, state: FSMContext):
+    await state.update_data(preferred_min_age=None)
+    await state.update_data(preferred_max_age=None)
+
+    await message.answer(_("Please share your location"),
+                         reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(RegistrationStates.location)
+
+
+@router.message(RegistrationStates.age_preferences, F.text)
+async def set_age_preferences(message: types.Message, state: FSMContext):
+    assert message.text and message.from_user
+
+    try:
+        min_age, max_age = map(int, message.text.split("-"))
+    except ValueError:
+        return await message.answer(_("Please enter a valid age range"))
+
+    if not min_age < max_age:
+        return await message.answer(_("Min age must be less than max age"))
+    if not 18 <= min_age < max_age <= 100:
+        return await message.answer(_("Age range must be between 18 and 100"))
+
+    await state.update_data(preferred_min_age=min_age)
+    await state.update_data(preferred_max_age=max_age)
+
+    await message.answer(_("Please share your location"),
+                         reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(RegistrationStates.location)
+
+
+@router.message(RegistrationStates.location, F.location)
+async def set_location(message: types.Message, state: FSMContext):
+    assert message.location and message.from_user
+
+    await state.update_data(latitude=message.location.latitude)
+    await state.update_data(longitude=message.location.longitude)
+
     await message.answer(_("Please upload photos of yourself"),
                          reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(RegistrationStates.media)
@@ -164,23 +235,29 @@ async def continue_registration(message: types.Message, state: FSMContext):
     if "media" not in data or not data["media"]:
         await message.answer(_("Please upload at least one photo"))
         return
-
-    await message.answer(_("Please share your location"),
-                         reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(RegistrationStates.location)
+    
+    user = await save_user(message, state)
+    data = await state.get_data()
+    await state.set_data({"locale": data.get("locale")})
+    await message.answer(_("Registration has been completed!"),
+                        reply_markup=get_menu_keyboard())
+    
+    profile = await get_profile_card(user)
+    await message.answer_media_group(profile)
+    await state.set_state(MenuStates.menu)
 
 
 @router.message(RegistrationStates.media, F.photo | F.video)
 async def set_media(message: types.Message, state: FSMContext):
     data = await state.get_data()
     if "media" in data and isinstance(data["media"], list) and len(data["media"]) >= 3:
-        await message.answer(_("You can upload at most 3 media"))
+        await message.answer(_("You can upload at most 3 images/videos"))
         await message.answer(_("Please share your location"),
-                             reply_markup=types.ReplyKeyboardRemove())
+                             reply_markup=get_ask_location_keyboard())
         await state.set_state(RegistrationStates.location)
         return
 
-    file = None
+    file, file_type = None, ''
     if message.photo:
         p = message.photo[-1]
         file = {
@@ -192,6 +269,7 @@ async def set_media(message: types.Message, state: FSMContext):
             "file_size": p.file_size,
             "mime_type": None,
         }
+        file_type = "photo"
 
     elif message.video:
         if message.video.thumbnail:
@@ -215,6 +293,7 @@ async def set_media(message: types.Message, state: FSMContext):
                 "mime_type": message.video.mime_type,
                 "thumbnail": thumbnail,
             }
+            file_type = "video"
     assert file is not None
 
     media = data["media"] if "media" in data and isinstance(
@@ -224,65 +303,19 @@ async def set_media(message: types.Message, state: FSMContext):
     await state.set_data(data)
 
     if len(media) < 3:
-        await message.answer(_("Media has been uploaded. Upload more photos if you want or press \"Continue\""),
-                             reply_markup=make_row_keyboard([_("Continue")]))
+        msg = _("{media_type} has been uploaded. Upload more photos if you want or press \"Continue\"").format(
+            media_type=file_type.capitalize())
+        await message.answer(msg, reply_markup=make_row_keyboard([_("Continue")]))
     else:
-        await message.answer(_("Please share your location"),
-                             reply_markup=types.ReplyKeyboardRemove())
-        await state.set_state(RegistrationStates.location)
-
-
-@router.message(RegistrationStates.location, F.location)
-async def set_location(message: types.Message, state: FSMContext):
-    assert message.location and message.from_user
-
-    await state.update_data(latitude=message.location.latitude)
-    await state.update_data(longitude=message.location.longitude)
-
-    await message.answer(_("What kind of people do you want to see?"),
-                         reply_markup=make_row_keyboard(x[0].value for x in GENDER_PREFERENCES))
-    await state.set_state(RegistrationStates.gender_preferences)
-
-
-@router.message(RegistrationStates.gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
-async def set_preferred_gender(message: types.Message, state: FSMContext):
-    preferred_gender = None
-    for k, v in GENDER_PREFERENCES:
-        if k == message.text:
-            preferred_gender = v
-    assert preferred_gender
-
-    await state.update_data(preferred_gender=preferred_gender)
-    await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
-                         reply_markup=make_row_keyboard([_("Skip")]))
-    await state.set_state(RegistrationStates.age_preferences)
-
-
-@router.message(RegistrationStates.age_preferences, F.text == __("Skip"))
-async def skip_age_preferences(message: types.Message, state: FSMContext):
-    await state.update_data(preferred_min_age=None)
-    await state.update_data(preferred_max_age=None)
-    await save_user(message, state)
-
-
-@router.message(RegistrationStates.age_preferences, F.text)
-async def set_age_preferences(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
-
-    try:
-        min_age, max_age = map(int, message.text.split("-"))
-    except ValueError:
-        return await message.answer(_("Please enter a valid age range"))
-
-    if not min_age < max_age:
-        return await message.answer(_("Min age must be less than max age"))
-    if not 18 <= min_age < max_age <= 100:
-        return await message.answer(_("Age range must be between 18 and 100"))
-
-    await state.update_data(preferred_min_age=min_age)
-    await state.update_data(preferred_max_age=max_age)
-
-    await save_user(message, state)
+        user = await save_user(message, state)
+        data = await state.get_data()
+        await state.set_data({"locale": data.get("locale")})
+        await message.answer(_("Registration has been completed!"),
+                            reply_markup=get_menu_keyboard())
+        
+        profile = await get_profile_card(user)
+        await message.answer_media_group(profile)
+        await state.set_state(MenuStates.menu)
 
 
 async def save_user(message: types.Message, state: FSMContext):
@@ -300,7 +333,8 @@ async def save_user(message: types.Message, state: FSMContext):
     )
 
     if "testing" in data and data["testing"]:
-        telegram_id = randint(1000000000, 9999999999) # TODO: remove after testing
+        # TODO: remove after testing
+        telegram_id = randint(1000000000, 9999999999)
     else:
         telegram_id = message.from_user.id
 
@@ -320,62 +354,18 @@ async def save_user(message: types.Message, state: FSMContext):
     user_db = user.to_orm()
     async with session_factory() as session:
         session.add(user_db)
-        data = await session.commit()
+        await session.commit()
 
-    await state.set_state(MenuStates.menu)
-    data = await state.get_data()
-    await state.set_data({"locale": data.get("locale")})
-    await message.answer(_("Registration has been completed!"),
-                         reply_markup=get_menu_keyboard())
-    await get_me(message)
-
-
-@router.message(Command('me'))
-async def get_me(message: types.Message):
-    assert message.from_user
-    user = await get_user_by_telegram_id(message.from_user.id)
-
-    if not user:
-        await message.answer(_("You are not registered!"))
-        return
-    
-    profile = await get_profile(user.id)
-    await message.answer_media_group(profile)
-
-
-async def get_profile(id: int):
-    async with session_factory() as session:
-        query = select(User).where(User.id ==
-                                   id).options(selectinload(User.media))
-        result = await session.scalars(query)
-        user = result.one_or_none()
-
-
-    user_dto = UserRelMediaDTO.model_validate(user, from_attributes=True)
-    caption = ", ".join(
-        v for v in [user_dto.name, str(user_dto.age), user_dto.bio] if v)
-    album_builder = MediaGroupBuilder(
-        caption=caption
-    )
-    for media in user_dto.media:
-        if media.file_type == FileTypes.image:
-            album_builder.add_photo(media.telegram_id or media.path or '')
-        elif media.file_type == FileTypes.video:
-            album_builder.add_video(media.telegram_id or media.path or '')
-
-    return album_builder.build()
+    return user_db
 
 
 @router.message(Command('delete'))
 async def delete_me(message: types.Message):
     assert message.from_user
 
-    async with session_factory() as session:
-        query = select(User).where(User.telegram_id == message.from_user.id)
-        result = await session.scalars(query)
-        user = result.one_or_none()
-
-    if not user:
+    try:
+        user = await get_user(telegram_id=message.from_user.id)
+    except NoResultFound:
         await message.answer(_("You are not registered!"))
         return
 

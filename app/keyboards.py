@@ -37,3 +37,14 @@ def get_search_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text=_("✍️ Report")), KeyboardButton(text=_("⬅️ Menu"))],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+
+def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
+    """
+    Returns a keyboard to ask for location
+    :return: ReplyKeyboardMarkup
+    """
+    keyboard = [
+        [KeyboardButton(text=_("📍 Send location"), request_location=True)],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)

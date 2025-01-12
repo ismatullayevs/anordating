@@ -21,6 +21,7 @@ i18n_middleware.setup(dp)
 dp.include_router(registration_router)
 dp.include_router(menu_router)
 
+
 async def main():
     await dp.start_polling(bot)
 

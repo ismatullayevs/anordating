@@ -7,10 +7,10 @@ class RegistrationStates(StatesGroup):
     age = State()
     gender = State()
     bio = State()
-    media = State()
-    location = State()
     gender_preferences = State()
     age_preferences = State()
+    location = State()
+    media = State()
 
 
 class MenuStates(StatesGroup):

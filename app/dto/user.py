@@ -4,7 +4,7 @@ from annotated_types import Ge, Le
 from app.enums import Genders, ReactionType, UILanguages, PreferredGenders
 from app.dto.file import FileDTO, FileAddDTO
 from app.models.user import Preferences, Reaction, User, Report
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from typing import Annotated
 from aiogram.utils.i18n import gettext as _
 from app.dto.base import BaseModelWithOrm
@@ -40,6 +40,13 @@ class UserAddDTO(BaseModelWithOrm[User]):
     latitude: float
     longitude: float
     ui_language: UILanguages
+
+    @field_validator("name", mode="after")
+    @classmethod
+    def validate_name(cls, value: str):
+        if not (value and all(x.isalpha() or x.isspace() for x in value)):
+            raise ValueError(_("Name must not contain digits"))
+        return value
 
     @property
     def orm_model(self):
