@@ -19,6 +19,7 @@ class MenuStates(StatesGroup):
 
 class SearchStates(StatesGroup):
     search = State()
+    report_reason = State()
 
 
 class LikesStates(StatesGroup):

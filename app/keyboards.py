@@ -33,8 +33,19 @@ def get_search_keyboard() -> ReplyKeyboardMarkup:
     :return: ReplyKeyboardMarkup
     """
     keyboard = [
-        [KeyboardButton(text=_("⏪")), KeyboardButton(text=_("👎")), KeyboardButton(text=_("👍"))],
+        [KeyboardButton(text="⏪"), KeyboardButton(text="👎"), KeyboardButton(text="👍")],
         [KeyboardButton(text=_("✍️ Report")), KeyboardButton(text=_("⬅️ Menu"))],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+
+def get_likes_keyboard() -> ReplyKeyboardMarkup:
+    return get_search_keyboard()
+
+
+def get_empty_search_keyboard() -> ReplyKeyboardMarkup:
+    keyboard = [
+        [KeyboardButton(text=_("⏪ Rewind")), KeyboardButton(text=_("⬅️ Menu"))],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 

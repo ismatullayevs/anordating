@@ -45,7 +45,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
     @classmethod
     def validate_name(cls, value: str):
         if not (value and all(x.isalpha() or x.isspace() for x in value)):
-            raise ValueError(_("Name must not contain digits"))
+            raise ValueError(_("Name must only contain letters"))
         return value
 
     @property

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from app.models.user import Preferences, User, Reaction
+from app.models.user import Preferences, Report, User, Reaction
 from sqlalchemy import select, and_, exists
 from app.core.db import session_factory
 from sqlalchemy.orm import joinedload
@@ -23,7 +23,17 @@ async def get_potential_matches(current_user: User):
             ~exists().where(and_(
                 Reaction.from_user_id == User.id,
                 Reaction.to_user_id == current_user.id
-            ))
+            )),
+
+            ~exists().where(and_(
+                Report.from_user_id == current_user.id,
+                Report.to_user_id == User.id
+            )),
+
+            ~exists().where(and_(
+                Report.from_user_id == User.id,
+                Report.to_user_id == current_user.id
+            )),
         )
 
         if current_user.preferences.min_age and current_user.preferences.max_age:

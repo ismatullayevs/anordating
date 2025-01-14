@@ -71,7 +71,7 @@ class Report(AsyncAttrs, Base):
     to_user_id: Mapped[int] = mapped_column(ForeignKey(
         "user_account.id", ondelete="CASCADE"), index=True)
     reason: Mapped[str]
-    status: Mapped[ReportStatusTypes] = mapped_column(index=True)
+    status: Mapped[ReportStatusTypes] = mapped_column(index=True, server_default=text("'pending'"))
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

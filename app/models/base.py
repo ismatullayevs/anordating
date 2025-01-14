@@ -1,4 +1,4 @@
-from sqlalchemy import text, MetaData
+from sqlalchemy import TIMESTAMP, text, MetaData
 from sqlalchemy.orm import mapped_column, DeclarativeBase
 from typing import Annotated
 import datetime
@@ -9,7 +9,8 @@ created_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"))]
 updated_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"),
-    onupdate=datetime.datetime.now(datetime.timezone.utc))]
+    onupdate=lambda: datetime.datetime.now(datetime.timezone.utc),
+    type_=TIMESTAMP(timezone=True))]
 
 
 class Base(DeclarativeBase):

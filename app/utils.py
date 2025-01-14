@@ -1,7 +1,7 @@
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload, joinedload
-from app.enums import FileTypes
-from app.models.user import User
+from sqlalchemy import and_, exists, select
+from sqlalchemy.orm import selectinload, joinedload, aliased
+from app.enums import FileTypes, ReactionType
+from app.models.user import Reaction, User
 from app.dto.user import UserRelMediaDTO
 from aiogram.utils.media_group import MediaGroupBuilder
 from math import radians, sin, cos, sqrt, atan2
@@ -61,3 +61,33 @@ async def get_profile_card(user: User):
 
     return album_builder.build()
 
+
+async def get_likes(user: User):
+    async with session_factory() as session:
+        their_reaction = aliased(Reaction)
+        my_reaction = aliased(Reaction)
+
+        query = (
+            select(User)
+            .join(
+                their_reaction,
+                and_(
+                    their_reaction.from_user_id == User.id,
+                    their_reaction.to_user_id == user.id,
+                    their_reaction.reaction_type == ReactionType.like
+                )
+            )
+            .where(
+                User.is_active == True,
+                ~exists().where(
+                    and_(
+                        my_reaction.from_user_id == user.id,
+                        my_reaction.to_user_id == User.id,
+                    )
+                )
+            )
+            .order_by(their_reaction.updated_at.desc())
+        )
+
+        res = await session.scalars(query)
+        return res.all()
