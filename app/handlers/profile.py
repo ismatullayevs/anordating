@@ -44,6 +44,14 @@ async def update_name_start(message: types.Message, state: FSMContext):
 async def update_name(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
+    if len(message.text) < 3:
+        return await message.answer(_("Name must be at least 3 characters long"))
+    elif len(message.text) > 30:
+        return await message.answer(_("Name must be less than 30 characters"))
+
+    if not all(x.isalpha() or x.isspace() for x in message.text):
+        return await message.answer(_("Name can only contain letters"))
+
     async with session_factory() as session:
         query = update(User).where(User.telegram_id ==
                                    message.from_user.id).values(name=message.text)
@@ -62,6 +70,16 @@ async def update_age_start(message: types.Message, state: FSMContext):
 @router.message(ProfileStates.age, F.text)
 async def update_age(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
+
+    try:
+        age = int(message.text)
+    except ValueError:
+        return await message.answer(_("Please enter a number"))
+
+    if age < 18:
+        return await message.answer(_("You must be at least 18 years old to use this bot"))
+    elif age > 100:
+        return await message.answer(_("You must be less than 100 years old to use this bot"))
 
     async with session_factory() as session:
         query = update(User).where(User.telegram_id ==
@@ -109,6 +127,10 @@ async def update_bio_start(message: types.Message, state: FSMContext):
 @router.message(ProfileStates.bio, F.text)
 async def update_bio(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
+
+    if len(message.text) > 255:
+        await message.answer(_("Bio must be less than 255 characters"))
+        return
 
     async with session_factory() as session:
         query = update(User).where(User.telegram_id ==
@@ -161,7 +183,15 @@ async def update_age_preferences_start(message: types.Message, state: FSMContext
 async def update_age_preferences(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
-    min_age, max_age = map(int, message.text.split("-"))
+    try:
+        min_age, max_age = map(int, message.text.split("-"))
+    except ValueError:
+        return await message.answer(_("Please enter a valid age range"))
+
+    if not min_age < max_age:
+        return await message.answer(_("Min age must be less than max age"))
+    if not 18 <= min_age < max_age <= 100:
+        return await message.answer(_("Age range must be between 18 and 100"))
 
     async with session_factory() as session:
         query = (
@@ -275,7 +305,7 @@ async def update_media(message: types.Message, state: FSMContext):
 async def update_media_finish(message: types.Message, state: FSMContext):
     assert message.from_user
     data = await state.get_data()
-    
+
     media = [FileAddDTO.model_validate(m).to_orm() for m in data["media"]]
     user = await get_user(telegram_id=message.from_user.id, with_media=True)
 
@@ -283,5 +313,5 @@ async def update_media_finish(message: types.Message, state: FSMContext):
         session.add(user)
         user.media = media
         await session.commit()
-    
+
     await show_profile(message, state)
