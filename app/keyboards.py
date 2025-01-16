@@ -1,5 +1,24 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
+from app.enums import UILanguages, Genders, PreferredGenders
+
+
+LANGUAGES = {
+    "Uzbek 🇺🇿": UILanguages.uz,
+    "Russian 🇷🇺": UILanguages.ru,
+    "English 🇺🇸": UILanguages.en,
+}
+
+GENDERS = (
+    (__("Male 👨‍🦱"), Genders.male),
+    (__("Female 👩‍🦱"), Genders.female),
+)
+
+GENDER_PREFERENCES = (
+    (__("Men 👨‍🦱"), PreferredGenders.male),
+    (__("Women 👩‍🦱"), PreferredGenders.female),
+    (__("Friends 👫"), PreferredGenders.friends),
+)
 
 
 def make_keyboard(items: list[list[str]]) -> ReplyKeyboardMarkup:
@@ -26,6 +45,18 @@ def get_likes_keyboard() -> ReplyKeyboardMarkup:
 def get_empty_search_keyboard() -> ReplyKeyboardMarkup:
     items = [[_("⏪ Rewind"), _("⬅️ Menu")]]
     return make_keyboard(items)
+
+
+def get_languages_keyboard():
+    return make_keyboard([list(LANGUAGES.keys())])
+
+
+def get_genders_keyboard():
+    return make_keyboard([[str(x[0]) for x in GENDERS]])
+
+
+def get_preferred_genders_keyboard():
+    return make_keyboard([[str(x[0]) for x in GENDER_PREFERENCES]])
 
 
 def get_ask_location_keyboard() -> ReplyKeyboardMarkup:

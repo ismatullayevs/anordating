@@ -2,7 +2,8 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.enums import ReactionType
-from app.handlers.menu import notify_match, show_menu
+from app.handlers.menu import show_menu
+from app.handlers.search import notify_match
 from app.models.user import Reaction
 from app.states import MenuStates, LikesStates
 from app.keyboards import get_search_keyboard

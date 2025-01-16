@@ -6,10 +6,12 @@ from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.middlewares import i18n_middleware
 from app.core.db import session_factory
 from app.filters import IsHumanUser
-from app.keyboards import get_ask_location_keyboard, get_menu_keyboard, make_keyboard
+from app.keyboards import (get_ask_location_keyboard, get_genders_keyboard, get_languages_keyboard,
+                           get_menu_keyboard, get_preferred_genders_keyboard, make_keyboard, 
+                           LANGUAGES, GENDERS, GENDER_PREFERENCES)
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
-from app.enums import FileTypes, PreferredGenders, UILanguages, Genders
+from app.enums import FileTypes
 from app.states import MenuStates, RegistrationStates
 from app.utils import get_user
 from app.utils import get_profile_card
@@ -18,24 +20,6 @@ from sqlalchemy.exc import NoResultFound
 
 router = Router()
 router.message.filter(IsHumanUser())
-
-
-LANGUAGES = {
-    "Uzbek 🇺🇿": UILanguages.uz,
-    "Russian 🇷🇺": UILanguages.ru,
-    "English 🇺🇸": UILanguages.en,
-}
-
-GENDERS = (
-    (__("Male 👨‍🦱"), Genders.male),
-    (__("Female 👩‍🦱"), Genders.female),
-)
-
-GENDER_PREFERENCES = (
-    (__("Men 👨‍🦱"), PreferredGenders.male),
-    (__("Women 👩‍🦱"), PreferredGenders.female),
-    (__("Friends 👫"), PreferredGenders.friends),
-)
 
 
 @router.message(Command("start"))
@@ -58,7 +42,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 async def set_language_start(message: types.Message, state: FSMContext):
     await message.answer(_("Hi! Please select a language"),
-                         reply_markup=make_keyboard([list(LANGUAGES.keys())]))
+                         reply_markup=get_languages_keyboard())
     await state.set_state(RegistrationStates.language)
 
 
@@ -125,7 +109,7 @@ async def set_age(message: types.Message, state: FSMContext):
 
 async def set_gender_start(message: types.Message, state: FSMContext):
     await message.answer(_("What is your gender?"),
-                         reply_markup=make_keyboard([[str(x[0]) for x in GENDERS]]))
+                         reply_markup=get_genders_keyboard())
     await state.set_state(RegistrationStates.gender)
 
 
@@ -172,7 +156,7 @@ async def set_bio(message: types.Message, state: FSMContext):
 
 async def set_preferred_gender_start(message: types.Message, state: FSMContext):
     await message.answer(_("Select preferred gender"),
-                         reply_markup=make_keyboard([[str(x[0]) for x in GENDER_PREFERENCES]]))
+                         reply_markup=get_preferred_genders_keyboard())
     await state.set_state(RegistrationStates.gender_preferences)
 
 
