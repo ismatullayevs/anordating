@@ -1,42 +1,22 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from typing import Iterable
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 
 
-def make_row_keyboard(items: Iterable[str]) -> ReplyKeyboardMarkup:
-    """
-    Makes a row keyboard with the given items
-    :param items: list of items
-    :return: ReplyKeyboardMarkup
-    """
-
-    row = [KeyboardButton(text=item) for item in items]
-    return ReplyKeyboardMarkup(keyboard=[row], resize_keyboard=True)
+def make_keyboard(items: list[list[str]]) -> ReplyKeyboardMarkup:
+    keyboard = [[KeyboardButton(text=text) for text in row] for row in items]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 def get_menu_keyboard() -> ReplyKeyboardMarkup:
-    """
-    Returns a menu keyboard
-    :return: ReplyKeyboardMarkup
-    """
-    keyboard = [
-        [KeyboardButton(text=_("🔎 Search")), KeyboardButton(text=_("👍 Likes"))],
-        [KeyboardButton(text=_("👤 My profile")), KeyboardButton(text=_("❤️ Matches"))],
-        [KeyboardButton(text=_("⛔️ Deactivate")), KeyboardButton(text=_("⚙️ Settings"))]
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    items = [[_("🔎 Search"), _("👍 Likes")],
+             [_("👤 My profile"), _("❤️ Matches")],
+             [_("⛔️ Deactivate"), _("⚙️ Settings")]]
+    return make_keyboard(items)
 
 
 def get_search_keyboard() -> ReplyKeyboardMarkup:
-    """
-    Returns a search keyboard
-    :return: ReplyKeyboardMarkup
-    """
-    keyboard = [
-        [KeyboardButton(text="⏪"), KeyboardButton(text="👎"), KeyboardButton(text="👍")],
-        [KeyboardButton(text=_("✍️ Report")), KeyboardButton(text=_("⬅️ Menu"))],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    items = [["⏪", "👎", "👍"], [_("✍️ Report"), _("⬅️ Menu")]]
+    return make_keyboard(items)
 
 
 def get_likes_keyboard() -> ReplyKeyboardMarkup:
@@ -44,18 +24,21 @@ def get_likes_keyboard() -> ReplyKeyboardMarkup:
 
 
 def get_empty_search_keyboard() -> ReplyKeyboardMarkup:
-    keyboard = [
-        [KeyboardButton(text=_("⏪ Rewind")), KeyboardButton(text=_("⬅️ Menu"))],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    items = [[_("⏪ Rewind"), _("⬅️ Menu")]]
+    return make_keyboard(items)
 
 
 def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
-    """
-    Returns a keyboard to ask for location
-    :return: ReplyKeyboardMarkup
-    """
     keyboard = [
         [KeyboardButton(text=_("📍 Send location"), request_location=True)],
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+
+def get_profile_update_keyboard() -> ReplyKeyboardMarkup:
+    items = [
+        [_("✏️ Name"), _("🔢 Age"), _("👫 Gender"), _("📝 Bio")],
+        [_("👩‍❤️‍👨 Gender preferences"), _("🔢 Age preferences")],
+        [_("📍 Location"), _("📷 Media"), _("⬅️ Menu")]
+    ]
+    return make_keyboard(items)

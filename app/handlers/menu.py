@@ -140,16 +140,19 @@ async def react(message: types.Message, state: FSMContext):
     await search(message, state, with_keyboard=False)
 
 
-async def notify_match(match: User):
+async def notify_match(match: User, mutual: bool = False):
     bot = Bot(token=settings.BOT_TOKEN)
     msg = _("You got a new match 🎉. Click \"👍 Likes\" button on the /menu")
+    if mutual:
+        msg = _("You got a new mutual match 🎉. Click \"❤️ Matches\" button on the /menu")
     try:
         await bot.send_message(match.telegram_id, msg)
     except TelegramBadRequest:
         pass
 
 
-@router.message(SearchStates.search, F.text == "✍️ Report")
+@router.message(LikesStates.likes, F.text == __("✍️ Report"))
+@router.message(SearchStates.search, F.text == __("✍️ Report"))
 async def report(message: types.Message, state: FSMContext):
     match_id = state.get_value('match_id')
     if not match_id:
@@ -192,5 +195,6 @@ async def report_reason(message: types.Message, state: FSMContext):
 
 @router.message(SearchStates.search, F.text == __("⬅️ Menu"))
 @router.message(LikesStates.likes, F.text == __("⬅️ Menu"))
+@router.message(ProfileStates.profile, F.text == __("⬅️ Menu"))
 async def back_to_menu(message: types.Message, state: FSMContext):
     await show_menu(message, state)

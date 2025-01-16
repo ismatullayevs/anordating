@@ -28,6 +28,14 @@ class LikesStates(StatesGroup):
 
 class ProfileStates(StatesGroup):
     profile = State()
+    name = State()
+    age = State()
+    gender = State()
+    bio = State()
+    gender_preferences = State()
+    age_preferences = State()
+    location = State()
+    media = State()
 
 
 class MatchesStates(StatesGroup):

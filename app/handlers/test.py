@@ -2,8 +2,8 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
-from app.keyboards import make_row_keyboard
-from app.handlers.registration import LANGUAGES
+from app.keyboards import make_keyboard
+from app.handlers.registration import LANGUAGES, set_name_start
 from app.states import RegistrationStates
 from app.utils import get_user
 from app.core.db import session_factory
@@ -32,8 +32,8 @@ async def cmd_new_user(message: types.Message, state: FSMContext):
     await state.set_data({"locale": locale, "testing": True})
 
     await message.answer(_("Hi! Please select a language"),
-                         reply_markup=make_row_keyboard(LANGUAGES.keys()))
-    await state.set_state(RegistrationStates.language)
+                         reply_markup=make_keyboard([list(LANGUAGES.keys())]))
+    await state.set_state(RegistrationStates.set_language)
 
 
 @router.message(Command('delete'))
@@ -51,3 +51,10 @@ async def delete_me(message: types.Message):
         await session.commit()
 
     await message.answer("Your account has been deleted!")
+
+
+@router.message(Command('profile'))
+async def cmd_profile(message: types.Message, state: FSMContext):
+    await message.answer("Profile command")
+    await set_name_start(message, state)
+    await message.answer("updated")

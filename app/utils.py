@@ -47,13 +47,13 @@ async def get_profile_card(user: User):
         session.add(user)
         await user.awaitable_attrs.media
 
-    user_dto = UserRelMediaDTO.model_validate(user, from_attributes=True)
     caption = ", ".join(
-        v for v in [user_dto.name, str(user_dto.age), user_dto.bio] if v)
+        v for v in [user.name, str(user.age), user.bio] if v
+    )
     album_builder = MediaGroupBuilder(
         caption=caption
     )
-    for media in user_dto.media:
+    for media in user.media:
         if media.file_type == FileTypes.image:
             album_builder.add_photo(media.telegram_id or media.path or '')
         elif media.file_type == FileTypes.video:
@@ -62,7 +62,7 @@ async def get_profile_card(user: User):
     return album_builder.build()
 
 
-async def get_likes(user: User):
+async def get_likes(user: User, limit: int | None = None):
     async with session_factory() as session:
         their_reaction = aliased(Reaction)
         my_reaction = aliased(Reaction)
@@ -88,6 +88,8 @@ async def get_likes(user: User):
             )
             .order_by(their_reaction.updated_at.desc())
         )
+        if limit:
+            query = query.limit(limit)
 
         res = await session.scalars(query)
         return res.all()

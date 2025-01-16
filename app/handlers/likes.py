@@ -23,7 +23,7 @@ async def show_likes(message: types.Message, state: FSMContext):
     except exc.NoResultFound:
         return await message.answer(_("You need to create a profile first"))
 
-    likes = await get_likes(user)
+    likes = await get_likes(user, limit=1)
     if not likes:
         await message.answer(_("No likes found"))
         return show_menu(message, state)
@@ -81,7 +81,7 @@ async def react_to_liked(message: types.Message, state: FSMContext):
         await session.commit()
 
     if message.text == "👍":
-        await notify_match(match)   # TODO: change this function
+        await notify_match(match, mutual=True)   # TODO: change this function
 
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)

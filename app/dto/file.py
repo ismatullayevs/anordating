@@ -5,7 +5,7 @@ from app.models.file import File
 from app.dto.base import BaseModelWithOrm
 
 
-class FileAddDTO(BaseModelWithOrm):
+class FileAddDTO(BaseModelWithOrm[File]):
     telegram_id: str | None
     telegram_unique_id: str | None
     path: str | None

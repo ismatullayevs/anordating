@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from app.enums import ReactionType
 from app.models.user import Preferences, Report, User, Reaction
 from sqlalchemy import select, and_, exists
 from app.core.db import session_factory
@@ -22,7 +23,8 @@ async def get_potential_matches(current_user: User):
 
             ~exists().where(and_(
                 Reaction.from_user_id == User.id,
-                Reaction.to_user_id == current_user.id
+                Reaction.to_user_id == current_user.id,
+                Reaction.reaction_type == ReactionType.dislike
             )),
 
             ~exists().where(and_(
