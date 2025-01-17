@@ -20,10 +20,9 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 async def get_profile_card(user: User):
-    assert user.is_active
-
     async with session_factory() as session:
         session.add(user)
+        assert user.is_active
         await user.awaitable_attrs.media
 
     caption = ", ".join(

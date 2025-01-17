@@ -23,10 +23,10 @@ dp = Dispatcher(storage=redis_storage)
 i18n_middleware.setup(dp)
 
 dp.include_router(registration_router)
-dp.include_router(menu_router)
 dp.include_router(likes_router)
 dp.include_router(profile_router)
 dp.include_router(search_router)
+dp.include_router(menu_router)
 
 if settings.DEBUG:
     dp.include_router(test_router)

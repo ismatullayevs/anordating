@@ -27,8 +27,6 @@ async def get_user(id: int | None = None, telegram_id: int | None = None,
 
 
 async def get_likes(user: User, limit: int | None = None):
-    assert user.is_active
-
     async with session_factory() as session:
         their_reaction = aliased(Reaction)
         my_reaction = aliased(Reaction)

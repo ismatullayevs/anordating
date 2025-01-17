@@ -297,7 +297,7 @@ async def update_media_finish(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
     media = [FileAddDTO.model_validate(m).to_orm() for m in data["media"]]
-    user = await get_user(telegram_id=message.from_user.id, with_media=True)
+    user = await get_user(telegram_id=message.from_user.id, with_media=True, is_active=True)
 
     async with session_factory() as session:
         session.add(user)

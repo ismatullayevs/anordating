@@ -78,6 +78,7 @@ async def deactivate_account_confirm(message: types.Message, state: FSMContext, 
     await activate_account_start(message, state)
 
 
+@router.message(IsInactiveHumanUser())
 async def activate_account_start(message: types.Message, state: FSMContext):
     await message.answer(_("Your account has been deactivated. To activate it, press the button below"),
                          reply_markup=make_keyboard([[_("Activate my account")]]))
