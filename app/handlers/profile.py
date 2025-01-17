@@ -4,26 +4,22 @@ from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.enums import FileTypes
+from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.registration import GENDER_PREFERENCES, GENDERS
-from app.keyboards import get_ask_location_keyboard, get_profile_update_keyboard, make_keyboard
+from app.keyboards import get_ask_location_keyboard, get_genders_keyboard, get_preferred_genders_keyboard, get_profile_update_keyboard, make_keyboard
 from app.states import ProfileStates, MenuStates
-from app.utils import get_profile_card, get_user
+from app.utils import get_profile_card
+from app.queries import get_user
 from app.models.user import Preferences, User
 from sqlalchemy import exc, update
 
 
 router = Router()
+router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.menu, F.text == __("👤 My profile"))
-async def show_profile(message: types.Message, state: FSMContext):
-    assert message.from_user
-
-    try:
-        user = await get_user(telegram_id=message.from_user.id, with_media=True)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
-
+@router.message(MenuStates.menu, F.text == __("👤 My profile"), IsActiveHumanUser(with_media=True))
+async def show_profile(message: types.Message, state: FSMContext, user: User):
     profile = await get_profile_card(user)
     await message.answer_media_group(profile)
 
@@ -92,8 +88,7 @@ async def update_age(message: types.Message, state: FSMContext):
 
 @router.message(ProfileStates.profile, F.text == __("👫 Gender"))
 async def update_gender_start(message: types.Message, state: FSMContext):
-    buttons = [[str(x[0]) for x in GENDERS]]
-    await message.answer(_("Select your gender"), reply_markup=make_keyboard(buttons))
+    await message.answer(_("Select your gender"), reply_markup=get_genders_keyboard())
     await state.set_state(ProfileStates.gender)
 
 
@@ -105,8 +100,6 @@ async def update_gender(message: types.Message, state: FSMContext):
         if k == message.text:
             gender = v
             break
-    if not gender:
-        return await message.answer(_("Please select one of the options"))
 
     async with session_factory() as session:
         query = update(User).where(User.telegram_id ==
@@ -119,7 +112,7 @@ async def update_gender(message: types.Message, state: FSMContext):
 
 @router.message(ProfileStates.profile, F.text == __("📝 Bio"))
 async def update_bio_start(message: types.Message, state: FSMContext):
-    await message.answer(_("Tell us more about yourself. Who are you looking for?"),
+    await message.answer(_("Tell us more about yourself. What are your hobbies, interests, etc.?"),
                          reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(ProfileStates.bio)
 
@@ -143,8 +136,7 @@ async def update_bio(message: types.Message, state: FSMContext):
 
 @router.message(ProfileStates.profile, F.text == __("👩‍❤️‍👨 Gender preferences"))
 async def update_gender_preferences_start(message: types.Message, state: FSMContext):
-    buttons = [[str(x[0]) for x in GENDER_PREFERENCES]]
-    await message.answer(_("Select preferred gender"), reply_markup=make_keyboard(buttons))
+    await message.answer(_("Who are you looking for?"), reply_markup=get_preferred_genders_keyboard())
     await state.set_state(ProfileStates.gender_preferences)
 
 
@@ -156,8 +148,6 @@ async def update_gender_preferences(message: types.Message, state: FSMContext):
         if k == message.text:
             preferred_gender = v
             break
-    if not preferred_gender:
-        return await message.answer(_("Please select one of the options"))
 
     async with session_factory() as session:
         query = (

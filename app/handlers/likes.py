@@ -2,28 +2,23 @@ from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.enums import ReactionType
+from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
 from app.handlers.search import notify_match
-from app.models.user import Reaction
+from app.models.user import User
 from app.states import MenuStates, LikesStates
 from app.keyboards import get_search_keyboard
-from app.utils import get_likes, get_profile_card, get_user
-from app.core.db import session_factory
-from sqlalchemy import exc, select
+from app.utils import get_profile_card
+from app.queries import create_or_update_reaction, get_likes, get_user
+from sqlalchemy import exc
 
 
 router = Router()
+router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.menu, F.text == __("👍 Likes"))
-async def show_likes(message: types.Message, state: FSMContext):
-    assert message.from_user
-
-    try:
-        user = await get_user(telegram_id=message.from_user.id)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
-
+@router.message(MenuStates.menu, F.text == __("👍 Likes"), IsActiveHumanUser())
+async def show_likes(message: types.Message, state: FSMContext, user: User):
     likes = await get_likes(user, limit=1)
     if not likes:
         await message.answer(_("No likes found"))
@@ -38,48 +33,22 @@ async def show_likes(message: types.Message, state: FSMContext):
     await state.set_state(LikesStates.likes)
 
 
-@router.message(LikesStates.likes, F.text.in_(["👍", "👎"]))
-async def react_to_liked(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
-
+@router.message(LikesStates.likes, F.text.in_(["👍", "👎"]), IsActiveHumanUser())
+async def react_to_liked(message: types.Message, state: FSMContext, user: User):
+    assert message.text
     reactions = {
         "👍": ReactionType.like,
         "👎": ReactionType.dislike,
     }
 
     match_id = await state.get_value('match_id')
-    if not match_id:
-        await state.set_state(MenuStates.menu)
-        return await message.answer(_("No matches to react"))
-
-    match_id = int(match_id)
-    try:
-        user = await get_user(telegram_id=message.from_user.id)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
+    assert match_id
 
     try:
-        match = await get_user(id=match_id)
+        match = await get_user(id=match_id, is_active=True)
     except exc.NoResultFound:
         return await message.answer(_("User not found"))
-
-    async with session_factory() as session:
-        res = await session.scalars(select(Reaction)
-                                    .where(Reaction.from_user_id == user.id,
-                                           Reaction.to_user_id == match.id))
-        try:
-            reaction = res.one()
-            if reaction.reaction_type == reactions[message.text]:
-                return await message.answer(_("You've already {reaction_type}d this user")
-                                            .format(reaction_type=reaction.reaction_type.name))
-            reaction.reaction_type = reactions[message.text]
-        except exc.NoResultFound:
-            reaction = Reaction(from_user_id=user.id,
-                                to_user_id=match.id,
-                                reaction_type=reactions[message.text])
-
-        session.add(reaction)
-        await session.commit()
+    reaction = await create_or_update_reaction(user, match, reactions[message.text])
 
     if message.text == "👍":
         await notify_match(match, mutual=True)   # TODO: change this function

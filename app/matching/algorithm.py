@@ -3,11 +3,12 @@ from app.enums import ReactionType
 from app.models.user import Preferences, Report, User, Reaction
 from sqlalchemy import select, and_, exists
 from app.core.db import session_factory
-from sqlalchemy.orm import joinedload
 from app.utils import haversine_distance
 
 
 async def get_potential_matches(current_user: User):
+    assert current_user.is_active
+
     async with session_factory() as session:
         session.add(current_user)
         await current_user.awaitable_attrs.preferences
@@ -104,18 +105,51 @@ async def calculate_similarity(current_user: User, potential_match: User) -> flo
     return round(final_score, 2)
 
 
+async def calculate_total_score(user1: User, user2: User) -> float:
+    """
+    Calculate total score combining similarity and Elo rating.
+    Returns a score between 0 and 1.
+
+    Args:
+        user1: First user
+        user2: Second user
+        weights: Optional custom weights for different factors
+
+    Returns:
+        float: Combined score between 0 and 1
+    """
+
+    @dataclass
+    class ScoreWeights:
+        similarity = 0.6
+        rating = 0.4
+
+    similarity_score = await calculate_similarity(user1, user2)
+
+    rating_range = 800
+    normalized_rating = (user2.rating - 1000) / rating_range
+    normalized_rating = max(0, min(1, normalized_rating))
+
+    total_score = (
+        similarity_score * ScoreWeights.similarity +
+        normalized_rating * ScoreWeights.rating
+    )
+
+    return round(total_score, 2)
+
+
 async def get_best_match(current_user: User):
     async with session_factory() as session:
         session.add(current_user)
         await current_user.awaitable_attrs.preferences
 
     potential_matches = await get_potential_matches(current_user)
-    best_match, best_similarity = None, 0
+    best_match, best_score = None, 0
     for match in potential_matches:
-        similarity = await calculate_similarity(current_user, match)
-        if similarity > best_similarity:
+        score = await calculate_total_score(current_user, match)
+        if score > best_score:
             best_match = match
-            best_similarity = similarity
+            best_score = score
 
-    print(f"Best match: {best_match}, similarity: {best_similarity}")
+    print(f"Best match: {best_match}, score: {best_score}")
     return best_match

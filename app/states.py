@@ -15,6 +15,7 @@ class RegistrationStates(StatesGroup):
 
 class MenuStates(StatesGroup):
     menu = State()
+    language = State()
 
 
 class SearchStates(StatesGroup):
@@ -43,8 +44,9 @@ class MatchesStates(StatesGroup):
 
 
 class DeactivateStates(StatesGroup):
-    deactivate = State()
-
+    deactivate_confirm = State()
+    deactivated = State()
+    
 
 class LanguageStates(StatesGroup):
     language = State()

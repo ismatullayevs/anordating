@@ -3,29 +3,25 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from aiogram.exceptions import TelegramBadRequest
 from app.core.config import settings
-from app.enums import ReactionType
+from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
 from app.handlers.registration import get_profile_card
 from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
 from app.models.user import Reaction, User
 from app.states import MenuStates, SearchStates
-from app.utils import get_user, get_profile_card
+from app.utils import get_profile_card
+from app.queries import create_or_update_reaction, get_user
 from app.core.db import session_factory
+from app.enums import ReactionType
 from sqlalchemy import exc, select
 
 router = Router()
+router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.menu, F.text == __("🔎 Search"))
-async def search(message: types.Message, state: FSMContext, with_keyboard: bool = True):
-    assert message.from_user
-
-    try:
-        user = await get_user(telegram_id=message.from_user.id, with_preferences=True)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
-
+@router.message(MenuStates.menu, F.text == __("🔎 Search"), IsActiveHumanUser())
+async def search(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = True):
     match = await get_best_match(user)
     if not match:
         await message.answer(_("No matches found"),
@@ -41,20 +37,14 @@ async def search(message: types.Message, state: FSMContext, with_keyboard: bool 
     await state.set_state(SearchStates.search)
 
 
-@router.message(SearchStates.search, F.text == __("⏪ Rewind"))
-async def rewind_empty(message: types.Message, state: FSMContext):
-    await rewind(message, state, with_keyboard=True)
+@router.message(SearchStates.search, F.text == __("⏪ Rewind"), IsActiveHumanUser())
+async def rewind_empty(message: types.Message, state: FSMContext, user: User):
+    await rewind(message, state, user, with_keyboard=True)
 
 
-@router.message(SearchStates.search, F.text == "⏪")
-async def rewind(message: types.Message, state: FSMContext, with_keyboard: bool = False):
-    assert message.from_user
+@router.message(SearchStates.search, F.text == "⏪", IsActiveHumanUser())
+async def rewind(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = False):
     rewind_index = await state.get_value("rewind_index") or 0
-
-    try:
-        user = await get_user(telegram_id=message.from_user.id)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
 
     async with session_factory() as session:
         matches = (await session.scalars(select(Reaction.to_user_id)
@@ -78,48 +68,24 @@ async def rewind(message: types.Message, state: FSMContext, with_keyboard: bool 
     await state.update_data(rewind_index=rewind_index + 1)
 
 
-@router.message(SearchStates.search, F.text.in_(["👎", "👍"]))
-async def react(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
-
+@router.message(SearchStates.search, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
+async def react(message: types.Message, state: FSMContext, user: User):
+    assert message.text
     reactions = {
         "👍": ReactionType.like,
         "👎": ReactionType.dislike,
     }
 
     match_id = await state.get_value('match_id')
-    if not match_id:
-        await state.set_state(MenuStates.menu)
-        return await message.answer(_("No matches to react"))
+    assert match_id
 
     match_id = int(match_id)
     try:
-        user = await get_user(telegram_id=message.from_user.id)
-    except exc.NoResultFound:
-        return await message.answer(_("You need to create a profile first"))
-
-    try:
-        match = await get_user(id=match_id)
+        match = await get_user(id=match_id, is_active=True)
     except exc.NoResultFound:
         return await message.answer(_("User not found"))
-
-    async with session_factory() as session:
-        res = await session.scalars(select(Reaction)
-                                    .where(Reaction.from_user_id == user.id,
-                                           Reaction.to_user_id == match.id))
-        try:
-            reaction = res.one()
-            if reaction.reaction_type == reactions[message.text]:
-                return await message.answer(_("You've already {reaction_type}d this user")
-                                            .format(reaction_type=reaction.reaction_type.name))
-            reaction.reaction_type = reactions[message.text]
-        except exc.NoResultFound:
-            reaction = Reaction(from_user_id=user.id,
-                                to_user_id=match.id,
-                                reaction_type=reactions[message.text])
-
-        session.add(reaction)
-        await session.commit()
+    
+    await create_or_update_reaction(user, match, reactions[message.text])
 
     if message.text == "👍":
         await notify_match(match)

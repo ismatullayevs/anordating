@@ -15,9 +15,9 @@ GENDERS = (
 )
 
 GENDER_PREFERENCES = (
-    (__("Men 👨‍🦱"), PreferredGenders.male),
-    (__("Women 👩‍🦱"), PreferredGenders.female),
-    (__("Friends 👫"), PreferredGenders.friends),
+    (__("I'm looking for men 👨‍🦱"), PreferredGenders.male),
+    (__("I'm looking for women 👩‍🦱"), PreferredGenders.female),
+    (__("I'm looking for friends 👫"), PreferredGenders.friends),
 )
 
 
@@ -27,9 +27,9 @@ def make_keyboard(items: list[list[str]]) -> ReplyKeyboardMarkup:
 
 
 def get_menu_keyboard() -> ReplyKeyboardMarkup:
-    items = [[_("🔎 Search"), _("👍 Likes")],
-             [_("👤 My profile"), _("❤️ Matches")],
-             [_("⛔️ Deactivate"), _("⚙️ Settings")]]
+    items = [[_("🔎 Search")],
+             [_("👤 My profile"), _("👍 Likes")],
+             [_("⛔️ Deactivate"), _("🌍 Language")]]
     return make_keyboard(items)
 
 
@@ -56,7 +56,7 @@ def get_genders_keyboard():
 
 
 def get_preferred_genders_keyboard():
-    return make_keyboard([[str(x[0]) for x in GENDER_PREFERENCES]])
+    return make_keyboard([[str(x[0])] for x in GENDER_PREFERENCES])
 
 
 def get_ask_location_keyboard() -> ReplyKeyboardMarkup:

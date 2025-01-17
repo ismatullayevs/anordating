@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.middlewares import i18n_middleware
 from app.core.db import session_factory
-from app.filters import IsHumanUser
+from app.filters import IsHuman
 from app.keyboards import (get_ask_location_keyboard, get_genders_keyboard, get_languages_keyboard,
                            get_menu_keyboard, get_preferred_genders_keyboard, make_keyboard, 
                            LANGUAGES, GENDERS, GENDER_PREFERENCES)
@@ -13,13 +13,13 @@ from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
 from app.states import MenuStates, RegistrationStates
-from app.utils import get_user
+from app.queries import get_user
 from app.utils import get_profile_card
 from sqlalchemy.exc import NoResultFound
 
 
 router = Router()
-router.message.filter(IsHumanUser())
+router.message.filter(IsHuman())
 
 
 @router.message(Command("start"))
@@ -35,7 +35,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
         from app.handlers.menu import show_menu
         await show_menu(message, state)
-        await state.set_state(MenuStates.menu)
     except NoResultFound:
         await set_language_start(message, state)
 
@@ -132,7 +131,7 @@ async def set_gender_invalid(message: types.Message):
 
 
 async def set_bio_start(message: types.Message, state: FSMContext):
-    msg = _("Tell us more about yourself. Who are you looking for?")
+    msg = _("Tell us more about yourself. What are your hobbies, interests, etc.?")
     await message.answer(msg, reply_markup=make_keyboard([[_("Skip")]]))
     await state.set_state(RegistrationStates.bio)
 
@@ -155,7 +154,7 @@ async def set_bio(message: types.Message, state: FSMContext):
 
 
 async def set_preferred_gender_start(message: types.Message, state: FSMContext):
-    await message.answer(_("Select preferred gender"),
+    await message.answer(_("Who are you looking for?"),
                          reply_markup=get_preferred_genders_keyboard())
     await state.set_state(RegistrationStates.gender_preferences)
 

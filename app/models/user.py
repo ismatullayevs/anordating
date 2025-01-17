@@ -55,6 +55,7 @@ class Reaction(AsyncAttrs, Base):
     to_user_id: Mapped[int] = mapped_column(ForeignKey(
         "user_account.id", ondelete="CASCADE"), index=True)
     reaction_type: Mapped[ReactionType] = mapped_column(index=True)
+    is_match_notified: Mapped[bool] = mapped_column(server_default=text("false"))
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

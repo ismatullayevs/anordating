@@ -1,5 +1,6 @@
 # Tasks
 
+when you rewind, you can now react to users who were previously available to you but not anymore
 reuse db sessions
 dry code
 add validation to update profile

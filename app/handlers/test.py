@@ -5,7 +5,7 @@ from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.keyboards import make_keyboard
 from app.handlers.registration import LANGUAGES, set_name_start
 from app.states import RegistrationStates
-from app.utils import get_user
+from app.queries import get_user
 from app.core.db import session_factory
 from sqlalchemy.exc import NoResultFound
 
