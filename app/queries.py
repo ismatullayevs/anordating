@@ -60,8 +60,8 @@ async def get_likes(user: User, limit: int | None = None):
                         Report.from_user_id == User.id,
                         Report.to_user_id == user.id,
                     )
-                )
-                .order_by(their_reaction.updated_at.desc())))
+                ))
+                .order_by(their_reaction.updated_at.desc()))
         
         if limit:
             query = query.limit(limit)
@@ -71,10 +71,8 @@ async def get_likes(user: User, limit: int | None = None):
 
 
 async def create_or_update_reaction(user: User, match: User, reaction_type: ReactionType):
+    assert user.is_active and match.is_active
     async with session_factory() as session:
-        session.add_all((user, match))
-        assert user.is_active and match.is_active
-
         res = await session.scalars(select(Reaction)
                                     .where(Reaction.from_user_id == user.id,
                                            Reaction.to_user_id == match.id))
@@ -107,3 +105,16 @@ async def get_nth_last_reacted_match(user: User, n: int):
             raise ValueError("No more matches to rewind")
 
     return matches[n]
+
+
+async def is_mutual(reaction: Reaction):
+    if reaction.reaction_type != ReactionType.like:
+        return False
+    
+    async with session_factory() as session:
+        query = (select(Reaction)
+                 .where(Reaction.from_user_id == reaction.to_user_id,
+                        Reaction.to_user_id == reaction.from_user_id,
+                        Reaction.reaction_type == ReactionType.like))
+        res = await session.scalars(query)
+        return res.one_or_none() is not None

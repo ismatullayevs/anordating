@@ -10,7 +10,7 @@ from app.states import MenuStates, LikesStates
 from app.keyboards import get_search_keyboard
 from app.utils import get_profile_card
 from app.core.db import session_factory
-from app.queries import create_or_update_reaction, get_likes, get_user
+from app.queries import create_or_update_reaction, get_likes, get_user, is_mutual
 from sqlalchemy import exc
 
 
@@ -23,7 +23,7 @@ async def show_likes(message: types.Message, state: FSMContext, user: User):
     likes = await get_likes(user, limit=1)
     if not likes:
         await message.answer(_("No likes found"))
-        return show_menu(message, state)
+        return await show_menu(message, state)
 
     await message.answer(_("Likes"), reply_markup=get_search_keyboard())
 
@@ -52,7 +52,8 @@ async def react_to_liked(message: types.Message, state: FSMContext, user: User):
     reaction = await create_or_update_reaction(user, match, reactions[message.text])
 
     if message.text == "👍" and not reaction.is_match_notified:
-        await notify_match(match, mutual=True)   # TODO: change this function
+        mutual = await is_mutual(reaction)
+        await notify_match(match, mutual=mutual)   # TODO: change this function
         async with session_factory() as session:
             reaction.is_match_notified = True
             session.add(reaction)

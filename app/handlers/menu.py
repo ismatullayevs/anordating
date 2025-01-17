@@ -78,13 +78,6 @@ async def deactivate_account_confirm(message: types.Message, state: FSMContext, 
     await activate_account_start(message, state)
 
 
-@router.message(IsInactiveHumanUser())
-async def activate_account_start(message: types.Message, state: FSMContext):
-    await message.answer(_("Your account has been deactivated. To activate it, press the button below"),
-                         reply_markup=make_keyboard([[_("Activate my account")]]))
-    await state.set_state(DeactivateStates.deactivated)
-
-
 @router.message(DeactivateStates.deactivated, F.text == __("Activate my account"), IsInactiveHumanUser())
 async def activate_account(message: types.Message, state: FSMContext, user: User):
     async with session_factory() as session:
@@ -92,7 +85,15 @@ async def activate_account(message: types.Message, state: FSMContext, user: User
         session.add(user)
         await session.commit()
 
+    await message.answer(_("Your account has been activated"))
     await show_menu(message, state)
+
+
+@router.message(IsInactiveHumanUser())
+async def activate_account_start(message: types.Message, state: FSMContext):
+    await message.answer(_("Your account has been deactivated. To activate it, press the button below"),
+                         reply_markup=make_keyboard([[_("Activate my account")]]))
+    await state.set_state(DeactivateStates.deactivated)
 
 
 @router.message(MenuStates.menu, F.text == __("🌍 Language"))

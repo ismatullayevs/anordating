@@ -292,7 +292,9 @@ async def set_media(message: types.Message, state: FSMContext):
 
 
 async def finish_registration(message: types.Message, state: FSMContext):
-    user = await save_user(message, state)
+    assert message.from_user
+    await save_user(message, state)
+    user = await get_user(telegram_id=message.from_user.id)
     locale = await state.get_value("locale")
     await state.set_data({"locale": locale})
     await message.answer(_("Registration has been completed!"),
@@ -337,5 +339,4 @@ async def save_user(message: types.Message, state: FSMContext):
     async with session_factory() as session:
         session.add(user_db)
         await session.commit()
-
     return user_db

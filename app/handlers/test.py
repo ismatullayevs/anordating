@@ -2,12 +2,17 @@ from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
+from app.filters import IsHumanUser
+from app.handlers.menu import show_menu
 from app.keyboards import make_keyboard
-from app.handlers.registration import LANGUAGES, set_name_start
+from app.handlers.registration import LANGUAGES
+from app.models.user import User
 from app.states import RegistrationStates
 from app.queries import get_user
 from app.core.db import session_factory
 from sqlalchemy.exc import NoResultFound
+
+from app.utils import get_profile_card
 
 router = Router()
 
@@ -36,6 +41,14 @@ async def cmd_new_user(message: types.Message, state: FSMContext):
     await state.set_state(RegistrationStates.language)
 
 
+@router.message(Command('me'), IsHumanUser())
+async def get_me(message: types.Message, state: FSMContext, user: User):
+    assert message.from_user
+    profile = await get_profile_card(user)
+    await message.answer_media_group(profile)
+    await show_menu(message, state)
+
+
 @router.message(Command('delete'))
 async def delete_me(message: types.Message):
     assert message.from_user
@@ -51,10 +64,3 @@ async def delete_me(message: types.Message):
         await session.commit()
 
     await message.answer("Your account has been deleted!")
-
-
-@router.message(Command('profile'))
-async def cmd_profile(message: types.Message, state: FSMContext):
-    await message.answer("Profile command")
-    await set_name_start(message, state)
-    await message.answer("updated")

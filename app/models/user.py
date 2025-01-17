@@ -1,5 +1,4 @@
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy.ext.asyncio import AsyncAttrs
 from app.models.base import Base, intpk, created_at, updated_at
 from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
@@ -7,7 +6,7 @@ from app.enums import Genders, PreferredGenders, UILanguages, ReactionType, Repo
 from app.models.file import File
 
 
-class User(AsyncAttrs, Base):
+class User(Base):
     __tablename__ = "user_account"
 
     id: Mapped[intpk]
@@ -33,7 +32,7 @@ class User(AsyncAttrs, Base):
         back_populates="user", cascade="all, delete-orphan")
 
 
-class Preferences(AsyncAttrs, Base):
+class Preferences(Base):
     __tablename__ = "user_preferences"
 
     id: Mapped[intpk]
@@ -46,7 +45,7 @@ class Preferences(AsyncAttrs, Base):
     user = relationship("User", back_populates="preferences")
 
 
-class Reaction(AsyncAttrs, Base):
+class Reaction(Base):
     __tablename__ = "reaction"
 
     id: Mapped[intpk]
@@ -63,7 +62,7 @@ class Reaction(AsyncAttrs, Base):
     __table_args__ = (UniqueConstraint("from_user_id", "to_user_id"),)
 
 
-class Report(AsyncAttrs, Base):
+class Report(Base):
     __tablename__ = "report"
 
     id: Mapped[intpk]

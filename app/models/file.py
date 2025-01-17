@@ -5,7 +5,7 @@ from app.models.base import Base, intpk, created_at
 from app.enums import FileTypes
 
 
-class File(AsyncAttrs, Base):
+class File(Base):
     __tablename__ = "file"
 
     id: Mapped[intpk]
@@ -22,7 +22,7 @@ class File(AsyncAttrs, Base):
     thumbnail: Mapped["File"] = relationship("File")
 
 
-class UserMedia(AsyncAttrs, Base):
+class UserMedia(Base):
     __tablename__ = "user_media"
 
     id: Mapped[intpk]

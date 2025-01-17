@@ -12,6 +12,7 @@ from app.utils import get_profile_card
 from app.queries import get_user
 from app.models.user import Preferences, User
 from sqlalchemy import exc, update
+from sqlalchemy.orm import selectinload
 
 
 router = Router()
@@ -49,12 +50,16 @@ async def update_name(message: types.Message, state: FSMContext):
         return await message.answer(_("Name can only contain letters"))
 
     async with session_factory() as session:
-        query = update(User).where(User.telegram_id ==
-                                   message.from_user.id).values(name=message.text)
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(name=message.text)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+                                   
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
 
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("🔢 Age"))
@@ -78,12 +83,14 @@ async def update_age(message: types.Message, state: FSMContext):
         return await message.answer(_("You must be less than 100 years old to use this bot"))
 
     async with session_factory() as session:
-        query = update(User).where(User.telegram_id ==
-                                   message.from_user.id).values(age=int(message.text))
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(age=int(message.text))
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("👫 Gender"))
@@ -102,12 +109,14 @@ async def update_gender(message: types.Message, state: FSMContext):
             break
 
     async with session_factory() as session:
-        query = update(User).where(User.telegram_id ==
-                                   message.from_user.id).values(gender=gender)
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(gender=gender)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("📝 Bio"))
@@ -126,12 +135,14 @@ async def update_bio(message: types.Message, state: FSMContext):
         return
 
     async with session_factory() as session:
-        query = update(User).where(User.telegram_id ==
-                                   message.from_user.id).values(bio=message.text)
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(bio=message.text)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("👩‍❤️‍👨 Gender preferences"))
@@ -150,17 +161,14 @@ async def update_gender_preferences(message: types.Message, state: FSMContext):
             break
 
     async with session_factory() as session:
-        query = (
-            update(Preferences)
-            .where(Preferences.user_id == User.id)
-            .where(User.telegram_id == message.from_user.id)
-            .values(preferred_gender=preferred_gender)
-            .execution_options(synchronize_session=False)
-        )
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(preferred_gender=preferred_gender)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("🔢 Age preferences"))
@@ -184,17 +192,14 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
         return await message.answer(_("Age range must be between 18 and 100"))
 
     async with session_factory() as session:
-        query = (
-            update(Preferences)
-            .where(Preferences.user_id == User.id)
-            .where(User.telegram_id == message.from_user.id)
-            .values(min_age=min_age, max_age=max_age)
-            .execution_options(synchronize_session=False)
-        )
-        await session.execute(query)
+        query = (update(User)
+                 .where(User.telegram_id == message.from_user.id)
+                 .values(min_age=min_age, max_age=max_age)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("📍 Location"))
@@ -207,15 +212,17 @@ async def update_location_start(message: types.Message, state: FSMContext):
 async def update_location(message: types.Message, state: FSMContext):
     assert message.location and message.from_user
 
+    latitude = message.location.latitude
+    longitude = message.location.longitude
     async with session_factory() as session:
         query = (update(User)
                  .where(User.telegram_id == message.from_user.id)
-                 .values(latitude=message.location.latitude,
-                         longitude=message.location.longitude))
-        await session.execute(query)
+                 .values(latitude=latitude, longitude=longitude)
+                 .returning(User)
+                 .options(selectinload(User.media)))
+        user = (await session.execute(query)).scalar_one()
         await session.commit()
-
-    await show_profile(message, state)
+    await show_profile(message, state, user)
 
 
 @router.message(ProfileStates.profile, F.text == __("📷 Media"))
@@ -225,14 +232,13 @@ async def update_media_start(message: types.Message, state: FSMContext):
 
 
 @router.message(ProfileStates.media, F.text == __("Continue"))
-async def continue_registration(message: types.Message, state: FSMContext):
+async def continue_media(message: types.Message, state: FSMContext, from_user: types.User):
     media = await state.get_value("media")
     if not media:
         await message.answer(_("Please upload at least one photo"))
         return
 
     await update_media_finish(message, state)
-    await show_profile(message, state)
 
 
 @router.message(ProfileStates.media, F.photo | F.video)
@@ -304,4 +310,5 @@ async def update_media_finish(message: types.Message, state: FSMContext):
         user.media = media
         await session.commit()
 
-    await show_profile(message, state)
+    user = await get_user(telegram_id=message.from_user.id, with_media=True)
+    await show_profile(message, state, user)

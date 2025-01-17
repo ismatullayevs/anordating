@@ -1,5 +1,6 @@
 from sqlalchemy import TIMESTAMP, text, MetaData
 from sqlalchemy.orm import mapped_column, DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from typing import Annotated
 import datetime
 
@@ -13,7 +14,7 @@ updated_at = Annotated[datetime.datetime, mapped_column(
     type_=TIMESTAMP(timezone=True))]
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     metadata = MetaData(naming_convention={
         "ix": "ix_%(column_0_label)s",
         "uq": "uq_%(table_name)s_%(column_0_name)s",

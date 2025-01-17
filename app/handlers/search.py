@@ -10,7 +10,7 @@ from app.matching.algorithm import get_best_match
 from app.models.user import User
 from app.states import MenuStates, SearchStates
 from app.utils import get_profile_card
-from app.queries import create_or_update_reaction, get_nth_last_reacted_match, get_user
+from app.queries import create_or_update_reaction, get_nth_last_reacted_match, get_user, is_mutual
 from app.core.db import session_factory
 from app.enums import ReactionType
 from sqlalchemy import and_, exc, select
@@ -82,15 +82,20 @@ async def react(message: types.Message, state: FSMContext, user: User):
         match = await get_user(id=match_id, is_active=True)
     except exc.NoResultFound:
         return await message.answer(_("User not found"))
-    
-    await create_or_update_reaction(user, match, reactions[message.text])
 
-    if message.text == "👍":
-        await notify_match(match)
+    reaction = await create_or_update_reaction(user, match, reactions[message.text])
+
+    if message.text == "👍" and not reaction.is_match_notified:
+        mutual = await is_mutual(reaction)
+        await notify_match(match, mutual)
+        async with session_factory() as session:
+            reaction.is_match_notified = True
+            session.add(reaction)
+            await session.commit()
 
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
-    await search(message, state, with_keyboard=False)
+    await search(message, state, user, with_keyboard=False)
 
 
 async def notify_match(match: User, mutual: bool = False):
