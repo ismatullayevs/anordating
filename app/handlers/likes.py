@@ -9,6 +9,7 @@ from app.models.user import User
 from app.states import MenuStates, LikesStates
 from app.keyboards import get_search_keyboard
 from app.utils import get_profile_card
+from app.core.db import session_factory
 from app.queries import create_or_update_reaction, get_likes, get_user
 from sqlalchemy import exc
 
@@ -50,8 +51,12 @@ async def react_to_liked(message: types.Message, state: FSMContext, user: User):
         return await message.answer(_("User not found"))
     reaction = await create_or_update_reaction(user, match, reactions[message.text])
 
-    if message.text == "👍":
+    if message.text == "👍" and not reaction.is_match_notified:
         await notify_match(match, mutual=True)   # TODO: change this function
+        async with session_factory() as session:
+            reaction.is_match_notified = True
+            session.add(reaction)
+            await session.commit()
 
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)

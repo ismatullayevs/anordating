@@ -1,12 +1,12 @@
 from app.matching.rating import update_rating
-from app.models.user import Reaction, User
+from app.models.user import Reaction, User, Report
 from app.core.db import session_factory
 from app.enums import ReactionType
 from sqlalchemy import and_, exists, select, exc
 from sqlalchemy.orm import selectinload, joinedload, aliased
 
 
-async def get_user(id: int | None = None, telegram_id: int | None = None, 
+async def get_user(id: int | None = None, telegram_id: int | None = None,
                    is_active: bool | None = None, with_media=False, with_preferences=False):
     async with session_factory() as session:
         query = select(User)
@@ -48,10 +48,21 @@ async def get_likes(user: User, limit: int | None = None):
                         my_reaction.from_user_id == user.id,
                         my_reaction.to_user_id == User.id,
                     )
+                ),
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == user.id,
+                        Report.to_user_id == User.id,
+                    )
+                ),
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == User.id,
+                        Report.to_user_id == user.id,
+                    )
                 )
-            )
-            .order_by(their_reaction.updated_at.desc())
-        )
+                .order_by(their_reaction.updated_at.desc())))
+        
         if limit:
             query = query.limit(limit)
 
@@ -62,13 +73,13 @@ async def get_likes(user: User, limit: int | None = None):
 async def create_or_update_reaction(user: User, match: User, reaction_type: ReactionType):
     async with session_factory() as session:
         session.add_all((user, match))
+        assert user.is_active and match.is_active
+
         res = await session.scalars(select(Reaction)
                                     .where(Reaction.from_user_id == user.id,
                                            Reaction.to_user_id == match.id))
         try:
             reaction = res.one()
-            if reaction.reaction_type == reaction_type:
-                raise ValueError("Reaction already exists")
             reaction.reaction_type = reaction_type
         except exc.NoResultFound:
             reaction = Reaction(from_user_id=user.id,
@@ -79,3 +90,20 @@ async def create_or_update_reaction(user: User, match: User, reaction_type: Reac
         session.add(reaction)
         await session.commit()
     return reaction
+
+
+async def get_nth_last_reacted_match(user: User, n: int):
+    async with session_factory() as session:
+        query = (select(User)
+                 .join(Reaction, Reaction.to_user_id == User.id)
+                 .where(and_(
+                     Reaction.from_user_id == user.id,
+                     User.is_active == True))
+                 .order_by(Reaction.updated_at.desc())
+                 .limit(n+1))
+        matches = (await session.scalars(query)).all()
+
+        if len(matches) <= n:
+            raise ValueError("No more matches to rewind")
+
+    return matches[n]

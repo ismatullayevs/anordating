@@ -5,16 +5,15 @@ from aiogram.exceptions import TelegramBadRequest
 from app.core.config import settings
 from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
-from app.handlers.registration import get_profile_card
 from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
-from app.models.user import Reaction, User
+from app.models.user import User
 from app.states import MenuStates, SearchStates
 from app.utils import get_profile_card
-from app.queries import create_or_update_reaction, get_user
+from app.queries import create_or_update_reaction, get_nth_last_reacted_match, get_user
 from app.core.db import session_factory
 from app.enums import ReactionType
-from sqlalchemy import exc, select
+from sqlalchemy import and_, exc, select
 
 router = Router()
 router.message.filter(IsHuman())
@@ -45,14 +44,15 @@ async def rewind_empty(message: types.Message, state: FSMContext, user: User):
 @router.message(SearchStates.search, F.text == "⏪", IsActiveHumanUser())
 async def rewind(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = False):
     rewind_index = await state.get_value("rewind_index") or 0
+    rewind_limit = 5
 
-    async with session_factory() as session:
-        matches = (await session.scalars(select(Reaction.to_user_id)
-                                         .where(Reaction.from_user_id == user.id)
-                                         .order_by(Reaction.updated_at.desc())
-                                         .limit(rewind_index + 1))).all()
+    if rewind_index >= rewind_limit:
+        await message.answer(_("You can't rewind more than {rewind_limit} times")
+                             .format(rewind_limit=rewind_limit))
 
-    if len(matches) <= rewind_index:
+    try:
+        match = await get_nth_last_reacted_match(user, rewind_index)
+    except ValueError:
         await message.answer(_("No more matches to rewind"))
         await show_menu(message, state)
         return
@@ -60,8 +60,6 @@ async def rewind(message: types.Message, state: FSMContext, user: User, with_key
     if with_keyboard:
         await message.answer(_("⏪ Rewinding"), reply_markup=get_search_keyboard())
 
-    match_id = matches[rewind_index]
-    match = await get_user(id=match_id)
     card = await get_profile_card(match)
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
