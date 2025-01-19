@@ -1,25 +1,24 @@
 from datetime import datetime
 
-from annotated_types import Ge, Le
 from app.enums import Genders, ReactionType, UILanguages, PreferredGenders
 from app.dto.file import FileDTO, FileAddDTO
 from app.models.user import Preferences, Reaction, User, Report
-from pydantic import Field, field_validator, model_validator
+from pydantic import AfterValidator, BeforeValidator, Field, model_validator
 from typing import Annotated
 from aiogram.utils.i18n import gettext as _
 from app.dto.base import BaseModelWithOrm
+from app.validators import validate_bio, validate_birth_date, validate_media, validate_name, validate_preference_age, validate_preference_ages
 
 
 class PreferenceAddDTO(BaseModelWithOrm[Preferences]):
-    min_age: Annotated[int | None, Field(ge=18, le=100)]
-    max_age: Annotated[int | None, Field(ge=18, le=100)]
+    min_age: Annotated[int | None, AfterValidator(validate_preference_age)]
+    max_age: Annotated[int | None, AfterValidator(validate_preference_age)]
     preferred_gender: PreferredGenders
 
     @model_validator(mode="after")
     def validate_min_max_age(self):
-        if self.min_age and self.max_age:
-            if self.min_age > self.max_age:
-                raise ValueError("Min age must be less than max age")
+        min_age, max_age = validate_preference_ages(self.min_age, self.max_age)
+        self.min_age, self.max_age = min_age, max_age
         return self
 
     @property
@@ -33,20 +32,13 @@ class PreferenceDTO(PreferenceAddDTO):
 
 class UserAddDTO(BaseModelWithOrm[User]):
     telegram_id: int
-    name: Annotated[str, Field(max_length=30, min_length=3)]
-    age: Annotated[int, Field(ge=18, le=100)]
-    bio: Annotated[str | None, Field(max_length=255)]
+    name: Annotated[str, AfterValidator(validate_name)]
+    birth_date: Annotated[datetime, BeforeValidator(validate_birth_date)]
+    bio: Annotated[str | None, AfterValidator(validate_bio)]
     gender: Genders
     latitude: float
     longitude: float
     ui_language: UILanguages
-
-    @field_validator("name", mode="after")
-    @classmethod
-    def validate_name(cls, value: str):
-        if not (value and all(x.isalpha() or x.isspace() for x in value)):
-            raise ValueError(_("Name must only contain letters"))
-        return value
 
     @property
     def orm_model(self):
@@ -54,7 +46,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
 
 
 class UserRelMediaAddDTO(UserAddDTO):
-    media: Annotated[list[FileAddDTO], Ge(1), Le(3)]
+    media: Annotated[list[FileAddDTO], AfterValidator(validate_media)]
 
 
 class UserRelPreferencesAddDTO(UserAddDTO):

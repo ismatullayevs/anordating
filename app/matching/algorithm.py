@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 from app.enums import ReactionType
 from app.models.user import Preferences, Report, User, Reaction
-from sqlalchemy import select, and_, exists
 from app.core.db import session_factory
 from app.utils import haversine_distance
+from dataclasses import dataclass
+from sqlalchemy import select, and_, exists, func
 
 
 async def get_potential_matches(current_user: User):
@@ -39,10 +39,10 @@ async def get_potential_matches(current_user: User):
             )),
         )
 
-        if current_user.preferences.min_age and current_user.preferences.max_age:
+        min_age, max_age = current_user.preferences.min_age, current_user.preferences.max_age
+        if min_age and max_age:
             query = query.where(
-                User.age >= current_user.preferences.min_age,
-                User.age <= current_user.preferences.max_age,
+                User.age.between(min_age, max_age)
             )
 
         if current_user.preferences.preferred_gender == "friends":

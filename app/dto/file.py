@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from app.enums import FileTypes
 import datetime
 from app.models.file import File

@@ -1,4 +1,4 @@
-from app.matching.rating import update_rating
+from app.matching.rating import get_new_rating
 from app.models.user import Reaction, User, Report
 from app.core.db import session_factory
 from app.enums import ReactionType
@@ -61,8 +61,8 @@ async def get_likes(user: User, limit: int | None = None):
                         Report.to_user_id == user.id,
                     )
                 ))
-                .order_by(their_reaction.updated_at.desc()))
-        
+            .order_by(their_reaction.updated_at.desc()))
+
         if limit:
             query = query.limit(limit)
 
@@ -78,14 +78,25 @@ async def create_or_update_reaction(user: User, match: User, reaction_type: Reac
                                            Reaction.to_user_id == match.id))
         try:
             reaction = res.one()
+            if reaction.reaction_type == reaction_type:
+                return reaction
+            
+            previous_rating = match.rating - reaction.added_rating
+            match.rating = get_new_rating(
+                previous_rating, user.rating, reaction_type)
+            
             reaction.reaction_type = reaction_type
+            reaction.added_rating = match.rating - previous_rating
         except exc.NoResultFound:
+            previous_rating = match.rating
+            match.rating = get_new_rating(
+                match.rating, user.rating, reaction_type)
             reaction = Reaction(from_user_id=user.id,
                                 to_user_id=match.id,
-                                reaction_type=reaction_type)
+                                reaction_type=reaction_type,
+                                added_rating=match.rating - previous_rating)
 
-        match.rating = update_rating(match.rating, user.rating, reaction_type)
-        session.add(reaction)
+        session.add_all((reaction, match))
         await session.commit()
     return reaction
 
@@ -110,7 +121,7 @@ async def get_nth_last_reacted_match(user: User, n: int):
 async def is_mutual(reaction: Reaction):
     if reaction.reaction_type != ReactionType.like:
         return False
-    
+
     async with session_factory() as session:
         query = (select(Reaction)
                  .where(Reaction.from_user_id == reaction.to_user_id,

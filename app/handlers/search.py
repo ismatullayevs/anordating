@@ -21,6 +21,9 @@ router.message.filter(IsHuman())
 
 @router.message(MenuStates.menu, F.text == __("🔎 Search"), IsActiveHumanUser())
 async def search(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = True):
+    await state.update_data(match_id=None)
+    await state.update_data(rewind_index=0)
+
     match = await get_best_match(user)
     if not match:
         await message.answer(_("No matches found"),
@@ -81,7 +84,8 @@ async def react(message: types.Message, state: FSMContext, user: User):
     try:
         match = await get_user(id=match_id, is_active=True)
     except exc.NoResultFound:
-        return await message.answer(_("User not found"))
+        await message.answer(_("User not found"))
+        return await search(message, state, user, with_keyboard=False)
 
     reaction = await create_or_update_reaction(user, match, reactions[message.text])
 
@@ -93,8 +97,6 @@ async def react(message: types.Message, state: FSMContext, user: User):
             session.add(reaction)
             await session.commit()
 
-    await state.update_data(match_id=None)
-    await state.update_data(rewind_index=0)
     await search(message, state, user, with_keyboard=False)
 
 

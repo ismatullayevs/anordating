@@ -1,9 +1,12 @@
-from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.models.base import Base, intpk, created_at, updated_at
-from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint
 from app.core.config import settings
 from app.enums import Genders, PreferredGenders, UILanguages, ReactionType, ReportStatusTypes
 from app.models.file import File
+from datetime import datetime, date
+from sqlalchemy import text, String, BIGINT, ForeignKey, UniqueConstraint, func
+from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+
 
 
 class User(Base):
@@ -12,7 +15,7 @@ class User(Base):
     id: Mapped[intpk]
     telegram_id: Mapped[int] = mapped_column(BIGINT, unique=True, index=True)
     name: Mapped[str]
-    age: Mapped[int] = mapped_column(index=True)
+    birth_date: Mapped[datetime]
     rating: Mapped[int] = mapped_column(
         server_default=text(str(settings.DEFAULT_RATING)))
     is_active: Mapped[bool] = mapped_column(server_default=text("true"))
@@ -30,6 +33,19 @@ class User(Base):
 
     preferences: Mapped["Preferences"] = relationship(
         back_populates="user", cascade="all, delete-orphan")
+
+    @hybrid_property
+    def age(self) -> int:
+        today = date.today()
+        return (
+            today.year - self.birth_date.year - 
+            ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+        )
+    
+    @age.inplace.expression
+    @classmethod
+    def _age_expression(cls):
+        return func.date_part('year', func.age(func.current_date(), cls.birth_date))
 
 
 class Preferences(Base):
@@ -54,7 +70,9 @@ class Reaction(Base):
     to_user_id: Mapped[int] = mapped_column(ForeignKey(
         "user_account.id", ondelete="CASCADE"), index=True)
     reaction_type: Mapped[ReactionType] = mapped_column(index=True)
-    is_match_notified: Mapped[bool] = mapped_column(server_default=text("false"))
+    is_match_notified: Mapped[bool] = mapped_column(
+        server_default=text("false"))
+    added_rating: Mapped[int]
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
@@ -71,7 +89,8 @@ class Report(Base):
     to_user_id: Mapped[int] = mapped_column(ForeignKey(
         "user_account.id", ondelete="CASCADE"), index=True)
     reason: Mapped[str]
-    status: Mapped[ReportStatusTypes] = mapped_column(index=True, server_default=text("'pending'"))
+    status: Mapped[ReportStatusTypes] = mapped_column(
+        index=True, server_default=text("'pending'"))
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

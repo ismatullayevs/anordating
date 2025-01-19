@@ -192,13 +192,14 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
         return await message.answer(_("Age range must be between 18 and 100"))
 
     async with session_factory() as session:
-        query = (update(User)
+        query = (update(Preferences)
+                 .where(Preferences.user_id == User.id)
                  .where(User.telegram_id == message.from_user.id)
-                 .values(min_age=min_age, max_age=max_age)
-                 .returning(User)
-                 .options(selectinload(User.media)))
-        user = (await session.execute(query)).scalar_one()
+                 .values(min_age=min_age, max_age=max_age))
+        await session.execute(query)
         await session.commit()
+
+    user = await get_user(telegram_id=message.from_user.id, with_media=True, is_active=True)
     await show_profile(message, state, user)
 
 
