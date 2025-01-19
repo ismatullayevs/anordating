@@ -1,13 +1,12 @@
-from datetime import datetime
-
+from aiogram.utils.i18n import gettext as _
 from app.enums import Genders, ReactionType, UILanguages, PreferredGenders
 from app.dto.file import FileDTO, FileAddDTO
 from app.models.user import Preferences, Reaction, User, Report
-from pydantic import AfterValidator, BeforeValidator, Field, model_validator
-from typing import Annotated
-from aiogram.utils.i18n import gettext as _
 from app.dto.base import BaseModelWithOrm
 from app.validators import validate_bio, validate_birth_date, validate_media, validate_name, validate_preference_age, validate_preference_ages
+from datetime import datetime
+from pydantic import AfterValidator, BeforeValidator, model_validator
+from typing import Annotated
 
 
 class PreferenceAddDTO(BaseModelWithOrm[Preferences]):

@@ -70,6 +70,51 @@ async def get_likes(user: User, limit: int | None = None):
         return res.all()
 
 
+async def get_matches(user: User, limit: int | None = None):
+    async with session_factory() as session:
+        their_reaction = aliased(Reaction)
+        my_reaction = aliased(Reaction)
+
+        query = (
+            select(User)
+            .join(
+                my_reaction,
+                and_(
+                    my_reaction.from_user_id == user.id,
+                    my_reaction.to_user_id == User.id,
+                    my_reaction.reaction_type == ReactionType.like,
+                )
+            )
+            .join(
+                their_reaction,
+                and_(
+                    their_reaction.from_user_id == User.id,
+                    their_reaction.to_user_id == user.id,
+                    their_reaction.reaction_type == ReactionType.like
+                )
+            )
+            .where(
+                User.is_active == True,
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == user.id,
+                        Report.to_user_id == User.id,
+                    )
+                ),
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == User.id,
+                        Report.to_user_id == user.id,
+                    )
+                ))
+            .order_by(their_reaction.updated_at.desc()))
+        
+        if limit:
+            query = query.limit(limit)
+
+        return (await session.scalars(query)).all()
+
+
 async def create_or_update_reaction(user: User, match: User, reaction_type: ReactionType):
     assert user.is_active and match.is_active
     async with session_factory() as session:
@@ -112,8 +157,8 @@ async def get_nth_last_reacted_match(user: User, n: int):
                  .limit(n+1))
         matches = (await session.scalars(query)).all()
 
-        if len(matches) <= n:
-            raise ValueError("No more matches to rewind")
+    if len(matches) <= n:
+        return None
 
     return matches[n]
 

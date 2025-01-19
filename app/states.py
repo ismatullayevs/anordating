@@ -15,16 +15,15 @@ class RegistrationStates(StatesGroup):
 
 class MenuStates(StatesGroup):
     menu = State()
-    language = State()
-
-
-class SearchStates(StatesGroup):
     search = State()
-    report_reason = State()
-
-
-class LikesStates(StatesGroup):
     likes = State()
+    settings = State()
+    language = State()
+    matches = State()
+    report_reason = State()
+    deactivate_confirm = State()
+    deactivated = State()
+    delete_confirm = State()
 
 
 class ProfileStates(StatesGroup):
@@ -37,16 +36,3 @@ class ProfileStates(StatesGroup):
     age_preferences = State()
     location = State()
     media = State()
-
-
-class MatchesStates(StatesGroup):
-    matches = State()
-
-
-class DeactivateStates(StatesGroup):
-    deactivate_confirm = State()
-    deactivated = State()
-    
-
-class LanguageStates(StatesGroup):
-    language = State()

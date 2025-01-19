@@ -14,6 +14,9 @@ class Settings(BaseSettings):
 
     DEFAULT_RATING: int = 1400
 
+    # App settings
+    REWIND_LIMIT: int = 5
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

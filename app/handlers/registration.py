@@ -1,4 +1,3 @@
-from random import randint
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
@@ -7,24 +6,27 @@ from app.handlers.menu import show_menu
 from app.middlewares import i18n_middleware
 from app.core.db import session_factory
 from app.filters import IsHuman
-from app.keyboards import (get_ask_location_keyboard, get_genders_keyboard, get_languages_keyboard,
-                           get_menu_keyboard, get_preferred_genders_keyboard, make_keyboard, 
-                           LANGUAGES, GENDERS, GENDER_PREFERENCES)
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
-from app.states import MenuStates, RegistrationStates
+from app.states import RegistrationStates
 from app.queries import get_user
 from app.utils import get_profile_card
+from app.handlers.menu import show_menu, activate_account_start
+from app.keyboards import (get_ask_location_keyboard, get_genders_keyboard, get_languages_keyboard,
+                           get_menu_keyboard, get_preferred_genders_keyboard, make_keyboard,
+                           LANGUAGES, GENDERS, GENDER_PREFERENCES)
+from app.validators import (Params, validate_bio, validate_birth_date, validate_media,
+                            validate_name, validate_preference_age_string)
 from sqlalchemy.exc import NoResultFound
-
-from app.validators import Params, validate_bio, validate_birth_date, validate_media, validate_name, validate_preference_age, validate_preference_age_string
+from random import randint
 
 
 router = Router()
 router.message.filter(IsHuman())
 
 
+@router.message(F.text == __("Start registration"))
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     assert message.from_user
@@ -37,7 +39,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await i18n_middleware.set_locale(state, user.ui_language.name)
         await state.set_data({"locale": user.ui_language.name})
 
-        from app.handlers.menu import show_menu, activate_account_start
         if user.is_active:
             await show_menu(message, state)
         else:
@@ -286,7 +287,7 @@ async def set_media(message: types.Message, state: FSMContext):
     if len(media) >= Params.media_max_count:
         await message.answer(_("File has been uploaded"))
         return await finish_registration(message, state)
-    
+
     msg = _("File has been uploaded. Upload more media files if you want or press \"Continue\"")
     await message.answer(msg, reply_markup=make_keyboard([[_("Continue")]]))
 
@@ -325,10 +326,9 @@ async def finish_registration(message: types.Message, state: FSMContext):
     async with session_factory() as session:
         session.add(user_db)
         await session.commit()
-    
+
     await message.answer(_("Registration has been completed!"),
                          reply_markup=get_menu_keyboard())
-    # user = await get_user(telegram_id=message.from_user.id, with_media=True)
     profile = await get_profile_card(user_db)
     await message.answer_media_group(profile)
     await show_menu(message, state)

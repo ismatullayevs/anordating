@@ -8,6 +8,7 @@ from app.handlers.test import router as test_router
 from app.handlers.likes import router as likes_router
 from app.handlers.profile import router as profile_router
 from app.handlers.search import router as search_router
+from app.handlers.matches import router as matches_router
 from app.middlewares import i18n_middleware
 from redis.asyncio.client import Redis
 from aiogram.fsm.storage.redis import RedisStorage
@@ -23,9 +24,10 @@ dp = Dispatcher(storage=redis_storage)
 i18n_middleware.setup(dp)
 
 dp.include_router(registration_router)
+dp.include_router(search_router)
 dp.include_router(likes_router)
 dp.include_router(profile_router)
-dp.include_router(search_router)
+dp.include_router(matches_router)
 dp.include_router(menu_router)
 
 if settings.DEBUG:

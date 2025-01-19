@@ -200,7 +200,7 @@ msgstr "Jinsni tanlang"
 
 #: app/handlers/profile.py:115 app/handlers/registration.py:134
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
-msgstr "O'zigniz haqingizda aytib bering (qiziqishlaringiz, hobbilaringiz, ...)"
+msgstr "O'zingiz haqingizda aytib bering (qiziqishlaringiz, hobbilaringiz, ...)"
 
 #: app/handlers/profile.py:125 app/handlers/registration.py:149
 msgid "Bio must be less than 255 characters"

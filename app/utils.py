@@ -1,3 +1,4 @@
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.media_group import MediaGroupBuilder
 from app.enums import FileTypes
 from app.models.user import User
@@ -38,3 +39,11 @@ async def get_profile_card(user: User):
             album_builder.add_video(media.telegram_id or media.path or '')
 
     return album_builder.build()
+
+
+async def clear_state(state: FSMContext, except_locale=False):
+    data = {}
+    if except_locale:
+        locale = await state.get_value("locale")
+        data["locale"] = locale
+    await state.set_data(data)

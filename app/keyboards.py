@@ -27,14 +27,25 @@ def make_keyboard(items: list[list[str]]) -> ReplyKeyboardMarkup:
 
 
 def get_menu_keyboard() -> ReplyKeyboardMarkup:
-    items = [[_("🔎 Search")],
-             [_("👤 My profile"), _("👍 Likes")],
-             [_("⛔️ Deactivate"), _("🌍 Language")]]
+    items = [[_("🔎 Watch profiles"), _("👍 Likes")],
+             [_("❤️ Matches"), _("⚙️ Settings")]]
     return make_keyboard(items)
 
 
 def get_search_keyboard() -> ReplyKeyboardMarkup:
     items = [["⏪", "👎", "👍"], [_("✍️ Report"), _("⬅️ Menu")]]
+    return make_keyboard(items)
+
+
+def get_matches_keyboard() -> ReplyKeyboardMarkup:
+    items = [["⬅️", "👎", "➡️"], [_("✍️ Report"), _("⬅️ Menu")]]
+    return make_keyboard(items)
+
+
+def get_settings_keyboard() -> ReplyKeyboardMarkup:
+    items = [[_("🌐 Language"), _("👤 My profile")],
+             [_("⛔️ Deactivate"), _("❌ Delete account")],
+             [_("⬅️ Menu")]]
     return make_keyboard(items)
 
 
@@ -68,7 +79,7 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
 
 def get_profile_update_keyboard() -> ReplyKeyboardMarkup:
     items = [
-        [_("✏️ Name"), _("🔢 Age"), _("👫 Gender"), _("📝 Bio")],
+        [_("✏️ Name"), _("🔢 Birthdate"), _("👫 Gender"), _("📝 Bio")],
         [_("👩‍❤️‍👨 Gender preferences"), _("🔢 Age preferences")],
         [_("📍 Location"), _("📷 Media"), _("⬅️ Menu")]
     ]
