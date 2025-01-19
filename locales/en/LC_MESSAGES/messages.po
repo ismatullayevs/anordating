@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-17 16:41+0500\n"
+"POT-Creation-Date: 2025-01-19 19:12+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -37,250 +37,290 @@ msgstr ""
 msgid "I'm looking for friends 👫"
 msgstr ""
 
-#: app/handlers/search.py:23 app/keyboards.py:30
-msgid "🔎 Search"
+#: app/handlers/search.py:24 app/keyboards.py:30
+msgid "🔎 Watch profiles"
 msgstr ""
 
-#: app/handlers/profile.py:21 app/keyboards.py:31
-msgid "👤 My profile"
-msgstr ""
-
-#: app/handlers/likes.py:20 app/keyboards.py:31
+#: app/handlers/likes.py:17 app/keyboards.py:30
 msgid "👍 Likes"
 msgstr ""
 
-#: app/handlers/menu.py:59 app/keyboards.py:32
-msgid "⛔️ Deactivate"
+#: app/handlers/matches.py:17 app/keyboards.py:31
+msgid "❤️ Matches"
 msgstr ""
 
-#: app/handlers/menu.py:98 app/keyboards.py:32
-msgid "🌍 Language"
+#: app/handlers/menu.py:54 app/keyboards.py:31
+msgid "⚙️ Settings"
 msgstr ""
 
-#: app/handlers/menu.py:27 app/handlers/menu.py:28 app/keyboards.py:37
+#: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
+#: app/keyboards.py:36 app/keyboards.py:41
 msgid "✍️ Report"
 msgstr ""
 
-#: app/handlers/menu.py:52 app/handlers/menu.py:53 app/handlers/menu.py:54
-#: app/keyboards.py:37 app/keyboards.py:46 app/keyboards.py:73
+#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:41
+#: app/keyboards.py:48 app/keyboards.py:57 app/keyboards.py:84
 msgid "⬅️ Menu"
 msgstr ""
 
-#: app/handlers/search.py:40 app/keyboards.py:46
+#: app/handlers/menu.py:100 app/keyboards.py:46
+msgid "🌐 Language"
+msgstr ""
+
+#: app/handlers/profile.py:25 app/keyboards.py:46
+msgid "👤 My profile"
+msgstr ""
+
+#: app/handlers/menu.py:60 app/keyboards.py:47
+msgid "⛔️ Deactivate"
+msgstr ""
+
+#: app/handlers/menu.py:121 app/keyboards.py:47
+msgid "❌ Delete account"
+msgstr ""
+
+#: app/handlers/search.py:44 app/keyboards.py:57
 msgid "⏪ Rewind"
 msgstr ""
 
-#: app/keyboards.py:64
+#: app/keyboards.py:75
 msgid "📍 Send location"
 msgstr ""
 
-#: app/handlers/profile.py:33 app/keyboards.py:71
+#: app/handlers/profile.py:36 app/keyboards.py:82
 msgid "✏️ Name"
 msgstr ""
 
-#: app/handlers/profile.py:60 app/keyboards.py:71
-msgid "🔢 Age"
+#: app/handlers/profile.py:64 app/keyboards.py:82
+msgid "🔢 Birthdate"
 msgstr ""
 
-#: app/handlers/profile.py:89 app/keyboards.py:71
+#: app/handlers/profile.py:95 app/keyboards.py:82
 msgid "👫 Gender"
 msgstr ""
 
-#: app/handlers/profile.py:113 app/keyboards.py:71
+#: app/handlers/profile.py:121 app/keyboards.py:82
 msgid "📝 Bio"
 msgstr ""
 
-#: app/handlers/profile.py:137 app/keyboards.py:72
+#: app/handlers/profile.py:148 app/keyboards.py:83
 msgid "👩‍❤️‍👨 Gender preferences"
 msgstr ""
 
-#: app/handlers/profile.py:166 app/keyboards.py:72
+#: app/handlers/profile.py:174 app/keyboards.py:83
 msgid "🔢 Age preferences"
 msgstr ""
 
-#: app/handlers/profile.py:200 app/keyboards.py:73
+#: app/handlers/profile.py:201 app/keyboards.py:84
 msgid "📍 Location"
 msgstr ""
 
-#: app/handlers/profile.py:221 app/keyboards.py:73
+#: app/handlers/profile.py:224 app/keyboards.py:84
 msgid "📷 Media"
 msgstr ""
 
-#: app/dto/user.py:48
-msgid "Name must only contain letters"
+#: app/validators.py:22
+msgid "Name must only contain letters and spaces"
+msgstr ""
+
+#: app/validators.py:25
+msgid "Name must be at least {min_length} characters long"
+msgstr ""
+
+#: app/validators.py:28
+msgid "Name must be less than {max_length} characters long"
+msgstr ""
+
+#: app/validators.py:92
+msgid "Bio must be less than {max_length} characters long"
+msgstr ""
+
+#: app/validators.py:99
+msgid "Please upload at least {min_length} media file"
+msgstr ""
+
+#: app/validators.py:102
+msgid "You can upload up to {max_length} media files"
+msgstr ""
+
+#: app/validators.py:111
+msgid "Please enter a valid age range"
+msgstr ""
+
+#: app/validators.py:122
+msgid "Age can't be lower than {min_age}"
+msgstr ""
+
+#: app/validators.py:125
+msgid "Age can't be higher than {max_age}"
+msgstr ""
+
+#: app/validators.py:132
+msgid "Minimum age needs to lower than maximum age"
 msgstr ""
 
 #: app/handlers/likes.py:24
 msgid "No likes found"
 msgstr ""
 
-#: app/handlers/likes.py:27
+#: app/handlers/likes.py:28
 msgid "Likes"
 msgstr ""
 
-#: app/handlers/likes.py:50 app/handlers/search.py:86
-msgid "User not found"
+#: app/handlers/matches.py:24 app/handlers/search.py:31
+msgid "No matches found"
 msgstr ""
 
-#: app/handlers/menu.py:30
+#: app/handlers/matches.py:28
+msgid "Matches"
+msgstr ""
+
+#: app/handlers/menu.py:24
+msgid "Menu"
+msgstr ""
+
+#: app/handlers/menu.py:32
 msgid "What's the reason for reporting this user?"
 msgstr ""
 
-#: app/handlers/menu.py:48
+#: app/handlers/menu.py:50
 msgid "User has been reported"
 msgstr ""
 
-#: app/handlers/menu.py:61
+#: app/handlers/menu.py:56
+msgid "Settings"
+msgstr ""
+
+#: app/handlers/menu.py:62
 msgid ""
 "Are you sure you want to deactivate your account? No one will see your "
 "account and you won't receive any reactions"
 msgstr ""
 
-#: app/handlers/menu.py:63 app/handlers/menu.py:72
+#: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
+#: app/handlers/menu.py:133
 msgid "Yes"
 msgstr ""
 
-#: app/handlers/menu.py:63 app/handlers/menu.py:67
+#: app/handlers/menu.py:64 app/handlers/menu.py:68 app/handlers/menu.py:124
+#: app/handlers/menu.py:128
 msgid "No"
 msgstr ""
 
-#: app/handlers/menu.py:83
-msgid "Your account has been deactivated. To activate it, press the button below"
-msgstr ""
-
-#: app/handlers/menu.py:84 app/handlers/menu.py:88
+#: app/handlers/menu.py:82 app/handlers/menu.py:96
 msgid "Activate my account"
 msgstr ""
 
-#: app/handlers/menu.py:100
+#: app/handlers/menu.py:89
+msgid "Your account has been activated"
+msgstr ""
+
+#: app/handlers/menu.py:95
+msgid "Your account has been deactivated. To activate it, press the button below"
+msgstr ""
+
+#: app/handlers/menu.py:102
 msgid "Choose your language"
 msgstr ""
 
-#: app/handlers/profile.py:26
+#: app/handlers/menu.py:123
+msgid "Are you sure you want to delete your account? All your data will be lost"
+msgstr ""
+
+#: app/handlers/menu.py:138
+msgid "Your account has been deleted. To start again, press the button below"
+msgstr ""
+
+#: app/handlers/menu.py:139 app/handlers/registration.py:29
+msgid "Start registration"
+msgstr ""
+
+#: app/handlers/profile.py:30
 msgid "Press the buttons below to update your profile"
 msgstr ""
 
-#: app/handlers/profile.py:35
+#: app/handlers/profile.py:38
 msgid "Enter your name"
 msgstr ""
 
-#: app/handlers/profile.py:44 app/handlers/registration.py:75
-msgid "Name must be at least 3 characters long"
+#: app/handlers/profile.py:66 app/handlers/registration.py:92
+msgid ""
+"What's your birth date? Use one these formats:\n"
+"\n"
+"<b>YYYY-MM-DD</b> (For example, 2000-12-31)\n"
+"<b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
+"<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
 msgstr ""
 
-#: app/handlers/profile.py:46 app/handlers/registration.py:77
-msgid "Name must be less than 30 characters"
-msgstr ""
-
-#: app/handlers/profile.py:49 app/handlers/registration.py:80
-msgid "Name can only contain letters"
-msgstr ""
-
-#: app/handlers/profile.py:62
-msgid "Enter your age"
-msgstr ""
-
-#: app/handlers/profile.py:73 app/handlers/registration.py:98
-msgid "Please enter a number"
-msgstr ""
-
-#: app/handlers/profile.py:76 app/handlers/registration.py:101
-msgid "You must be at least 18 years old to use this bot"
-msgstr ""
-
-#: app/handlers/profile.py:78 app/handlers/registration.py:103
-msgid "You must be less than 100 years old to use this bot"
-msgstr ""
-
-#: app/handlers/profile.py:91
+#: app/handlers/profile.py:97
 msgid "Select your gender"
 msgstr ""
 
-#: app/handlers/profile.py:115 app/handlers/registration.py:134
+#: app/handlers/profile.py:123 app/handlers/registration.py:139
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr ""
 
-#: app/handlers/profile.py:125 app/handlers/registration.py:149
-msgid "Bio must be less than 255 characters"
-msgstr ""
-
-#: app/handlers/profile.py:139 app/handlers/registration.py:157
+#: app/handlers/profile.py:150 app/handlers/registration.py:162
 msgid "Who are you looking for?"
 msgstr ""
 
-#: app/handlers/profile.py:168
+#: app/handlers/profile.py:176
 msgid "Enter preferred age range"
 msgstr ""
 
-#: app/handlers/profile.py:179 app/handlers/registration.py:195
-msgid "Please enter a valid age range"
-msgstr ""
-
-#: app/handlers/profile.py:182 app/handlers/registration.py:198
-msgid "Min age must be less than max age"
-msgstr ""
-
-#: app/handlers/profile.py:184 app/handlers/registration.py:200
-msgid "Age range must be between 18 and 100"
-msgstr ""
-
-#: app/handlers/profile.py:202
+#: app/handlers/profile.py:203
 msgid "Send your location"
 msgstr ""
 
-#: app/handlers/profile.py:223 app/handlers/registration.py:223
+#: app/handlers/profile.py:226 app/handlers/registration.py:223
 msgid "Please upload photos or videos of yourself"
 msgstr ""
 
-#: app/handlers/profile.py:227 app/handlers/profile.py:290
-#: app/handlers/registration.py:228 app/handlers/registration.py:289
+#: app/handlers/profile.py:230 app/handlers/profile.py:294
+#: app/handlers/registration.py:228 app/handlers/registration.py:292
 msgid "Continue"
 msgstr ""
 
-#: app/handlers/profile.py:231 app/handlers/registration.py:232
+#: app/handlers/profile.py:234
 msgid "Please upload at least one photo"
 msgstr ""
 
-#: app/handlers/profile.py:242 app/handlers/registration.py:241
-msgid "You can upload at most 3 images/videos"
+#: app/handlers/profile.py:290 app/handlers/registration.py:288
+msgid "File has been uploaded"
 msgstr ""
 
-#: app/handlers/profile.py:288 app/handlers/registration.py:287
+#: app/handlers/profile.py:293 app/handlers/registration.py:291
 msgid ""
-"{media_type} has been uploaded. Upload more photos if you want or press "
+"File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
 msgstr ""
 
-#: app/handlers/registration.py:43 app/handlers/test.py:34
+#: app/handlers/registration.py:51 app/handlers/test.py:39
 msgid "Hi! Please select a language"
 msgstr ""
 
-#: app/handlers/registration.py:61
+#: app/handlers/registration.py:69
 msgid "Please select one of the given languages"
 msgstr ""
 
-#: app/handlers/registration.py:65
+#: app/handlers/registration.py:73
 msgid "What is your name?"
 msgstr ""
 
-#: app/handlers/registration.py:87
-msgid "How old are you?"
-msgstr ""
-
-#: app/handlers/registration.py:110
+#: app/handlers/registration.py:115
 msgid "What is your gender?"
 msgstr ""
 
-#: app/handlers/registration.py:130
+#: app/handlers/registration.py:135
 msgid "Please select one of the given options"
 msgstr ""
 
-#: app/handlers/registration.py:135 app/handlers/registration.py:139
-#: app/handlers/registration.py:177 app/handlers/registration.py:181
+#: app/handlers/registration.py:140 app/handlers/registration.py:144
+#: app/handlers/registration.py:182 app/handlers/registration.py:186
 msgid "Skip"
 msgstr ""
 
-#: app/handlers/registration.py:176
+#: app/handlers/registration.py:181
 msgid "What is your preferred age range? (e.g. 18-25)"
 msgstr ""
 
@@ -288,31 +328,35 @@ msgstr ""
 msgid "Please share your location"
 msgstr ""
 
-#: app/handlers/registration.py:298
+#: app/handlers/registration.py:330
 msgid "Registration has been completed!"
 msgstr ""
 
-#: app/handlers/search.py:27
-msgid "No matches found"
-msgstr ""
-
 #: app/handlers/search.py:56
-msgid "No more matches to rewind"
+msgid "You can't rewind more than {rewind_limit} times"
 msgstr ""
 
 #: app/handlers/search.py:61
+msgid "No more matches to rewind"
+msgstr ""
+
+#: app/handlers/search.py:66
 msgid "⏪ Rewinding"
 msgstr ""
 
-#: app/handlers/search.py:100
+#: app/handlers/search.py:90
+msgid "User not found"
+msgstr ""
+
+#: app/handlers/search.py:116
 msgid "You got a new match 🎉. Click \"👍 Likes\" button on the /menu"
 msgstr ""
 
-#: app/handlers/search.py:102
+#: app/handlers/search.py:118
 msgid "You got a new mutual match 🎉. Click \"❤️ Matches\" button on the /menu"
 msgstr ""
 
-#: app/handlers/test.py:46
+#: app/handlers/test.py:59
 msgid "You are not registered!"
 msgstr ""
 
