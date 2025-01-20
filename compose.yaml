@@ -1,18 +1,23 @@
-version: '3.8'
-
 services:
   bot:
-    build: 
+    build:
       context: .
-      target: development
-    volumes:
-      - .:/app
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+        - action: rebuild
+          path: ./pyproject.toml
     env_file:
       - .env
     depends_on:
       - db
       - redis
-    user: "1000:1000"
+    user: appuser
     command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 main.py
 
   db:

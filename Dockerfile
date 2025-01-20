@@ -1,23 +1,37 @@
-FROM python:3.12-slim as base
+FROM ghcr.io/astral-sh/uv:python3.13-alpine AS builder
 
 WORKDIR /app
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ADD . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
-COPY . .
 
-FROM base as development
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov ipython watchdog[watchmedo]
+FROM builder AS builder-dev
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --dev
 
-FROM base as production
-ENV PYTHONUNBUFFERED=1
-RUN pip install --no-cache-dir gunicorn
+# Multi-stage build
+
+FROM python:3.13-alpine AS dev
+WORKDIR /app
+RUN addgroup -g 1000 appuser && \
+    adduser -u 1000 -G appuser -s /bin/sh -D appuser
+USER appuser
+COPY --from=builder-dev --chown=appuser:appuser /app /app
+ENV PATH="/app/.venv/bin:$PATH"
+
+
+FROM python:3.13-alpine AS prod
+WORKDIR /app
+RUN addgroup -g 1000 appuser && \
+    adduser -u 1000 -G appuser -s /bin/sh -D appuser
+USER appuser
+COPY --from=builder --chown=appuser:appuser /app /app
+ENV PATH="/app/.venv/bin:$PATH"

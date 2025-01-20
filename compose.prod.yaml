@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   bot:
     build:
       context: .
       target: production
     env_file:
-      - .env.prod
+      - .env
     depends_on:
       - db
       - redis
-    user: "${UID}:${GID}"
-    command: python main.py
+    user: appuser
+    command: python3 main.py
     restart: always
     logging:
       driver: "json-file"
@@ -24,7 +22,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - .env.prod
+      - .env
     restart: always
     logging:
       driver: "json-file"
