@@ -27,6 +27,7 @@ class User(Base):
     longitude: Mapped[float]
 
     ui_language: Mapped[UILanguages]
+    phone_number: Mapped[str]
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

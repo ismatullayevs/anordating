@@ -73,6 +73,7 @@ async def rewind(message: types.Message, state: FSMContext, user: User, with_key
 
 @router.message(MenuStates.search, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
 @router.message(MenuStates.likes, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
+@router.message(MenuStates.matches, F.text == "👎", IsActiveHumanUser())
 async def react(message: types.Message, state: FSMContext, user: User):
     assert message.text
     current_state = await state.get_state()

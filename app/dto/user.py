@@ -38,6 +38,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
     latitude: float
     longitude: float
     ui_language: UILanguages
+    phone_number: str
 
     @property
     def orm_model(self):

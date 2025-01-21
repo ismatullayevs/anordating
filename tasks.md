@@ -1,5 +1,6 @@
 # Tasks
 
+sort matches by max(reaction1.updated_at, reaction2.updated_at)
 make notify_match function better
 use webhooks
 remove unnecessary queries
@@ -17,3 +18,4 @@ add testing
 add `back` buttons
 optimize get_likes
 optimize notify_user
+stats (cpu load, database queries, etc.)

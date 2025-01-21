@@ -14,21 +14,35 @@ router = Router()
 router.message.filter(IsHuman())
 
 
+@router.message(MenuStates.matches, F.text.in_(["⬅️", "➡️"]), IsActiveHumanUser())
 @router.message(MenuStates.menu, F.text == __("❤️ Matches"), IsActiveHumanUser())
-async def show_matches(message: types.Message, state: FSMContext, user: User, with_keyboard: bool | None = True):
-    await state.update_data(match_id=None)
-    await state.update_data(rewind_index=0)
+async def show_matches(message: types.Message, state: FSMContext, user: User):
+    if message.text == _("❤️ Matches"):
+        index = 0
+    else:
+        index = await state.get_value("index") or 0
 
-    matches = await get_matches(user, limit=1)
-    if not matches:
+    if message.text == "⬅️":
+        index += 1
+    elif message.text == "➡️" and index > 0:
+        index -= 1
+
+    has_previous, has_next = False, index > 0
+    matches = await get_matches(user, limit=2, offset=index)
+    if not matches:  # TODO: Return the last match instead
         await message.answer(_("No matches found"))
         return await show_menu(message, state)
-
-    if with_keyboard:
-        await message.answer(_("Matches"), reply_markup=get_matches_keyboard())
+    if len(matches) == 2:
+        has_previous = True
 
     match = matches[0]
     profile = await get_profile_card(match)
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
+
+    await message.answer(_("You both liked each other. You can talk to them by clicking this {link}")
+                         .format(link=f"<a href='https://t.me/{match.phone_number}'>link</a>"),
+                         reply_markup=get_matches_keyboard(has_previous, has_next),
+                         parse_mode="HTML")
     await state.set_state(MenuStates.matches)
+    await state.update_data(index=index)

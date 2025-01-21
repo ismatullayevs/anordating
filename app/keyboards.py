@@ -21,9 +21,9 @@ GENDER_PREFERENCES = (
 )
 
 
-def make_keyboard(items: list[list[str]]) -> ReplyKeyboardMarkup:
+def make_keyboard(items: list[list[str]], placeholder: str | None = None) -> ReplyKeyboardMarkup:
     keyboard = [[KeyboardButton(text=text) for text in row] for row in items]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder)
 
 
 def get_menu_keyboard() -> ReplyKeyboardMarkup:
@@ -37,8 +37,14 @@ def get_search_keyboard() -> ReplyKeyboardMarkup:
     return make_keyboard(items)
 
 
-def get_matches_keyboard() -> ReplyKeyboardMarkup:
-    items = [["⬅️", "👎", "➡️"], [_("✍️ Report"), _("⬅️ Menu")]]
+def get_matches_keyboard(has_previous=False, has_next=False) -> ReplyKeyboardMarkup:
+    top = ["👎"]
+    if has_previous:
+        top.insert(0, "⬅️")
+    if has_next:
+        top.append("➡️")
+
+    items = [top, [_("✍️ Report"), _("⬅️ Menu")]]
     return make_keyboard(items)
 
 
@@ -68,6 +74,13 @@ def get_genders_keyboard():
 
 def get_preferred_genders_keyboard():
     return make_keyboard([[str(x[0])] for x in GENDER_PREFERENCES])
+
+
+def get_ask_phone_number_keyboard() -> ReplyKeyboardMarkup:
+    keyboard = [
+        [KeyboardButton(text=_("📱 Share phone number"), request_contact=True)],
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 def get_ask_location_keyboard() -> ReplyKeyboardMarkup:

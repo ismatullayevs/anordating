@@ -11,6 +11,7 @@ class RegistrationStates(StatesGroup):
     age_preferences = State()
     location = State()
     media = State()
+    phone_number = State()
 
 
 class MenuStates(StatesGroup):

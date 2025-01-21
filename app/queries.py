@@ -2,7 +2,7 @@ from app.matching.rating import get_new_rating
 from app.models.user import Reaction, User, Report
 from app.core.db import session_factory
 from app.enums import ReactionType
-from sqlalchemy import and_, exists, select, exc
+from sqlalchemy import and_, exists, select, exc, func
 from sqlalchemy.orm import selectinload, joinedload, aliased
 
 
@@ -70,7 +70,7 @@ async def get_likes(user: User, limit: int | None = None):
         return res.all()
 
 
-async def get_matches(user: User, limit: int | None = None):
+async def get_matches(user: User, limit: int | None = None, offset: int | None = None):
     async with session_factory() as session:
         their_reaction = aliased(Reaction)
         my_reaction = aliased(Reaction)
@@ -107,10 +107,12 @@ async def get_matches(user: User, limit: int | None = None):
                         Report.to_user_id == user.id,
                     )
                 ))
-            .order_by(their_reaction.updated_at.desc()))
+            .order_by(func.greatest(my_reaction.updated_at, their_reaction.updated_at).desc()))
         
         if limit:
             query = query.limit(limit)
+        if offset:
+            query = query.offset(offset)
 
         return (await session.scalars(query)).all()
 
@@ -154,13 +156,14 @@ async def get_nth_last_reacted_match(user: User, n: int):
                      Reaction.from_user_id == user.id,
                      User.is_active == True))
                  .order_by(Reaction.updated_at.desc())
-                 .limit(n+1))
+                 .limit(1)
+                 .offset(n))
         matches = (await session.scalars(query)).all()
 
-    if len(matches) <= n:
+    if not matches:
         return None
 
-    return matches[n]
+    return matches[0]
 
 
 async def is_mutual(reaction: Reaction):

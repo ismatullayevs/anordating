@@ -32,7 +32,7 @@ def validate_name(value: str) -> str:
 
 def validate_birth_date(value: str) -> datetime:
     """
-    Parse a date string and validate that the person is between 18 and 100 years old.
+    Parse a date string and validate that the person is between given age range.
 
     Supported formats:
     - YYYY-MM-DD (e.g., "1970-10-20")
@@ -47,7 +47,7 @@ def validate_birth_date(value: str) -> datetime:
 
     Raises:
         ValueError: If the string cannot be parsed into a valid date
-                   or if the age is not between 18 and 100 years
+                   or if the age is not between given age range
     """
     formats = [
         '%Y-%m-%d',
