@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 15:21+0500\n"
+"POT-Creation-Date: 2025-01-24 19:09+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -21,233 +21,239 @@ msgstr ""
 
 #: app/keyboards.py:13
 msgid "Male 👨‍🦱"
-msgstr ""
+msgstr "Мужчина 👨‍🦱"
 
 #: app/keyboards.py:14
 msgid "Female 👩‍🦱"
-msgstr ""
+msgstr "Женщина 👩‍🦱"
 
 #: app/keyboards.py:18
-msgid "I'm looking for men 👨‍🦱"
-msgstr ""
+msgid "I'm looking for a man 👨‍🦱"
+msgstr "Я ищу мужчину 👨‍🦱"
 
 #: app/keyboards.py:19
-msgid "I'm looking for women 👩‍🦱"
-msgstr ""
+msgid "I'm looking for a woman 👩‍🦱"
+msgstr "Я ищу женщину 👩‍🦱"
 
 #: app/keyboards.py:20
 msgid "I'm looking for friends 👫"
-msgstr ""
+msgstr "Я ищу друзей 👫"
 
 #: app/handlers/search.py:24 app/keyboards.py:30
 msgid "🔎 Watch profiles"
-msgstr ""
+msgstr "🔎 Смотреть профили"
 
 #: app/handlers/likes.py:17 app/keyboards.py:30
 msgid "👍 Likes"
-msgstr ""
+msgstr "👍 Вы понравились"
 
 #: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
 msgid "❤️ Matches"
-msgstr ""
+msgstr "❤️ Соврадения"
 
 #: app/handlers/menu.py:54 app/keyboards.py:31
 msgid "⚙️ Settings"
-msgstr ""
+msgstr "⚙️ Настройки"
 
 #: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
 #: app/keyboards.py:36 app/keyboards.py:47
 msgid "✍️ Report"
-msgstr ""
+msgstr "✍️ Пожаловаться"
 
 #: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:47
 #: app/keyboards.py:54 app/keyboards.py:63 app/keyboards.py:97
 msgid "⬅️ Menu"
-msgstr ""
+msgstr "⬅️ Меню"
 
 #: app/handlers/menu.py:100 app/keyboards.py:52
 msgid "🌐 Language"
-msgstr ""
+msgstr "🌐 Язык"
 
 #: app/handlers/profile.py:25 app/keyboards.py:52
 msgid "👤 My profile"
-msgstr ""
+msgstr "👤 Мой профиль"
 
 #: app/handlers/menu.py:60 app/keyboards.py:53
 msgid "⛔️ Deactivate"
-msgstr ""
+msgstr "⛔️ Деактивировать"
 
 #: app/handlers/menu.py:121 app/keyboards.py:53
 msgid "❌ Delete account"
-msgstr ""
+msgstr "❌ Удалить аккаунт"
 
 #: app/handlers/search.py:44 app/keyboards.py:63
 msgid "⏪ Rewind"
-msgstr ""
+msgstr "⏪ Отмотать"
 
 #: app/keyboards.py:81
 msgid "📱 Share phone number"
-msgstr ""
+msgstr "📱 Поделиться номером телефона"
 
 #: app/keyboards.py:88
 msgid "📍 Send location"
-msgstr ""
+msgstr "📍 Отправить местоположение"
 
 #: app/handlers/profile.py:36 app/keyboards.py:95
 msgid "✏️ Name"
-msgstr ""
+msgstr "✏️ Имя"
 
 #: app/handlers/profile.py:64 app/keyboards.py:95
 msgid "🔢 Birthdate"
-msgstr ""
+msgstr "🔢 Дата рождения"
 
 #: app/handlers/profile.py:95 app/keyboards.py:95
 msgid "👫 Gender"
-msgstr ""
+msgstr "👫 Пол"
 
 #: app/handlers/profile.py:121 app/keyboards.py:95
 msgid "📝 Bio"
-msgstr ""
+msgstr "📝 Био"
 
 #: app/handlers/profile.py:148 app/keyboards.py:96
 msgid "👩‍❤️‍👨 Gender preferences"
-msgstr ""
+msgstr "👩‍❤️‍👨 Гендерные предпочтения"
 
 #: app/handlers/profile.py:174 app/keyboards.py:96
 msgid "🔢 Age preferences"
-msgstr ""
+msgstr "🔢 Возрастные предпочтения"
 
 #: app/handlers/profile.py:201 app/keyboards.py:97
 msgid "📍 Location"
-msgstr ""
+msgstr "📍 Местоположение"
 
 #: app/handlers/profile.py:224 app/keyboards.py:97
 msgid "📷 Media"
-msgstr ""
+msgstr "📷 Медиа"
 
 #: app/validators.py:22
 msgid "Name must only contain letters and spaces"
-msgstr ""
+msgstr "Имя должно содержать только буквы и пробелы"
 
 #: app/validators.py:25
 msgid "Name must be at least {min_length} characters long"
-msgstr ""
+msgstr "Имя должно содержать не менее {min_length} символов."
 
 #: app/validators.py:28
 msgid "Name must be less than {max_length} characters long"
-msgstr ""
+msgstr "Имя должно содержать менее {max_length} символов."
 
 #: app/validators.py:92
 msgid "Bio must be less than {max_length} characters long"
-msgstr ""
+msgstr "Биография должна содержать менее {max_length} символов."
 
 #: app/validators.py:99
-msgid "Please upload at least {min_length} media file"
-msgstr ""
+msgid "Please upload at least {min_length} media files"
+msgstr "Пожалуйста, загрузите медиафайл длиной не менее {min_length}."
 
 #: app/validators.py:102
 msgid "You can upload up to {max_length} media files"
-msgstr ""
+msgstr "Вы можете загрузить до {max_length} медиафайлов."
 
 #: app/validators.py:111
 msgid "Please enter a valid age range"
-msgstr ""
+msgstr "Пожалуйста, введите действительный возрастной диапазон"
 
 #: app/validators.py:122
 msgid "Age can't be lower than {min_age}"
-msgstr ""
+msgstr "Возраст не может быть ниже {min_age}"
 
 #: app/validators.py:125
 msgid "Age can't be higher than {max_age}"
-msgstr ""
+msgstr "Возраст не может быть больше {max_age}."
 
 #: app/validators.py:132
 msgid "Minimum age needs to lower than maximum age"
-msgstr ""
+msgstr "Минимальный возраст должен быть ниже максимального."
 
 #: app/handlers/likes.py:24
 msgid "No likes found"
-msgstr ""
+msgstr "Лайков не обнаружено"
 
 #: app/handlers/likes.py:28
 msgid "Likes"
-msgstr ""
+msgstr "Вы понравились"
 
 #: app/handlers/matches.py:33 app/handlers/search.py:31
 msgid "No matches found"
-msgstr ""
+msgstr "Совпадений не найдено"
 
 #: app/handlers/matches.py:43
-msgid "You both liked each other. You can talk to them by clicking this {link}"
+msgid ""
+"You both liked each other. You can talk to them by clicking this <a "
+"href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
+"Вы оба понравились друг другу. Вы можете поговорить с ними, перейдя по этой "
+"<a href='https://t.me/{phone_number}'>ссылке</a>"
 
 #: app/handlers/menu.py:24
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: app/handlers/menu.py:32
 msgid "What's the reason for reporting this user?"
-msgstr ""
+msgstr "Какова причина жалобы на этого пользователя?"
 
 #: app/handlers/menu.py:50
 msgid "User has been reported"
-msgstr ""
+msgstr "На пользователя поступило сообщение"
 
 #: app/handlers/menu.py:56
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: app/handlers/menu.py:62
 msgid ""
-"Are you sure you want to deactivate your account?No one will see your "
+"Are you sure you want to deactivate your account? No one will see your "
 "account, even the users that you liked"
 msgstr ""
+"Вы уверены, что хотите деактивировать свой аккаунт? Никто не увидит ваш аккаунт, "
+"даже те пользователи, которые вам понравились"
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
 #: app/handlers/menu.py:133
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:68 app/handlers/menu.py:124
 #: app/handlers/menu.py:128
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: app/handlers/menu.py:82 app/handlers/menu.py:96
 msgid "Activate my account"
-msgstr ""
+msgstr "Активировать мою учетную запись"
 
 #: app/handlers/menu.py:89
 msgid "Your account has been activated"
-msgstr ""
+msgstr "Ваша учетная запись активирована"
 
 #: app/handlers/menu.py:95
 msgid "Your account has been deactivated. To activate it, press the button below"
-msgstr ""
+msgstr "Ваша учетная запись была деактивирована. Чтобы активировать его, нажмите кнопку ниже"
 
 #: app/handlers/menu.py:102
 msgid "Choose your language"
-msgstr ""
+msgstr "Выберите свой язык"
 
 #: app/handlers/menu.py:123
 msgid "Are you sure you want to delete your account? All your data will be lost"
-msgstr ""
+msgstr "Вы уверены, что хотите удалить свою учетную запись? Все ваши данные будут потеряны"
 
 #: app/handlers/menu.py:142
 msgid "Your account has been deleted. To start again, press the button below"
-msgstr ""
+msgstr "Ваш аккаунт был удален. Чтобы начать заново, нажмите кнопку ниже"
 
 #: app/handlers/menu.py:143 app/handlers/registration.py:29
 msgid "Start registration"
-msgstr ""
+msgstr "Начать регистрацию"
 
 #: app/handlers/profile.py:30
 msgid "Press the buttons below to update your profile"
-msgstr ""
+msgstr "Нажмите кнопки ниже, чтобы обновить свой профиль"
 
 #: app/handlers/profile.py:38
 msgid "Enter your name"
-msgstr ""
+msgstr "Введите свое имя"
 
 #: app/handlers/profile.py:66 app/handlers/registration.py:92
 msgid ""
@@ -257,114 +263,121 @@ msgid ""
 "<b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
 "<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
 msgstr ""
+"Какая у вас дата рождения? Используйте один из этих форматов:\n"
+"\n"
+"<b>ГГГГ-ММ-ДД</b> (например, 2000-12-31)\n"
+"<b>ДД.ММ.ГГГГ</b> (например, 31.12.2000)\n"
+"<b>ММ/ДД/ГГГГ</b> (например, 12/31/2000)"
 
 #: app/handlers/profile.py:97
 msgid "Select your gender"
-msgstr ""
+msgstr "Выберите свой пол"
 
 #: app/handlers/profile.py:123 app/handlers/registration.py:139
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
-msgstr ""
+msgstr "Расскажите нам больше о себе. Какие у вас хобби, интересы и т. д.?"
 
 #: app/handlers/profile.py:150 app/handlers/registration.py:162
 msgid "Who are you looking for?"
-msgstr ""
+msgstr "Какого человека вы ищете?"
 
 #: app/handlers/profile.py:176
 msgid "Enter preferred age range"
-msgstr ""
+msgstr "Введите предпочтительный возрастной диапазон"
 
 #: app/handlers/profile.py:203
 msgid "Send your location"
-msgstr ""
+msgstr "Отправьте свое местоположение"
 
 #: app/handlers/profile.py:226 app/handlers/registration.py:223
 msgid "Please upload photos or videos of yourself"
-msgstr ""
+msgstr "Пожалуйста, загрузите свои фотографии или видео"
 
 #: app/handlers/profile.py:230 app/handlers/profile.py:294
 #: app/handlers/registration.py:228 app/handlers/registration.py:292
 msgid "Continue"
-msgstr ""
+msgstr "Продолжать"
 
 #: app/handlers/profile.py:234
 msgid "Please upload at least one photo"
-msgstr ""
+msgstr "Пожалуйста, загрузите хотя бы одну фотографию"
 
 #: app/handlers/profile.py:290 app/handlers/registration.py:288
 msgid "File has been uploaded"
-msgstr ""
+msgstr "Файл загружен"
 
 #: app/handlers/profile.py:293 app/handlers/registration.py:291
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
 msgstr ""
+"Файл загружен. Если хотите, загрузите еще медиафайлы или нажмите "
+"\"Продолжать\""
 
 #: app/handlers/registration.py:51 app/handlers/test.py:39
 msgid "Hi! Please select a language"
-msgstr ""
+msgstr "Привет! Пожалуйста, выберите язык"
 
 #: app/handlers/registration.py:69
 msgid "Please select one of the given languages"
-msgstr ""
+msgstr "Пожалуйста, выберите один из указанных языков"
 
 #: app/handlers/registration.py:73
 msgid "What is your name?"
-msgstr ""
+msgstr "Как вас зовут?"
 
 #: app/handlers/registration.py:115
 msgid "What is your gender?"
-msgstr ""
+msgstr "Какой у вас пол?"
 
 #: app/handlers/registration.py:135
 msgid "Please select one of the given options"
-msgstr ""
+msgstr "Пожалуйста, выберите один из предложенных вариантов"
 
 #: app/handlers/registration.py:140 app/handlers/registration.py:144
 #: app/handlers/registration.py:182 app/handlers/registration.py:186
 msgid "Skip"
-msgstr ""
+msgstr "Пропускать"
 
 #: app/handlers/registration.py:181
 msgid "What is your preferred age range? (e.g. 18-25)"
-msgstr ""
+msgstr "Каков ваш предпочтительный возрастной диапазон? (например, 18–25)"
 
 #: app/handlers/registration.py:208
 msgid "Please share your location"
-msgstr ""
+msgstr "Пожалуйста, поделитесь своим местоположением"
 
 #: app/handlers/registration.py:296
 msgid "Please share your phone number"
-msgstr ""
+msgstr "Поделитесь, пожалуйста, своим номером телефона"
 
 #: app/handlers/registration.py:306
 msgid "Please share your own phone number"
-msgstr ""
+msgstr "Поделитесь, пожалуйста, своим номером телефона"
 
 #: app/handlers/registration.py:314
 msgid "Please share your phone number by clicking the button below"
-msgstr ""
+msgstr "Поделитесь, пожалуйста, своим номером телефона, нажав кнопку ниже."
 
 #: app/handlers/registration.py:353
 msgid "Registration has been completed!"
-msgstr ""
+msgstr "Регистрация завершена!"
 
 #: app/handlers/search.py:56
 msgid "You can't rewind more than {rewind_limit} times"
-msgstr ""
+msgstr "Вы не можете перематывать назад более {rewind_limit} раз."
 
 #: app/handlers/search.py:61
 msgid "No more matches to rewind"
-msgstr ""
+msgstr "Больше нет матчей для перемотки"
 
 #: app/handlers/search.py:66
 msgid "⏪ Rewinding"
-msgstr ""
+msgstr "⏪ Перематываем"
 
 #: app/handlers/search.py:91
 msgid "User not found"
-msgstr ""
+msgstr "Пользователь не найден"
 
 #: app/handlers/search.py:120
 msgid ""
@@ -374,14 +387,18 @@ msgid ""
 "\n"
 "Click \"❤️ Matches\" in /menu to see your matches"
 msgstr ""
+"Поздравляю. Вы совпали с {match.name}.\n"
+"Вы можете поговорить с ними, нажав на эту <a "
+"href='https://t.me/{match.phone_number}'>ссылку</a>\n"
 
 #: app/handlers/search.py:132
 msgid ""
 "Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
 "them"
 msgstr ""
+"Кому-то понравился ваш профиль. Нажмите кнопку «👍 Нравится» в /menu, чтобы увидеть "
 
 #: app/handlers/test.py:59
 msgid "You are not registered!"
-msgstr ""
+msgstr "Вы не зарегистрированы!"
 

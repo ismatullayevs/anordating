@@ -15,8 +15,8 @@ GENDERS = (
 )
 
 GENDER_PREFERENCES = (
-    (__("I'm looking for men 👨‍🦱"), PreferredGenders.male),
-    (__("I'm looking for women 👩‍🦱"), PreferredGenders.female),
+    (__("I'm looking for a man 👨‍🦱"), PreferredGenders.male),
+    (__("I'm looking for a woman 👩‍🦱"), PreferredGenders.female),
     (__("I'm looking for friends 👫"), PreferredGenders.friends),
 )
 

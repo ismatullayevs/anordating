@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 15:21+0500\n"
+"POT-Creation-Date: 2025-01-24 19:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -26,11 +26,11 @@ msgid "Female 👩‍🦱"
 msgstr "Ayol 👩‍🦱"
 
 #: app/keyboards.py:18
-msgid "I'm looking for men 👨‍🦱"
+msgid "I'm looking for a man 👨‍🦱"
 msgstr "Erkak kishi qidiryapman 👨‍🦱"
 
 #: app/keyboards.py:19
-msgid "I'm looking for women 👩‍🦱"
+msgid "I'm looking for a woman 👩‍🦱"
 msgstr "Ayol kishi qidiryapman 👩‍🦱"
 
 #: app/keyboards.py:20
@@ -140,7 +140,7 @@ msgid "Bio must be less than {max_length} characters long"
 msgstr "Bio uzunligi {max_length} dan kam bo'lishi kerak"
 
 #: app/validators.py:99
-msgid "Please upload at least {min_length} media file"
+msgid "Please upload at least {min_length} media files"
 msgstr "Iltimos, kamida {min_length} ta media fayl jo'nating"
 
 #: app/validators.py:102
@@ -176,10 +176,10 @@ msgid "No matches found"
 msgstr "Hech kim topilmadi"
 
 #: app/handlers/matches.py:43
-msgid "You both liked each other. You can talk to them by clicking this {link}"
+msgid ""
+"You both liked each other. You can talk to them by clicking this <a "
+"href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
-"Siz bir-biringizni yoqtirdingiz. Ushbu {link} orqali bir-biringiz bilan "
-"gaplashishingiz mumkin"
 
 #: app/handlers/menu.py:24
 msgid "Menu"
@@ -199,11 +199,11 @@ msgstr "Sozlamalar"
 
 #: app/handlers/menu.py:62
 msgid ""
-"Are you sure you want to deactivate your account?No one will see your "
+"Are you sure you want to deactivate your account? No one will see your "
 "account, even the users that you liked"
 msgstr ""
-"Ishonchingiz komilmi? Hech kim sizning profilingizni ko'rolmaydi, "
-"hatto siz yoqtirgan foydalanuvchilar ham"
+"Ishonchingiz komilmi? Hech kim sizning profilingizni ko'rolmaydi, hatto "
+"siz yoqtirgan foydalanuvchilar ham"
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
 #: app/handlers/menu.py:133
@@ -277,7 +277,7 @@ msgstr "O'zingiz haqingizda aytib bering (qiziqishlaringiz, hobbilaringiz, ...)"
 
 #: app/handlers/profile.py:150 app/handlers/registration.py:162
 msgid "Who are you looking for?"
-msgstr "Qanaqa inson qidiryapsiz"
+msgstr "Qanaqa inson qidiryapsiz?"
 
 #: app/handlers/profile.py:176
 msgid "Enter preferred age range"
@@ -386,11 +386,10 @@ msgid ""
 "Click \"❤️ Matches\" in /menu to see your matches"
 msgstr ""
 "Tabriklaymiz. Siz va {match.name} bir biringizga mos keldingiz. \n"
-"Ushbu <a href='https://t.me/{match.phone_number}'>link</a> "
-"orqali ular bilan gaplashishingiz mumkin\n"
+"Ushbu <a href='https://t.me/{match.phone_number}'>link</a> orqali ular "
+"bilan gaplashishingiz mumkin\n"
 "\n"
-"Mosliklarni ko'rish uchun /menu ga o'tib \"❤️ Mosliklar\" tugmasini "
-"bosing"
+"Mosliklarni ko'rish uchun /menu ga o'tib \"❤️ Mosliklar\" tugmasini bosing"
 
 #: app/handlers/search.py:132
 msgid ""

@@ -96,7 +96,7 @@ def validate_bio(value: str | None) -> str | None:
 
 def validate_media(value: list) -> list:
     if len(value) < Params.media_min_count:
-        raise ValueError(_("Please upload at least {min_length} media file").format(
+        raise ValueError(_("Please upload at least {min_length} media files").format(
             min_length=Params.media_min_count))
     if len(value) > Params.media_max_count:
         raise ValueError(_("You can upload up to {max_length} media files").format(

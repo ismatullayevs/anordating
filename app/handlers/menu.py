@@ -59,7 +59,7 @@ async def show_settings(message: types.Message, state: FSMContext):
 
 @router.message(MenuStates.settings, F.text == __("⛔️ Deactivate"))
 async def deactivate_account(message: types.Message, state: FSMContext):
-    msg = _("Are you sure you want to deactivate your account?" 
+    msg = _("Are you sure you want to deactivate your account? " 
             "No one will see your account, even the users that you liked")
     await message.answer(msg, reply_markup=make_keyboard([[_("Yes"), _("No")]]))
     await state.set_state(MenuStates.deactivate_confirm)

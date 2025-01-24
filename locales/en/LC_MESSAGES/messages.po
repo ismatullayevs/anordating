@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 15:21+0500\n"
+"POT-Creation-Date: 2025-01-24 19:09+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -140,7 +140,7 @@ msgid "Bio must be less than {max_length} characters long"
 msgstr ""
 
 #: app/validators.py:99
-msgid "Please upload at least {min_length} media file"
+msgid "Please upload at least {min_length} media files"
 msgstr ""
 
 #: app/validators.py:102
@@ -176,7 +176,9 @@ msgid "No matches found"
 msgstr ""
 
 #: app/handlers/matches.py:43
-msgid "You both liked each other. You can talk to them by clicking this {link}"
+msgid ""
+"You both liked each other. You can talk to them by clicking this <a "
+"href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
 
 #: app/handlers/menu.py:24
@@ -197,7 +199,7 @@ msgstr ""
 
 #: app/handlers/menu.py:62
 msgid ""
-"Are you sure you want to deactivate your account?No one will see your "
+"Are you sure you want to deactivate your account? No one will see your "
 "account, even the users that you liked"
 msgstr ""
 

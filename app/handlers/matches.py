@@ -40,8 +40,9 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
 
-    await message.answer(_("You both liked each other. You can talk to them by clicking this {link}")
-                         .format(link=f"<a href='https://t.me/{match.phone_number}'>link</a>"),
+    await message.answer(_("You both liked each other. You can talk to them by clicking this "
+                           "<a href='https://t.me/{phone_number}'>link</a>")
+                         .format(phone_number=match.phone_number),
                          reply_markup=get_matches_keyboard(has_previous, has_next),
                          parse_mode="HTML")
     await state.set_state(MenuStates.matches)

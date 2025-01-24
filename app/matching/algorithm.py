@@ -3,7 +3,7 @@ from app.models.user import Preferences, Report, User, Reaction
 from app.core.db import session_factory
 from app.utils import haversine_distance
 from dataclasses import dataclass
-from sqlalchemy import select, and_, exists, func
+from sqlalchemy import select, and_, exists
 
 
 async def get_potential_matches(current_user: User):
