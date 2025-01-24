@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 19:09+0500\n"
+"POT-Creation-Date: 2025-01-24 21:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -79,7 +79,7 @@ msgstr "⛔️ To'xtatish"
 msgid "❌ Delete account"
 msgstr "❌ Akkountni o'chirish"
 
-#: app/handlers/search.py:44 app/keyboards.py:63
+#: app/handlers/search.py:45 app/keyboards.py:63
 msgid "⏪ Rewind"
 msgstr "⏪ Orqaga"
 
@@ -122,6 +122,10 @@ msgstr "📍 Joylashuv"
 #: app/handlers/profile.py:224 app/keyboards.py:97
 msgid "📷 Media"
 msgstr "📷 Media"
+
+#: app/utils.py:30
+msgid "📍 {dist} km"
+msgstr "📍 {dist} km"
 
 #: app/validators.py:22
 msgid "Name must only contain letters and spaces"
@@ -175,11 +179,13 @@ msgstr "Yoqtirishlar"
 msgid "No matches found"
 msgstr "Hech kim topilmadi"
 
-#: app/handlers/matches.py:43
+#: app/handlers/matches.py:44
 msgid ""
 "You both liked each other. You can talk to them by clicking this <a "
 "href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
+"Siz bir-biringizni yoqtirdingiz. Quyidagi <a href='https://t.me/{phone_number}'>havola</a> orqali ular bilan "
+"gaplashishingiz mumkin"
 
 #: app/handlers/menu.py:24
 msgid "Menu"
@@ -361,23 +367,23 @@ msgstr "Iltimos, pastdagi tugmani bosish orqali telefon raqamingizni jo'nating"
 msgid "Registration has been completed!"
 msgstr "Registratsiya yakunlandi!"
 
-#: app/handlers/search.py:56
+#: app/handlers/search.py:57
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr "{rewind_limit} martadan ko'p ortga qaytarish mumkin emas"
 
-#: app/handlers/search.py:61
+#: app/handlers/search.py:62
 msgid "No more matches to rewind"
 msgstr "Boshqa ortga qaytarib bo'lmaydi"
 
-#: app/handlers/search.py:66
+#: app/handlers/search.py:67
 msgid "⏪ Rewinding"
 msgstr "⏪ Orqaga"
 
-#: app/handlers/search.py:91
+#: app/handlers/search.py:93
 msgid "User not found"
 msgstr "Foydalanuvchi topilmadi"
 
-#: app/handlers/search.py:120
+#: app/handlers/search.py:122
 msgid ""
 "Congratulations. You have matched with {match.name}.\n"
 "You can have a chat with them by clicking this <a "
@@ -391,7 +397,7 @@ msgstr ""
 "\n"
 "Mosliklarni ko'rish uchun /menu ga o'tib \"❤️ Mosliklar\" tugmasini bosing"
 
-#: app/handlers/search.py:132
+#: app/handlers/search.py:134
 msgid ""
 "Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
 "them"

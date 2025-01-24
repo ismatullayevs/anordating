@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 19:09+0500\n"
+"POT-Creation-Date: 2025-01-24 21:59+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -81,7 +81,7 @@ msgstr "⛔️ Деактивировать"
 msgid "❌ Delete account"
 msgstr "❌ Удалить аккаунт"
 
-#: app/handlers/search.py:44 app/keyboards.py:63
+#: app/handlers/search.py:45 app/keyboards.py:63
 msgid "⏪ Rewind"
 msgstr "⏪ Отмотать"
 
@@ -124,6 +124,10 @@ msgstr "📍 Местоположение"
 #: app/handlers/profile.py:224 app/keyboards.py:97
 msgid "📷 Media"
 msgstr "📷 Медиа"
+
+#: app/utils.py:30
+msgid "📍 {dist} km"
+msgstr "📍 {dist} км"
 
 #: app/validators.py:22
 msgid "Name must only contain letters and spaces"
@@ -177,13 +181,13 @@ msgstr "Вы понравились"
 msgid "No matches found"
 msgstr "Совпадений не найдено"
 
-#: app/handlers/matches.py:43
+#: app/handlers/matches.py:44
 msgid ""
 "You both liked each other. You can talk to them by clicking this <a "
 "href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
-"Вы оба понравились друг другу. Вы можете поговорить с ними, перейдя по этой "
-"<a href='https://t.me/{phone_number}'>ссылке</a>"
+"Вы оба понравились друг другу. Вы можете поговорить с ними, перейдя по "
+"этой <a href='https://t.me/{phone_number}'>ссылке</a>"
 
 #: app/handlers/menu.py:24
 msgid "Menu"
@@ -206,8 +210,8 @@ msgid ""
 "Are you sure you want to deactivate your account? No one will see your "
 "account, even the users that you liked"
 msgstr ""
-"Вы уверены, что хотите деактивировать свой аккаунт? Никто не увидит ваш аккаунт, "
-"даже те пользователи, которые вам понравились"
+"Вы уверены, что хотите деактивировать свой аккаунт? Никто не увидит ваш "
+"аккаунт, даже те пользователи, которые вам понравились"
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
 #: app/handlers/menu.py:133
@@ -229,7 +233,9 @@ msgstr "Ваша учетная запись активирована"
 
 #: app/handlers/menu.py:95
 msgid "Your account has been deactivated. To activate it, press the button below"
-msgstr "Ваша учетная запись была деактивирована. Чтобы активировать его, нажмите кнопку ниже"
+msgstr ""
+"Ваша учетная запись была деактивирована. Чтобы активировать его, нажмите "
+"кнопку ниже"
 
 #: app/handlers/menu.py:102
 msgid "Choose your language"
@@ -237,7 +243,9 @@ msgstr "Выберите свой язык"
 
 #: app/handlers/menu.py:123
 msgid "Are you sure you want to delete your account? All your data will be lost"
-msgstr "Вы уверены, что хотите удалить свою учетную запись? Все ваши данные будут потеряны"
+msgstr ""
+"Вы уверены, что хотите удалить свою учетную запись? Все ваши данные будут"
+" потеряны"
 
 #: app/handlers/menu.py:142
 msgid "Your account has been deleted. To start again, press the button below"
@@ -363,23 +371,23 @@ msgstr "Поделитесь, пожалуйста, своим номером т
 msgid "Registration has been completed!"
 msgstr "Регистрация завершена!"
 
-#: app/handlers/search.py:56
+#: app/handlers/search.py:57
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr "Вы не можете перематывать назад более {rewind_limit} раз."
 
-#: app/handlers/search.py:61
+#: app/handlers/search.py:62
 msgid "No more matches to rewind"
 msgstr "Больше нет матчей для перемотки"
 
-#: app/handlers/search.py:66
+#: app/handlers/search.py:67
 msgid "⏪ Rewinding"
 msgstr "⏪ Перематываем"
 
-#: app/handlers/search.py:91
+#: app/handlers/search.py:93
 msgid "User not found"
 msgstr "Пользователь не найден"
 
-#: app/handlers/search.py:120
+#: app/handlers/search.py:122
 msgid ""
 "Congratulations. You have matched with {match.name}.\n"
 "You can have a chat with them by clicking this <a "
@@ -391,12 +399,13 @@ msgstr ""
 "Вы можете поговорить с ними, нажав на эту <a "
 "href='https://t.me/{match.phone_number}'>ссылку</a>\n"
 
-#: app/handlers/search.py:132
+#: app/handlers/search.py:134
 msgid ""
 "Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
 "them"
 msgstr ""
-"Кому-то понравился ваш профиль. Нажмите кнопку «👍 Нравится» в /menu, чтобы увидеть "
+"Кому-то понравился ваш профиль. Нажмите кнопку «👍 Нравится» в /menu, "
+"чтобы увидеть "
 
 #: app/handlers/test.py:59
 msgid "You are not registered!"
