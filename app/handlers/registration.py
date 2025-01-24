@@ -331,6 +331,10 @@ async def finish_registration(message: types.Message, state: FSMContext):
     else:
         telegram_id = message.from_user.id
 
+    phone_number = data["phone_number"]
+    if not phone_number.startswith('+'):
+        phone_number = '+' + phone_number
+
     user = UserRelAddDTO(
         telegram_id=telegram_id,
         name=data["name"],
@@ -340,7 +344,7 @@ async def finish_registration(message: types.Message, state: FSMContext):
         ui_language=data["language"],
         latitude=data["latitude"],
         longitude=data["longitude"],
-        phone_number=data["phone_number"],
+        phone_number=phone_number,
         media=media,
         preferences=preferences
     )
@@ -355,3 +359,4 @@ async def finish_registration(message: types.Message, state: FSMContext):
     profile = await get_profile_card(user_db)
     await message.answer_media_group(profile)
     await show_menu(message, state)
+
