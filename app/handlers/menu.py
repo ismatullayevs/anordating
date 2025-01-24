@@ -59,8 +59,8 @@ async def show_settings(message: types.Message, state: FSMContext):
 
 @router.message(MenuStates.settings, F.text == __("⛔️ Deactivate"))
 async def deactivate_account(message: types.Message, state: FSMContext):
-    msg = _("Are you sure you want to deactivate your account? No one will \
-see your account and you won't receive any reactions")
+    msg = _("Are you sure you want to deactivate your account?" 
+            "No one will see your account, even the users that you liked")
     await message.answer(msg, reply_markup=make_keyboard([[_("Yes"), _("No")]]))
     await state.set_state(MenuStates.deactivate_confirm)
 
@@ -135,5 +135,10 @@ async def delete_account_confirm(message: types.Message, state: FSMContext, user
     async with session_factory() as session:
         await session.delete(user)
         await session.commit()
+    await start_registration_start(message, state)
+
+
+async def start_registration_start(message: types.Message, state: FSMContext):
     await message.answer(_("Your account has been deleted. To start again, press the button below"),
                          reply_markup=make_keyboard([[_("Start registration")]]))
+    await state.set_state(MenuStates.deleted)

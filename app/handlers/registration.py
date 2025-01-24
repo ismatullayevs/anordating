@@ -9,7 +9,7 @@ from app.filters import IsHuman
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
-from app.states import RegistrationStates
+from app.states import MenuStates, RegistrationStates
 from app.queries import get_user
 from app.utils import get_profile_card
 from app.handlers.menu import show_menu, activate_account_start
@@ -26,7 +26,7 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(F.text == __("Start registration"))
+@router.message(MenuStates.deleted, F.text == __("Start registration"))
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     assert message.from_user

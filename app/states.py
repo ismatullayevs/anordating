@@ -25,6 +25,7 @@ class MenuStates(StatesGroup):
     deactivate_confirm = State()
     deactivated = State()
     delete_confirm = State()
+    deleted = State()
 
 
 class ProfileStates(StatesGroup):

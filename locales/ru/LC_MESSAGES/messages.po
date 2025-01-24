@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-19 19:12+0500\n"
+"POT-Creation-Date: 2025-01-24 15:21+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -47,7 +47,7 @@ msgstr ""
 msgid "👍 Likes"
 msgstr ""
 
-#: app/handlers/matches.py:17 app/keyboards.py:31
+#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
 msgid "❤️ Matches"
 msgstr ""
 
@@ -56,68 +56,72 @@ msgid "⚙️ Settings"
 msgstr ""
 
 #: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
-#: app/keyboards.py:36 app/keyboards.py:41
+#: app/keyboards.py:36 app/keyboards.py:47
 msgid "✍️ Report"
 msgstr ""
 
-#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:41
-#: app/keyboards.py:48 app/keyboards.py:57 app/keyboards.py:84
+#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:47
+#: app/keyboards.py:54 app/keyboards.py:63 app/keyboards.py:97
 msgid "⬅️ Menu"
 msgstr ""
 
-#: app/handlers/menu.py:100 app/keyboards.py:46
+#: app/handlers/menu.py:100 app/keyboards.py:52
 msgid "🌐 Language"
 msgstr ""
 
-#: app/handlers/profile.py:25 app/keyboards.py:46
+#: app/handlers/profile.py:25 app/keyboards.py:52
 msgid "👤 My profile"
 msgstr ""
 
-#: app/handlers/menu.py:60 app/keyboards.py:47
+#: app/handlers/menu.py:60 app/keyboards.py:53
 msgid "⛔️ Deactivate"
 msgstr ""
 
-#: app/handlers/menu.py:121 app/keyboards.py:47
+#: app/handlers/menu.py:121 app/keyboards.py:53
 msgid "❌ Delete account"
 msgstr ""
 
-#: app/handlers/search.py:44 app/keyboards.py:57
+#: app/handlers/search.py:44 app/keyboards.py:63
 msgid "⏪ Rewind"
 msgstr ""
 
-#: app/keyboards.py:75
+#: app/keyboards.py:81
+msgid "📱 Share phone number"
+msgstr ""
+
+#: app/keyboards.py:88
 msgid "📍 Send location"
 msgstr ""
 
-#: app/handlers/profile.py:36 app/keyboards.py:82
+#: app/handlers/profile.py:36 app/keyboards.py:95
 msgid "✏️ Name"
 msgstr ""
 
-#: app/handlers/profile.py:64 app/keyboards.py:82
+#: app/handlers/profile.py:64 app/keyboards.py:95
 msgid "🔢 Birthdate"
 msgstr ""
 
-#: app/handlers/profile.py:95 app/keyboards.py:82
+#: app/handlers/profile.py:95 app/keyboards.py:95
 msgid "👫 Gender"
 msgstr ""
 
-#: app/handlers/profile.py:121 app/keyboards.py:82
+#: app/handlers/profile.py:121 app/keyboards.py:95
 msgid "📝 Bio"
 msgstr ""
 
-#: app/handlers/profile.py:148 app/keyboards.py:83
+#: app/handlers/profile.py:148 app/keyboards.py:96
 msgid "👩‍❤️‍👨 Gender preferences"
 msgstr ""
 
-#: app/handlers/profile.py:174 app/keyboards.py:83
+#: app/handlers/profile.py:174 app/keyboards.py:96
 msgid "🔢 Age preferences"
 msgstr ""
 
-#: app/handlers/profile.py:201 app/keyboards.py:84
+#: app/handlers/profile.py:201 app/keyboards.py:97
 msgid "📍 Location"
 msgstr ""
 
-#: app/handlers/profile.py:224 app/keyboards.py:84
+#: app/handlers/profile.py:224 app/keyboards.py:97
 msgid "📷 Media"
 msgstr ""
 
@@ -169,12 +173,12 @@ msgstr ""
 msgid "Likes"
 msgstr ""
 
-#: app/handlers/matches.py:24 app/handlers/search.py:31
+#: app/handlers/matches.py:33 app/handlers/search.py:31
 msgid "No matches found"
 msgstr ""
 
-#: app/handlers/matches.py:28
-msgid "Matches"
+#: app/handlers/matches.py:43
+msgid "You both liked each other. You can talk to them by clicking this {link}"
 msgstr ""
 
 #: app/handlers/menu.py:24
@@ -195,8 +199,8 @@ msgstr ""
 
 #: app/handlers/menu.py:62
 msgid ""
-"Are you sure you want to deactivate your account? No one will see your "
-"account and you won't receive any reactions"
+"Are you sure you want to deactivate your account?No one will see your "
+"account, even the users that you liked"
 msgstr ""
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
@@ -229,11 +233,11 @@ msgstr ""
 msgid "Are you sure you want to delete your account? All your data will be lost"
 msgstr ""
 
-#: app/handlers/menu.py:138
+#: app/handlers/menu.py:142
 msgid "Your account has been deleted. To start again, press the button below"
 msgstr ""
 
-#: app/handlers/menu.py:139 app/handlers/registration.py:29
+#: app/handlers/menu.py:143 app/handlers/registration.py:29
 msgid "Start registration"
 msgstr ""
 
@@ -330,7 +334,19 @@ msgstr ""
 msgid "Please share your location"
 msgstr ""
 
-#: app/handlers/registration.py:330
+#: app/handlers/registration.py:296
+msgid "Please share your phone number"
+msgstr ""
+
+#: app/handlers/registration.py:306
+msgid "Please share your own phone number"
+msgstr ""
+
+#: app/handlers/registration.py:314
+msgid "Please share your phone number by clicking the button below"
+msgstr ""
+
+#: app/handlers/registration.py:353
 msgid "Registration has been completed!"
 msgstr ""
 
@@ -346,16 +362,23 @@ msgstr ""
 msgid "⏪ Rewinding"
 msgstr ""
 
-#: app/handlers/search.py:90
+#: app/handlers/search.py:91
 msgid "User not found"
 msgstr ""
 
-#: app/handlers/search.py:116
-msgid "You got a new match 🎉. Click \"👍 Likes\" button on the /menu"
+#: app/handlers/search.py:120
+msgid ""
+"Congratulations. You have matched with {match.name}.\n"
+"You can have a chat with them by clicking this <a "
+"href='https://t.me/{match.phone_number}'>link</a>\n"
+"\n"
+"Click \"❤️ Matches\" in /menu to see your matches"
 msgstr ""
 
-#: app/handlers/search.py:118
-msgid "You got a new mutual match 🎉. Click \"❤️ Matches\" button on the /menu"
+#: app/handlers/search.py:132
+msgid ""
+"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
+"them"
 msgstr ""
 
 #: app/handlers/test.py:59

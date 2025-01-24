@@ -1,5 +1,6 @@
 # Tasks
 
+add an option to clear preferred age range
 sort matches by max(reaction1.updated_at, reaction2.updated_at)
 make notify_match function better
 use webhooks

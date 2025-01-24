@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-19 19:12+0500\n"
+"POT-Creation-Date: 2025-01-24 15:21+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -43,9 +43,9 @@ msgstr "🔎 Profillarni ko'rish"
 
 #: app/handlers/likes.py:17 app/keyboards.py:30
 msgid "👍 Likes"
-msgstr "👍 Layklar"
+msgstr "👍 Yoqtirishlar"
 
-#: app/handlers/matches.py:17 app/keyboards.py:31
+#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
 msgid "❤️ Matches"
 msgstr "❤️ Mosliklar"
 
@@ -54,68 +54,72 @@ msgid "⚙️ Settings"
 msgstr "⚙️ Sozlamalar"
 
 #: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
-#: app/keyboards.py:36 app/keyboards.py:41
+#: app/keyboards.py:36 app/keyboards.py:47
 msgid "✍️ Report"
 msgstr "✍️ Shikoyat qilish"
 
-#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:41
-#: app/keyboards.py:48 app/keyboards.py:57 app/keyboards.py:84
+#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:47
+#: app/keyboards.py:54 app/keyboards.py:63 app/keyboards.py:97
 msgid "⬅️ Menu"
 msgstr "⬅️ Menyu"
 
-#: app/handlers/menu.py:100 app/keyboards.py:46
+#: app/handlers/menu.py:100 app/keyboards.py:52
 msgid "🌐 Language"
 msgstr "🌐 Til"
 
-#: app/handlers/profile.py:25 app/keyboards.py:46
+#: app/handlers/profile.py:25 app/keyboards.py:52
 msgid "👤 My profile"
 msgstr "👤 Mening profilim"
 
-#: app/handlers/menu.py:60 app/keyboards.py:47
+#: app/handlers/menu.py:60 app/keyboards.py:53
 msgid "⛔️ Deactivate"
 msgstr "⛔️ To'xtatish"
 
-#: app/handlers/menu.py:121 app/keyboards.py:47
+#: app/handlers/menu.py:121 app/keyboards.py:53
 msgid "❌ Delete account"
 msgstr "❌ Akkountni o'chirish"
 
-#: app/handlers/search.py:44 app/keyboards.py:57
+#: app/handlers/search.py:44 app/keyboards.py:63
 msgid "⏪ Rewind"
 msgstr "⏪ Orqaga"
 
-#: app/keyboards.py:75
+#: app/keyboards.py:81
+msgid "📱 Share phone number"
+msgstr "📱 Telefon raqamni jo'natish"
+
+#: app/keyboards.py:88
 msgid "📍 Send location"
 msgstr "📍 Lokatsiya jo'natish"
 
-#: app/handlers/profile.py:36 app/keyboards.py:82
+#: app/handlers/profile.py:36 app/keyboards.py:95
 msgid "✏️ Name"
 msgstr "✏️ Ism"
 
-#: app/handlers/profile.py:64 app/keyboards.py:82
+#: app/handlers/profile.py:64 app/keyboards.py:95
 msgid "🔢 Birthdate"
 msgstr "🔢 Tug'ilgan sana"
 
-#: app/handlers/profile.py:95 app/keyboards.py:82
+#: app/handlers/profile.py:95 app/keyboards.py:95
 msgid "👫 Gender"
 msgstr "👫 Jins"
 
-#: app/handlers/profile.py:121 app/keyboards.py:82
+#: app/handlers/profile.py:121 app/keyboards.py:95
 msgid "📝 Bio"
 msgstr "📝 Bio"
 
-#: app/handlers/profile.py:148 app/keyboards.py:83
+#: app/handlers/profile.py:148 app/keyboards.py:96
 msgid "👩‍❤️‍👨 Gender preferences"
 msgstr "👩‍❤️‍👨 Yoqtirilgan jins"
 
-#: app/handlers/profile.py:174 app/keyboards.py:83
+#: app/handlers/profile.py:174 app/keyboards.py:96
 msgid "🔢 Age preferences"
 msgstr "🔢 Yosh chegarasi"
 
-#: app/handlers/profile.py:201 app/keyboards.py:84
+#: app/handlers/profile.py:201 app/keyboards.py:97
 msgid "📍 Location"
 msgstr "📍 Joylashuv"
 
-#: app/handlers/profile.py:224 app/keyboards.py:84
+#: app/handlers/profile.py:224 app/keyboards.py:97
 msgid "📷 Media"
 msgstr "📷 Media"
 
@@ -161,19 +165,21 @@ msgstr "Minimum yosh maksimum yoshdan kichik bo'lishi kerak"
 
 #: app/handlers/likes.py:24
 msgid "No likes found"
-msgstr "Layklar topilmadi"
+msgstr "Yoqtirishlar topilmadi"
 
 #: app/handlers/likes.py:28
 msgid "Likes"
-msgstr "Layklar"
+msgstr "Yoqtirishlar"
 
-#: app/handlers/matches.py:24 app/handlers/search.py:31
+#: app/handlers/matches.py:33 app/handlers/search.py:31
 msgid "No matches found"
 msgstr "Hech kim topilmadi"
 
-#: app/handlers/matches.py:28
-msgid "Matches"
-msgstr "Mosliklar"
+#: app/handlers/matches.py:43
+msgid "You both liked each other. You can talk to them by clicking this {link}"
+msgstr ""
+"Siz bir-biringizni yoqtirdingiz. Ushbu {link} orqali bir-biringiz bilan "
+"gaplashishingiz mumkin"
 
 #: app/handlers/menu.py:24
 msgid "Menu"
@@ -193,11 +199,11 @@ msgstr "Sozlamalar"
 
 #: app/handlers/menu.py:62
 msgid ""
-"Are you sure you want to deactivate your account? No one will see your "
-"account and you won't receive any reactions"
+"Are you sure you want to deactivate your account?No one will see your "
+"account, even the users that you liked"
 msgstr ""
-"Ishonchingiz komilmi? Hech kim sizning profilingizni ko'rolmaydi va "
-"layk/dizlayk bosolmaydi"
+"Ishonchingiz komilmi? Hech kim sizning profilingizni ko'rolmaydi, "
+"hatto siz yoqtirgan foydalanuvchilar ham"
 
 #: app/handlers/menu.py:64 app/handlers/menu.py:73 app/handlers/menu.py:124
 #: app/handlers/menu.py:133
@@ -219,7 +225,9 @@ msgstr "Akkountingiz faollashtirildi"
 
 #: app/handlers/menu.py:95
 msgid "Your account has been deactivated. To activate it, press the button below"
-msgstr "Akkountingiz to'xtatildi. Uni faollashtirish uchun, pastdagi tugmani bosing"
+msgstr ""
+"Akkountingiz to'xtatildi. Uni faollashtirish uchun, pastdagi tugmani "
+"bosing"
 
 #: app/handlers/menu.py:102
 msgid "Choose your language"
@@ -229,11 +237,11 @@ msgstr "Tilni tanlang"
 msgid "Are you sure you want to delete your account? All your data will be lost"
 msgstr "Ishonchingiz komilmi? Barcha ma'lumotlaringiz o'chiriladi"
 
-#: app/handlers/menu.py:138
+#: app/handlers/menu.py:142
 msgid "Your account has been deleted. To start again, press the button below"
 msgstr "Akkountingiz o'chirildi. Qaytadan boshlash uchun, pastdagi tugmani bosing"
 
-#: app/handlers/menu.py:139 app/handlers/registration.py:29
+#: app/handlers/menu.py:143 app/handlers/registration.py:29
 msgid "Start registration"
 msgstr "Registratsiyani boshlash"
 
@@ -300,7 +308,9 @@ msgstr "Fayl joylashtirildi"
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
-msgstr "File joylashtirildi. Ko'proq fayl jo'nating yoki \"Davom ettirish\" tugmasini bosing"
+msgstr ""
+"Fayl joylashtirildi. Ko'proq fayl jo'nating yoki \"Davom ettirish\" "
+"tugmasini bosing"
 
 #: app/handlers/registration.py:51 app/handlers/test.py:39
 msgid "Hi! Please select a language"
@@ -335,7 +345,19 @@ msgstr "Yosh chegarasini belgilang. Masalan: 18-25"
 msgid "Please share your location"
 msgstr "Iltimos, lokatsiya jo'nating"
 
-#: app/handlers/registration.py:330
+#: app/handlers/registration.py:296
+msgid "Please share your phone number"
+msgstr "Iltimos, telefon raqamingizni jo'nating"
+
+#: app/handlers/registration.py:306
+msgid "Please share your own phone number"
+msgstr "Iltimos, o'z telefon raqamingizni jo'nating"
+
+#: app/handlers/registration.py:314
+msgid "Please share your phone number by clicking the button below"
+msgstr "Iltimos, pastdagi tugmani bosish orqali telefon raqamingizni jo'nating"
+
+#: app/handlers/registration.py:353
 msgid "Registration has been completed!"
 msgstr "Registratsiya yakunlandi!"
 
@@ -351,21 +373,32 @@ msgstr "Boshqa ortga qaytarib bo'lmaydi"
 msgid "⏪ Rewinding"
 msgstr "⏪ Orqaga"
 
-#: app/handlers/search.py:90
+#: app/handlers/search.py:91
 msgid "User not found"
 msgstr "Foydalanuvchi topilmadi"
 
-#: app/handlers/search.py:116
-msgid "You got a new match 🎉. Click \"👍 Likes\" button on the /menu"
+#: app/handlers/search.py:120
+msgid ""
+"Congratulations. You have matched with {match.name}.\n"
+"You can have a chat with them by clicking this <a "
+"href='https://t.me/{match.phone_number}'>link</a>\n"
+"\n"
+"Click \"❤️ Matches\" in /menu to see your matches"
 msgstr ""
-"Sizga layk bosishdi 🎉. Uni ko'rish uchun /menu ga o'tib \"👍 Layklar\" "
-"tugmasini bosing"
+"Tabriklaymiz. Siz va {match.name} bir biringizga mos keldingiz. \n"
+"Ushbu <a href='https://t.me/{match.phone_number}'>link</a> "
+"orqali ular bilan gaplashishingiz mumkin\n"
+"\n"
+"Mosliklarni ko'rish uchun /menu ga o'tib \"❤️ Mosliklar\" tugmasini "
+"bosing"
 
-#: app/handlers/search.py:118
-msgid "You got a new mutual match 🎉. Click \"❤️ Matches\" button on the /menu"
+#: app/handlers/search.py:132
+msgid ""
+"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
+"them"
 msgstr ""
-"Sizga layk bosishdi 🎉. Uni ko'rish uchun /menu ga o'tib \"👍 Layklar\" "
-"tugmasini bosing"
+"Sizning profilingizni yoqtirishdi. Ularni ko'rish uchun, /menu ga o'tib "
+"\"👍 Yoqtirishlar\" tugmasini bosing"
 
 #: app/handlers/test.py:59
 msgid "You are not registered!"

@@ -99,7 +99,10 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
     if message.text == "👍" and not reaction.is_match_notified:
         mutual = await is_mutual(reaction)
-        await notify_match(match, mutual)
+        if mutual:
+            await notify_mutual(user, match)
+        else:
+            await notify_match(match)
         async with session_factory() as session:
             reaction.is_match_notified = True
             session.add(reaction)
@@ -112,12 +115,21 @@ async def react(message: types.Message, state: FSMContext, user: User):
     return await search(message, state, user, with_keyboard=False)
 
 
-async def notify_match(match: User, mutual: bool = False):
+async def notify_mutual(user: User, match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-    msg = _("You got a new match 🎉. Click \"👍 Likes\" button on the /menu")
-    if mutual:
-        msg = _(
-            "You got a new mutual match 🎉. Click \"❤️ Matches\" button on the /menu")
+    msg = _("Congratulations. You have matched with {match.name}."
+        "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>" 
+        "\n\nClick \"❤️ Matches\" in /menu to see your matches")
+    try:
+        await bot.send_message(user.telegram_id, msg.format(match=match), parse_mode="HTML")
+        await bot.send_message(match.telegram_id, msg.format(match=user), parse_mode="HTML")
+    except TelegramBadRequest:
+        pass    
+
+
+async def notify_match(match: User):
+    bot = Bot(token=settings.BOT_TOKEN)
+    msg = _("Someone liked your profile. Click \"👍 Likes\" button on the /menu to see them")
     try:
         await bot.send_message(match.telegram_id, msg)
     except TelegramBadRequest:
