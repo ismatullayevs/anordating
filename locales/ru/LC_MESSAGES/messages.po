@@ -49,7 +49,7 @@ msgstr "👍 Вы понравились"
 
 #: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
 msgid "❤️ Matches"
-msgstr "❤️ Соврадения"
+msgstr "❤️ Совпадения"
 
 #: app/handlers/menu.py:54 app/keyboards.py:31
 msgid "⚙️ Settings"
@@ -98,7 +98,7 @@ msgid "✏️ Name"
 msgstr "✏️ Имя"
 
 #: app/handlers/profile.py:64 app/keyboards.py:95
-msgid "🔢 Birthdate"
+msgid "🔢 Birth date"
 msgstr "🔢 Дата рождения"
 
 #: app/handlers/profile.py:95 app/keyboards.py:95
@@ -166,7 +166,7 @@ msgid "Age can't be higher than {max_age}"
 msgstr "Возраст не может быть больше {max_age}."
 
 #: app/validators.py:132
-msgid "Minimum age needs to lower than maximum age"
+msgid "Minimum age needs to be lower than maximum age"
 msgstr "Минимальный возраст должен быть ниже максимального."
 
 #: app/handlers/likes.py:24
@@ -175,7 +175,7 @@ msgstr "Лайков не обнаружено"
 
 #: app/handlers/likes.py:28
 msgid "Likes"
-msgstr "Вы понравились"
+msgstr "Лайки"
 
 #: app/handlers/matches.py:33 app/handlers/search.py:31
 msgid "No matches found"
@@ -357,15 +357,15 @@ msgstr "Пожалуйста, поделитесь своим местополо
 
 #: app/handlers/registration.py:296
 msgid "Please share your phone number"
-msgstr "Поделитесь, пожалуйста, своим номером телефона"
+msgstr "Пожалуйста, поделитесь своим номером телефона"
 
 #: app/handlers/registration.py:306
 msgid "Please share your own phone number"
-msgstr "Поделитесь, пожалуйста, своим номером телефона"
+msgstr "Пожалуйста, поделитесь своим номером телефона"
 
 #: app/handlers/registration.py:314
 msgid "Please share your phone number by clicking the button below"
-msgstr "Поделитесь, пожалуйста, своим номером телефона, нажав кнопку ниже."
+msgstr "Пожалуйста, поделитесь своим номером телефона, нажав кнопку ниже."
 
 #: app/handlers/registration.py:353
 msgid "Registration has been completed!"
@@ -377,7 +377,7 @@ msgstr "Вы не можете перематывать назад более {r
 
 #: app/handlers/search.py:62
 msgid "No more matches to rewind"
-msgstr "Больше нет матчей для перемотки"
+msgstr "Больше нет профили для перемотки"
 
 #: app/handlers/search.py:67
 msgid "⏪ Rewinding"

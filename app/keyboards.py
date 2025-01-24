@@ -92,7 +92,7 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
 
 def get_profile_update_keyboard() -> ReplyKeyboardMarkup:
     items = [
-        [_("✏️ Name"), _("🔢 Birthdate"), _("👫 Gender"), _("📝 Bio")],
+        [_("✏️ Name"), _("🔢 Birth date"), _("👫 Gender"), _("📝 Bio")],
         [_("👩‍❤️‍👨 Gender preferences"), _("🔢 Age preferences")],
         [_("📍 Location"), _("📷 Media"), _("⬅️ Menu")]
     ]

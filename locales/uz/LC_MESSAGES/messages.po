@@ -96,7 +96,7 @@ msgid "✏️ Name"
 msgstr "✏️ Ism"
 
 #: app/handlers/profile.py:64 app/keyboards.py:95
-msgid "🔢 Birthdate"
+msgid "🔢 Birth date"
 msgstr "🔢 Tug'ilgan sana"
 
 #: app/handlers/profile.py:95 app/keyboards.py:95
@@ -164,7 +164,7 @@ msgid "Age can't be higher than {max_age}"
 msgstr "Yosh {max_age} dan katta bo'lishi mumkin emas"
 
 #: app/validators.py:132
-msgid "Minimum age needs to lower than maximum age"
+msgid "Minimum age needs to be lower than maximum age"
 msgstr "Minimum yosh maksimum yoshdan kichik bo'lishi kerak"
 
 #: app/handlers/likes.py:24

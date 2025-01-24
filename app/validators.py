@@ -129,5 +129,5 @@ def validate_preference_age(value: int | None):
 def validate_preference_ages(min_age: int | None, max_age: int | None):
     if not min_age or not max_age: return (None, None)
     if min_age >= max_age:
-        raise ValueError(_("Minimum age needs to lower than maximum age"))
+        raise ValueError(_("Minimum age needs be to lower than maximum age"))
     return (min_age, max_age)

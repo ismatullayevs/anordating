@@ -61,7 +61,7 @@ async def update_name(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("🔢 Birthdate"))
+@router.message(ProfileStates.profile, F.text == __("🔢 Birth date"))
 async def update_birth_date_start(message: types.Message, state: FSMContext):
     msg = _("What's your birth date? Use one these formats:"
             "\n"
