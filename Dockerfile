@@ -26,7 +26,7 @@ RUN addgroup -g 1000 appuser && \
 USER appuser
 COPY --from=builder-dev --chown=appuser:appuser /app /app
 ENV PATH="/app/.venv/bin:$PATH"
-
+RUN pybabel compile -d locales -D messages
 
 FROM python:3.13-alpine AS prod
 WORKDIR /app
@@ -35,3 +35,4 @@ RUN addgroup -g 1000 appuser && \
 USER appuser
 COPY --from=builder --chown=appuser:appuser /app /app
 ENV PATH="/app/.venv/bin:$PATH"
+RUN pybabel compile -d locales -D messages
