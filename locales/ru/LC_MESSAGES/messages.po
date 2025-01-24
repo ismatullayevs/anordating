@@ -179,7 +179,7 @@ msgstr "Вы понравились"
 
 #: app/handlers/matches.py:33 app/handlers/search.py:31
 msgid "No matches found"
-msgstr "Совпадений не найдено"
+msgstr "Пользователи не найдены"
 
 #: app/handlers/matches.py:44
 msgid ""
