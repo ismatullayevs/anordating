@@ -9,7 +9,7 @@ services:
       - db
       - redis
     user: appuser
-    command: bash -c "alembic upgrade head && python3 main.py"
+    command: sh -c "alembic upgrade head && python3 main.py"
     restart: always
     logging:
       driver: "json-file"
