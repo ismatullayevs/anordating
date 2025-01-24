@@ -6,7 +6,7 @@ from app.handlers.menu import show_menu
 from app.models.user import User
 from app.states import MenuStates
 from app.keyboards import get_search_keyboard
-from app.utils import get_profile_card
+from app.utils import get_profile_card, haversine_distance
 from app.queries import get_likes
 
 
@@ -28,7 +28,8 @@ async def show_likes(message: types.Message, state: FSMContext, user: User, with
         await message.answer(_("Likes"), reply_markup=get_search_keyboard())
 
     match = likes[0]
-    profile = await get_profile_card(match)
+    profile = await get_profile_card(match, dist=haversine_distance(
+        user.latitude, user.longitude, match.latitude, match.longitude))
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
     await state.set_state(MenuStates.likes)

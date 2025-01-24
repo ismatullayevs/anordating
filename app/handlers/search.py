@@ -11,7 +11,7 @@ from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
 from app.models.user import User
 from app.states import MenuStates
-from app.utils import get_profile_card
+from app.utils import get_profile_card, haversine_distance
 from app.queries import create_or_update_reaction, get_nth_last_reacted_match, get_user, is_mutual
 from app.core.db import session_factory
 from app.enums import ReactionType
@@ -35,7 +35,8 @@ async def search(message: types.Message, state: FSMContext, user: User, with_key
     if with_keyboard:
         await message.answer("🔎", reply_markup=get_search_keyboard())
 
-    card = await get_profile_card(match)
+    card = await get_profile_card(match, dist=haversine_distance(
+        user.latitude, user.longitude, match.latitude, match.longitude))    
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
     await state.set_state(MenuStates.search)
@@ -65,7 +66,8 @@ async def rewind(message: types.Message, state: FSMContext, user: User, with_key
     if with_keyboard:
         await message.answer(_("⏪ Rewinding"), reply_markup=get_search_keyboard())
 
-    card = await get_profile_card(match)
+    card = await get_profile_card(match, dist=haversine_distance(
+        user.latitude, user.longitude, match.latitude, match.longitude))
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
     await state.update_data(rewind_index=rewind_index + 1)

@@ -1,9 +1,10 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.media_group import MediaGroupBuilder
+from aiogram.utils.i18n import gettext as _
 from app.enums import FileTypes
 from app.models.user import User
 from app.core.db import session_factory
-from math import radians, sin, cos, sqrt, atan2
+from math import ceil, radians, sin, cos, sqrt, atan2
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -16,18 +17,24 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * atan2(sqrt(a), sqrt(1-a))
     distance = R * c
-
     return distance
 
 
-async def get_profile_card(user: User):
+async def get_profile_card(user: User, dist: float | None = None):
     assert user.is_active
+    if dist:
+        dist = ceil(dist)
+        if dist > 15:
+            dist = None
+    
+    dist_str = _("📍 {dist} km").format(dist=dist) if dist else None
+
     async with session_factory() as session:
         session.add(user)
         await user.awaitable_attrs.media
 
     caption = ", ".join(
-        v for v in [user.name, str(user.age), user.bio] if v
+        str(v) for v in [user.name, user.age, dist_str, user.bio] if v
     )
     album_builder = MediaGroupBuilder(
         caption=caption
