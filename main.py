@@ -16,27 +16,28 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=settings.BOT_TOKEN)
-redis = Redis(host='redis', password=settings.REDIS_PASSWORD)
-redis_storage = RedisStorage(redis)
-dp = Dispatcher(storage=redis_storage)
-
-i18n_middleware.setup(dp)
-
-dp.include_router(registration_router)
-dp.include_router(search_router)
-dp.include_router(likes_router)
-dp.include_router(profile_router)
-dp.include_router(matches_router)
-dp.include_router(menu_router)
-
-if settings.DEBUG:
-    dp.include_router(test_router)
-
 
 async def main():
+    bot = Bot(token=settings.BOT_TOKEN)
+    redis = Redis(host='redis', password=settings.REDIS_PASSWORD)
+    redis_storage = RedisStorage(redis)
+    dp = Dispatcher(storage=redis_storage)
+
+    i18n_middleware.setup(dp)
+
+    dp.include_router(registration_router)
+    dp.include_router(search_router)
+    dp.include_router(likes_router)
+    dp.include_router(profile_router)
+    dp.include_router(matches_router)
+    dp.include_router(menu_router)
+
+    if settings.DEBUG:
+        dp.include_router(test_router)
+
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
