@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
     POSTGRES_DB: str
     REDIS_HOST: str
-    REDIS_PASSWORD: str | None
+    REDIS_PASSWORD: str | None = None
     REDIS_PORT: int
     MEDIA_PATH: Path = BASE_DIR / "media"
 
