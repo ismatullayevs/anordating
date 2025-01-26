@@ -27,6 +27,8 @@ USER appuser
 COPY --from=builder-dev --chown=appuser:appuser /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 RUN pybabel compile -d locales -D messages
+CMD ["sh", "-c", "alembic upgrade head && python3 main.py"]
+
 
 FROM python:3.13-alpine AS prod
 WORKDIR /app
@@ -36,3 +38,5 @@ USER appuser
 COPY --from=builder --chown=appuser:appuser /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 RUN pybabel compile -d locales -D messages
+CMD ["sh", "-c", "alembic upgrade head && python3 main.py"]
+
