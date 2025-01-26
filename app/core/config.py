@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PASSWORD: str | None = None
     REDIS_PORT: int
+    REDIS_SSL: bool
     MEDIA_PATH: Path = BASE_DIR / "media"
 
     @property

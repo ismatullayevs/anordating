@@ -19,7 +19,8 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
-    redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD)
+    redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT,
+                  password=settings.REDIS_PASSWORD, ssl=settings.REDIS_SSL)
     redis_storage = RedisStorage(redis)
     dp = Dispatcher(storage=redis_storage)
 
