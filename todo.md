@@ -1,6 +1,7 @@
 # Tasks
 
 notify_match should show message in match's language
+replace "menu" button with "settings" button in settings/profile
 add explanation messages
 add an option to clear preferred age range
 use webhooks

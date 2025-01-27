@@ -119,19 +119,22 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
 async def notify_mutual(user: User, match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-    msg = _("Congratulations. You have matched with {match.name}."
-        "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>" 
-        "\n\nClick \"❤️ Matches\" in /menu to see your matches")
+    msg = ("Congratulations. You have matched with {match.name}."
+           "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>" 
+           "\n\nClick \"❤️ Matches\" in /menu to see your matches")
     try:
-        await bot.send_message(user.telegram_id, msg.format(match=match), parse_mode="HTML")
-        await bot.send_message(match.telegram_id, msg.format(match=user), parse_mode="HTML")
+        await bot.send_message(user.telegram_id,
+                               _(msg, locale=user.ui_language.name).format(match=match), parse_mode="HTML")
+        await bot.send_message(match.telegram_id, 
+                               _(msg, locale=match.ui_language.name).format(match=user), parse_mode="HTML")
     except TelegramBadRequest:
-        pass    
+        pass
 
 
 async def notify_match(match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-    msg = _("Someone liked your profile. Click \"👍 Likes\" button on the /menu to see them")
+    msg = _("Someone liked your profile. Click \"👍 Likes\" button on the /menu to see them",
+            locale=match.ui_language.name)
     try:
         await bot.send_message(match.telegram_id, msg)
     except TelegramBadRequest:
