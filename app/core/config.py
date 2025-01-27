@@ -10,7 +10,7 @@ class EnvironmentTypes(Enum):
 
 
 class Settings(BaseSettings):
-    environment: EnvironmentTypes
+    ENVIRONMENT: EnvironmentTypes
     DEBUG: bool = False
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 
@@ -40,3 +40,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings.model_validate({})
+
