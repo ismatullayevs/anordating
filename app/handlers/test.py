@@ -7,7 +7,7 @@ from app.handlers.menu import show_menu
 from app.keyboards import make_keyboard
 from app.handlers.registration import LANGUAGES
 from app.models.user import User
-from app.states import RegistrationStates
+from app.states import AppStates
 from app.queries import get_user
 from app.core.db import session_factory
 from sqlalchemy.exc import NoResultFound
@@ -38,7 +38,7 @@ async def cmd_new_user(message: types.Message, state: FSMContext):
 
     await message.answer(_("Hi! Please select a language"),
                          reply_markup=make_keyboard([list(LANGUAGES.keys())]))
-    await state.set_state(RegistrationStates.language)
+    await state.set_state(AppStates.set_ui_language)
 
 
 @router.message(Command('me'), IsHumanUser())

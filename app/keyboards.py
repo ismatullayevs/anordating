@@ -1,7 +1,11 @@
+from typing import Iterable
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.i18n import gettext as _, lazy_gettext as __
+from babel.support import LazyProxy
 from app.enums import UILanguages, Genders, PreferredGenders
 
+
+CLEAR_TXT = __("❌ Clear")
 
 LANGUAGES = {
     "Uzbek 🇺🇿": UILanguages.uz,
@@ -21,8 +25,9 @@ GENDER_PREFERENCES = (
 )
 
 
-def make_keyboard(items: list[list[str]], placeholder: str | None = None) -> ReplyKeyboardMarkup:
-    keyboard = [[KeyboardButton(text=text) for text in row] for row in items]
+def make_keyboard(items: Iterable[Iterable[str | LazyProxy]], placeholder: str | None = None) -> ReplyKeyboardMarkup:
+    keyboard = [[KeyboardButton(text=text if isinstance(text, str) else text.value) for text in row]
+        for row in items]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder)
 
 
@@ -49,9 +54,9 @@ def get_matches_keyboard(has_previous=False, has_next=False) -> ReplyKeyboardMar
 
 
 def get_settings_keyboard() -> ReplyKeyboardMarkup:
-    items = [[_("🌐 Language"), _("👤 My profile")],
-             [_("⛔️ Deactivate"), _("❌ Delete account")],
-             [_("⬅️ Menu")]]
+    items = [[_("👤 My profile"), _("🔎 Search settings")],
+             [_("🌐 Language"), _("⛔️ Deactivate")],
+             [_("❌ Delete account"), _("⬅️ Menu")]]
     return make_keyboard(items)
 
 
@@ -92,8 +97,17 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
 
 def get_profile_update_keyboard() -> ReplyKeyboardMarkup:
     items = [
-        [_("✏️ Name"), _("🔢 Birth date"), _("👫 Gender"), _("📝 Bio")],
-        [_("👩‍❤️‍👨 Gender preferences"), _("🔢 Age preferences")],
-        [_("📍 Location"), _("📷 Media"), _("⬅️ Menu")]
+        [_("✏️ Name"), _("🔢 Birth date"), _("👫 Gender")],
+        [_("📝 Bio"), _("📍 Location"), _("📷 Media")],
+        [_("⬅️ Back")]
     ]
     return make_keyboard(items)
+
+
+def get_preferences_update_keyboard() -> ReplyKeyboardMarkup:
+    items = [
+        [_("👩‍❤️‍👨 Gender preferences"), _("🔢 Age preferences")],
+        [_("⬅️ Back")]
+    ]
+    return make_keyboard(items)
+

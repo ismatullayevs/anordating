@@ -10,7 +10,7 @@ from app.handlers.menu import show_menu
 from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
 from app.models.user import User
-from app.states import MenuStates
+from app.states import AppStates
 from app.utils import get_profile_card, haversine_distance
 from app.queries import create_or_update_reaction, get_nth_last_reacted_match, get_user, is_mutual
 from app.core.db import session_factory
@@ -21,7 +21,7 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.menu, F.text == __("🔎 Watch profiles"), IsActiveHumanUser())
+@router.message(AppStates.menu, F.text == __("🔎 Watch profiles"), IsActiveHumanUser())
 async def search(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = True):
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
@@ -30,7 +30,7 @@ async def search(message: types.Message, state: FSMContext, user: User, with_key
     if not match:
         await message.answer(_("No matches found"),
                              reply_markup=get_empty_search_keyboard())
-        return await state.set_state(MenuStates.search)
+        return await state.set_state(AppStates.search)
 
     if with_keyboard:
         await message.answer("🔎", reply_markup=get_search_keyboard())
@@ -39,17 +39,17 @@ async def search(message: types.Message, state: FSMContext, user: User, with_key
         user.latitude, user.longitude, match.latitude, match.longitude))    
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
-    await state.set_state(MenuStates.search)
+    await state.set_state(AppStates.search)
 
 
-@router.message(MenuStates.search, F.text == __("⏪ Rewind"), IsActiveHumanUser())
+@router.message(AppStates.search, F.text == __("⏪ Rewind"), IsActiveHumanUser())
 async def rewind_empty(message: types.Message, state: FSMContext, user: User):
     await rewind(message, state, user, with_keyboard=True)
 
 
-@router.message(MenuStates.search, F.text == "⏪", IsActiveHumanUser())
-@router.message(MenuStates.likes, F.text == "⏪", IsActiveHumanUser())
-@router.message(MenuStates.matches, F.text == "⏪", IsActiveHumanUser())
+@router.message(AppStates.search, F.text == "⏪", IsActiveHumanUser())
+@router.message(AppStates.likes, F.text == "⏪", IsActiveHumanUser())
+@router.message(AppStates.matches, F.text == "⏪", IsActiveHumanUser())
 async def rewind(message: types.Message, state: FSMContext, user: User, with_keyboard: bool = False):
     rewind_index = await state.get_value("rewind_index") or 0
 
@@ -73,9 +73,9 @@ async def rewind(message: types.Message, state: FSMContext, user: User, with_key
     await state.update_data(rewind_index=rewind_index + 1)
 
 
-@router.message(MenuStates.search, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
-@router.message(MenuStates.likes, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
-@router.message(MenuStates.matches, F.text == "👎", IsActiveHumanUser())
+@router.message(AppStates.search, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
+@router.message(AppStates.likes, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
+@router.message(AppStates.matches, F.text == "👎", IsActiveHumanUser())
 async def react(message: types.Message, state: FSMContext, user: User):
     assert message.text
     current_state = await state.get_state()
@@ -91,9 +91,9 @@ async def react(message: types.Message, state: FSMContext, user: User):
         match = await get_user(id=match_id, is_active=True)
     except exc.NoResultFound:
         await message.answer(_("User not found"))
-        if current_state == MenuStates.likes.state:
+        if current_state == AppStates.likes.state:
             return await show_likes(message, state, user, with_keyboard=False)
-        if current_state == MenuStates.matches.state:
+        if current_state == AppStates.matches.state:
             return await show_matches(message, state, user)
         return await search(message, state, user, with_keyboard=False)
 
@@ -110,9 +110,9 @@ async def react(message: types.Message, state: FSMContext, user: User):
             session.add(reaction)
             await session.commit()
 
-    if current_state == MenuStates.likes.state:
+    if current_state == AppStates.likes.state:
         return await show_likes(message, state, user, with_keyboard=False)
-    if current_state == MenuStates.matches.state:
+    if current_state == AppStates.matches.state:
         return await show_matches(message, state, user)
     return await search(message, state, user, with_keyboard=False)
 

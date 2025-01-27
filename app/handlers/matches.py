@@ -4,7 +4,7 @@ from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
 from app.models.user import User
-from app.states import MenuStates
+from app.states import AppStates
 from app.keyboards import get_matches_keyboard
 from app.utils import get_profile_card, haversine_distance
 from app.queries import get_matches
@@ -14,8 +14,8 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.matches, F.text.in_(["⬅️", "➡️"]), IsActiveHumanUser())
-@router.message(MenuStates.menu, F.text == __("❤️ Matches"), IsActiveHumanUser())
+@router.message(AppStates.matches, F.text.in_(["⬅️", "➡️"]), IsActiveHumanUser())
+@router.message(AppStates.menu, F.text == __("❤️ Matches"), IsActiveHumanUser())
 async def show_matches(message: types.Message, state: FSMContext, user: User):
     if message.text == _("❤️ Matches"):
         index = 0
@@ -46,5 +46,5 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
                          .format(phone_number=match.phone_number),
                          reply_markup=get_matches_keyboard(has_previous, has_next),
                          parse_mode="HTML")
-    await state.set_state(MenuStates.matches)
+    await state.set_state(AppStates.matches)
     await state.update_data(index=index)

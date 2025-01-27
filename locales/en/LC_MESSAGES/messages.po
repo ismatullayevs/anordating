@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 21:59+0500\n"
+"POT-Creation-Date: 2025-01-28 00:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -17,110 +17,123 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: app/keyboards.py:13
+#: app/keyboards.py:8
+msgid "❌ Clear"
+msgstr ""
+
+#: app/keyboards.py:17
 msgid "Male 👨‍🦱"
 msgstr ""
 
-#: app/keyboards.py:14
+#: app/keyboards.py:18
 msgid "Female 👩‍🦱"
 msgstr ""
 
-#: app/keyboards.py:18
+#: app/keyboards.py:22
 msgid "I'm looking for a man 👨‍🦱"
 msgstr ""
 
-#: app/keyboards.py:19
+#: app/keyboards.py:23
 msgid "I'm looking for a woman 👩‍🦱"
 msgstr ""
 
-#: app/keyboards.py:20
+#: app/keyboards.py:24
 msgid "I'm looking for friends 👫"
 msgstr ""
 
-#: app/handlers/search.py:24 app/keyboards.py:30
+#: app/handlers/search.py:24 app/keyboards.py:35
 msgid "🔎 Watch profiles"
 msgstr ""
 
-#: app/handlers/likes.py:17 app/keyboards.py:30
+#: app/handlers/likes.py:17 app/keyboards.py:35
 msgid "👍 Likes"
 msgstr ""
 
-#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
+#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:36
 msgid "❤️ Matches"
 msgstr ""
 
-#: app/handlers/menu.py:54 app/keyboards.py:31
+#: app/handlers/menu.py:54 app/keyboards.py:36
 msgid "⚙️ Settings"
 msgstr ""
 
 #: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
-#: app/keyboards.py:36 app/keyboards.py:47
+#: app/keyboards.py:41 app/keyboards.py:52
 msgid "✍️ Report"
 msgstr ""
 
-#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:47
-#: app/keyboards.py:54 app/keyboards.py:63 app/keyboards.py:97
+#: app/handlers/menu.py:18 app/keyboards.py:41 app/keyboards.py:52
+#: app/keyboards.py:59 app/keyboards.py:68
 msgid "⬅️ Menu"
 msgstr ""
 
-#: app/handlers/menu.py:100 app/keyboards.py:52
-msgid "🌐 Language"
-msgstr ""
-
-#: app/handlers/profile.py:25 app/keyboards.py:52
+#: app/handlers/profile.py:26 app/keyboards.py:57
 msgid "👤 My profile"
 msgstr ""
 
-#: app/handlers/menu.py:60 app/keyboards.py:53
+#: app/handlers/profile.py:37 app/keyboards.py:57
+msgid "🔎 Search settings"
+msgstr ""
+
+#: app/handlers/menu.py:100 app/keyboards.py:58
+msgid "🌐 Language"
+msgstr ""
+
+#: app/handlers/menu.py:60 app/keyboards.py:58
 msgid "⛔️ Deactivate"
 msgstr ""
 
-#: app/handlers/menu.py:121 app/keyboards.py:53
+#: app/handlers/menu.py:121 app/keyboards.py:59
 msgid "❌ Delete account"
 msgstr ""
 
-#: app/handlers/search.py:45 app/keyboards.py:63
+#: app/handlers/search.py:45 app/keyboards.py:68
 msgid "⏪ Rewind"
 msgstr ""
 
-#: app/keyboards.py:81
+#: app/keyboards.py:86
 msgid "📱 Share phone number"
 msgstr ""
 
-#: app/keyboards.py:88
+#: app/keyboards.py:93
 msgid "📍 Send location"
 msgstr ""
 
-#: app/handlers/profile.py:36 app/keyboards.py:95
+#: app/handlers/profile.py:51 app/keyboards.py:100
 msgid "✏️ Name"
 msgstr ""
 
-#: app/handlers/profile.py:64 app/keyboards.py:95
-msgid "🔢 Birthdate"
+#: app/handlers/profile.py:79 app/keyboards.py:100
+msgid "🔢 Birth date"
 msgstr ""
 
-#: app/handlers/profile.py:95 app/keyboards.py:95
+#: app/handlers/profile.py:110 app/keyboards.py:100
 msgid "👫 Gender"
 msgstr ""
 
-#: app/handlers/profile.py:121 app/keyboards.py:95
+#: app/handlers/profile.py:136 app/keyboards.py:101
 msgid "📝 Bio"
 msgstr ""
 
-#: app/handlers/profile.py:148 app/keyboards.py:96
-msgid "👩‍❤️‍👨 Gender preferences"
-msgstr ""
-
-#: app/handlers/profile.py:174 app/keyboards.py:96
-msgid "🔢 Age preferences"
-msgstr ""
-
-#: app/handlers/profile.py:201 app/keyboards.py:97
+#: app/handlers/profile.py:220 app/keyboards.py:101
 msgid "📍 Location"
 msgstr ""
 
-#: app/handlers/profile.py:224 app/keyboards.py:97
+#: app/handlers/profile.py:243 app/keyboards.py:101
 msgid "📷 Media"
+msgstr ""
+
+#: app/handlers/profile.py:45 app/handlers/profile.py:46 app/keyboards.py:102
+#: app/keyboards.py:110
+msgid "⬅️ Back"
+msgstr ""
+
+#: app/handlers/profile.py:166 app/keyboards.py:109
+msgid "👩‍❤️‍👨 Gender preferences"
+msgstr ""
+
+#: app/handlers/profile.py:191 app/keyboards.py:109
+msgid "🔢 Age preferences"
 msgstr ""
 
 #: app/utils.py:30
@@ -164,7 +177,7 @@ msgid "Age can't be higher than {max_age}"
 msgstr ""
 
 #: app/validators.py:132
-msgid "Minimum age needs to lower than maximum age"
+msgid "Minimum age needs be to lower than maximum age"
 msgstr ""
 
 #: app/handlers/likes.py:24
@@ -245,15 +258,19 @@ msgstr ""
 msgid "Start registration"
 msgstr ""
 
-#: app/handlers/profile.py:30
+#: app/handlers/profile.py:31
 msgid "Press the buttons below to update your profile"
 msgstr ""
 
-#: app/handlers/profile.py:38
+#: app/handlers/profile.py:39
+msgid "Search settings"
+msgstr ""
+
+#: app/handlers/profile.py:53
 msgid "Enter your name"
 msgstr ""
 
-#: app/handlers/profile.py:66 app/handlers/registration.py:92
+#: app/handlers/profile.py:81 app/handlers/registration.py:92
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
@@ -262,44 +279,44 @@ msgid ""
 "<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
 msgstr ""
 
-#: app/handlers/profile.py:97
+#: app/handlers/profile.py:112
 msgid "Select your gender"
 msgstr ""
 
-#: app/handlers/profile.py:123 app/handlers/registration.py:139
+#: app/handlers/profile.py:138 app/handlers/registration.py:139
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr ""
 
-#: app/handlers/profile.py:150 app/handlers/registration.py:162
+#: app/handlers/profile.py:168 app/handlers/registration.py:162
 msgid "Who are you looking for?"
 msgstr ""
 
-#: app/handlers/profile.py:176
-msgid "Enter preferred age range"
+#: app/handlers/profile.py:193 app/handlers/registration.py:181
+msgid "What is your preferred age range? (e.g. 18-25)"
 msgstr ""
 
-#: app/handlers/profile.py:203
+#: app/handlers/profile.py:222
 msgid "Send your location"
 msgstr ""
 
-#: app/handlers/profile.py:226 app/handlers/registration.py:223
+#: app/handlers/profile.py:245 app/handlers/registration.py:223
 msgid "Please upload photos or videos of yourself"
 msgstr ""
 
-#: app/handlers/profile.py:230 app/handlers/profile.py:294
+#: app/handlers/profile.py:249 app/handlers/profile.py:313
 #: app/handlers/registration.py:228 app/handlers/registration.py:292
 msgid "Continue"
 msgstr ""
 
-#: app/handlers/profile.py:234
+#: app/handlers/profile.py:253
 msgid "Please upload at least one photo"
 msgstr ""
 
-#: app/handlers/profile.py:290 app/handlers/registration.py:288
+#: app/handlers/profile.py:309 app/handlers/registration.py:288
 msgid "File has been uploaded"
 msgstr ""
 
-#: app/handlers/profile.py:293 app/handlers/registration.py:291
+#: app/handlers/profile.py:312 app/handlers/registration.py:291
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
@@ -330,10 +347,6 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: app/handlers/registration.py:181
-msgid "What is your preferred age range? (e.g. 18-25)"
-msgstr ""
-
 #: app/handlers/registration.py:208
 msgid "Please share your location"
 msgstr ""
@@ -350,7 +363,7 @@ msgstr ""
 msgid "Please share your phone number by clicking the button below"
 msgstr ""
 
-#: app/handlers/registration.py:353
+#: app/handlers/registration.py:357
 msgid "Registration has been completed!"
 msgstr ""
 
@@ -368,21 +381,6 @@ msgstr ""
 
 #: app/handlers/search.py:93
 msgid "User not found"
-msgstr ""
-
-#: app/handlers/search.py:122
-msgid ""
-"Congratulations. You have matched with {match.name}.\n"
-"You can have a chat with them by clicking this <a "
-"href='https://t.me/{match.phone_number}'>link</a>\n"
-"\n"
-"Click \"❤️ Matches\" in /menu to see your matches"
-msgstr ""
-
-#: app/handlers/search.py:134
-msgid ""
-"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
-"them"
 msgstr ""
 
 #: app/handlers/test.py:59

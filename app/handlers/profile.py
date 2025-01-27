@@ -5,12 +5,13 @@ from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.enums import FileTypes
 from app.filters import IsActiveHumanUser, IsHuman
+from app.handlers.menu import show_settings
 from app.handlers.registration import GENDER_PREFERENCES, GENDERS
-from app.states import ProfileStates, MenuStates
+from app.states import AppStates
 from app.utils import clear_state, get_profile_card
 from app.queries import get_user
 from app.models.user import Preferences, User
-from app.keyboards import (get_ask_location_keyboard, get_genders_keyboard,
+from app.keyboards import (CLEAR_TXT, get_ask_location_keyboard, get_genders_keyboard, get_preferences_update_keyboard,
                            get_preferred_genders_keyboard, get_profile_update_keyboard, make_keyboard)
 from sqlalchemy import update
 from sqlalchemy.orm import selectinload
@@ -22,24 +23,38 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.settings, F.text == __("👤 My profile"), IsActiveHumanUser(with_media=True))
+@router.message(AppStates.settings, F.text == __("👤 My profile"), IsActiveHumanUser(with_media=True))
 async def show_profile(message: types.Message, state: FSMContext, user: User):
     profile = await get_profile_card(user)
     await message.answer_media_group(profile)
 
     await message.answer(_("Press the buttons below to update your profile"),
                          reply_markup=get_profile_update_keyboard())
-    await state.set_state(ProfileStates.profile)
+    await state.set_state(AppStates.profile)
     await clear_state(state, except_locale=True)
 
 
-@router.message(ProfileStates.profile, F.text == __("✏️ Name"))
+@router.message(AppStates.settings, F.text == __("🔎 Search settings"))
+async def update_preferences(message: types.Message, state: FSMContext):
+    await message.answer(_("Search settings"),
+                         reply_markup=get_preferences_update_keyboard())
+    await state.set_state(AppStates.preferences)
+    await clear_state(state, except_locale=True)
+
+
+@router.message(AppStates.profile, F.text == __("⬅️ Back"))
+@router.message(AppStates.preferences, F.text == __("⬅️ Back"))
+async def back_to_settings(message: types.Message, state: FSMContext):
+    await show_settings(message, state)
+
+
+@router.message(AppStates.profile, F.text == __("✏️ Name"))
 async def update_name_start(message: types.Message, state: FSMContext):
     await message.answer(_("Enter your name"), reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(ProfileStates.name)
+    await state.set_state(AppStates.update_name)
 
 
-@router.message(ProfileStates.name, F.text)
+@router.message(AppStates.update_name, F.text)
 async def update_name(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
@@ -61,7 +76,7 @@ async def update_name(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("🔢 Birth date"))
+@router.message(AppStates.profile, F.text == __("🔢 Birth date"))
 async def update_birth_date_start(message: types.Message, state: FSMContext):
     msg = _("What's your birth date? Use one these formats:"
             "\n"
@@ -69,10 +84,10 @@ async def update_birth_date_start(message: types.Message, state: FSMContext):
             "\n<b>DD.MM.YYYY</b> (For example, 31.12.2000)"
             "\n<b>MM/DD/YYYY</b> (For example, 12/31/2000)")
     await message.answer(msg, reply_markup=types.ReplyKeyboardRemove(), parse_mode="HTML")
-    await state.set_state(ProfileStates.age)
+    await state.set_state(AppStates.update_age)
 
 
-@router.message(ProfileStates.age, F.text)
+@router.message(AppStates.update_age, F.text)
 async def update_birth_date(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
@@ -92,13 +107,13 @@ async def update_birth_date(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("👫 Gender"))
+@router.message(AppStates.profile, F.text == __("👫 Gender"))
 async def update_gender_start(message: types.Message, state: FSMContext):
     await message.answer(_("Select your gender"), reply_markup=get_genders_keyboard())
-    await state.set_state(ProfileStates.gender)
+    await state.set_state(AppStates.update_gender)
 
 
-@router.message(ProfileStates.gender, F.text.in_([x[0] for x in GENDERS]))
+@router.message(AppStates.update_gender, F.text.in_([x[0] for x in GENDERS]))
 async def update_gender(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
     gender = None
@@ -118,19 +133,22 @@ async def update_gender(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("📝 Bio"))
+@router.message(AppStates.profile, F.text == __("📝 Bio"))
 async def update_bio_start(message: types.Message, state: FSMContext):
     await message.answer(_("Tell us more about yourself. What are your hobbies, interests, etc.?"),
-                         reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(ProfileStates.bio)
+                         reply_markup=make_keyboard([[CLEAR_TXT]]))
+    await state.set_state(AppStates.update_bio)
 
 
-@router.message(ProfileStates.bio, F.text)
+@router.message(AppStates.update_bio, F.text)
 async def update_bio(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
+    bio = message.text
+    if bio == CLEAR_TXT:
+        bio = None
     try:
-        bio = validate_bio(message.text)
+        bio = validate_bio(bio)
     except ValueError as e:
         return await message.answer(str(e))
 
@@ -145,13 +163,13 @@ async def update_bio(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("👩‍❤️‍👨 Gender preferences"))
+@router.message(AppStates.preferences, F.text == __("👩‍❤️‍👨 Gender preferences"))
 async def update_gender_preferences_start(message: types.Message, state: FSMContext):
     await message.answer(_("Who are you looking for?"), reply_markup=get_preferred_genders_keyboard())
-    await state.set_state(ProfileStates.gender_preferences)
+    await state.set_state(AppStates.update_gender_preferences)
 
 
-@router.message(ProfileStates.gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
+@router.message(AppStates.update_gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
 async def update_gender_preferences(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
     preferred_gender = None
@@ -161,30 +179,32 @@ async def update_gender_preferences(message: types.Message, state: FSMContext):
             break
 
     async with session_factory() as session:
-        query = (update(User)
+        query = (update(Preferences)
+                 .where(Preferences.user_id == User.id)
                  .where(User.telegram_id == message.from_user.id)
-                 .values(preferred_gender=preferred_gender)
-                 .returning(User)
-                 .options(selectinload(User.media)))
-        user = (await session.execute(query)).scalar_one()
+                 .values(preferred_gender=preferred_gender))
+        await session.execute(query)
         await session.commit()
-    await show_profile(message, state, user)
+    await update_preferences(message, state)
 
 
-@router.message(ProfileStates.profile, F.text == __("🔢 Age preferences"))
+@router.message(AppStates.preferences, F.text == __("🔢 Age preferences"))
 async def update_age_preferences_start(message: types.Message, state: FSMContext):
-    await message.answer(_("Enter preferred age range"), reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(ProfileStates.age_preferences)
+    await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
+                         reply_markup=make_keyboard([[CLEAR_TXT]]))
+    await state.set_state(AppStates.update_age_preferences)
 
 
-@router.message(ProfileStates.age_preferences, F.text)
+@router.message(AppStates.update_age_preferences, F.text)
 async def update_age_preferences(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
-
-    try:
-        min_age, max_age = validate_preference_age_string(message.text)
-    except ValueError as e:
-        return await message.answer(str(e))
+    if message.text == CLEAR_TXT:
+        min_age, max_age = None, None
+    else:
+        try:
+            min_age, max_age = validate_preference_age_string(message.text)
+        except ValueError as e:
+            return await message.answer(str(e))
 
     async with session_factory() as session:
         query = (update(Preferences)
@@ -194,17 +214,16 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
         await session.execute(query)
         await session.commit()
 
-    user = await get_user(telegram_id=message.from_user.id, with_media=True, is_active=True)
-    await show_profile(message, state, user)
+    await update_preferences(message, state)
 
 
-@router.message(ProfileStates.profile, F.text == __("📍 Location"))
+@router.message(AppStates.profile, F.text == __("📍 Location"))
 async def update_location_start(message: types.Message, state: FSMContext):
     await message.answer(_("Send your location"), reply_markup=get_ask_location_keyboard())
-    await state.set_state(ProfileStates.location)
+    await state.set_state(AppStates.update_location)
 
 
-@router.message(ProfileStates.location, F.location)
+@router.message(AppStates.update_location, F.location)
 async def update_location(message: types.Message, state: FSMContext):
     assert message.location and message.from_user
 
@@ -221,13 +240,13 @@ async def update_location(message: types.Message, state: FSMContext):
     await show_profile(message, state, user)
 
 
-@router.message(ProfileStates.profile, F.text == __("📷 Media"))
+@router.message(AppStates.profile, F.text == __("📷 Media"))
 async def update_media_start(message: types.Message, state: FSMContext):
     await message.answer(_("Please upload photos or videos of yourself"), reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(ProfileStates.media)
+    await state.set_state(AppStates.update_media)
 
 
-@router.message(ProfileStates.media, F.text == __("Continue"))
+@router.message(AppStates.update_media, F.text == __("Continue"))
 async def continue_media(message: types.Message, state: FSMContext, from_user: types.User):
     media = await state.get_value("media")
     if not media:
@@ -237,7 +256,7 @@ async def continue_media(message: types.Message, state: FSMContext, from_user: t
     await update_media_finish(message, state)
 
 
-@router.message(ProfileStates.media, F.photo | F.video)
+@router.message(AppStates.update_media, F.photo | F.video)
 async def update_media(message: types.Message, state: FSMContext):
     file = None
     if message.photo:

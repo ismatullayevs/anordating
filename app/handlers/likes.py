@@ -4,7 +4,7 @@ from aiogram.utils.i18n import gettext as _, lazy_gettext as __
 from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
 from app.models.user import User
-from app.states import MenuStates
+from app.states import AppStates
 from app.keyboards import get_search_keyboard
 from app.utils import get_profile_card, haversine_distance
 from app.queries import get_likes
@@ -14,7 +14,7 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.menu, F.text == __("👍 Likes"), IsActiveHumanUser())
+@router.message(AppStates.menu, F.text == __("👍 Likes"), IsActiveHumanUser())
 async def show_likes(message: types.Message, state: FSMContext, user: User, with_keyboard: bool | None = True):
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
@@ -32,4 +32,4 @@ async def show_likes(message: types.Message, state: FSMContext, user: User, with
         user.latitude, user.longitude, match.latitude, match.longitude))
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
-    await state.set_state(MenuStates.likes)
+    await state.set_state(AppStates.likes)

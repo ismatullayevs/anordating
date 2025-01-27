@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-24 21:59+0500\n"
+"POT-Creation-Date: 2025-01-28 00:33+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -17,111 +17,124 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: app/keyboards.py:13
+#: app/keyboards.py:8
+msgid "❌ Clear"
+msgstr "❌ Tozalash"
+
+#: app/keyboards.py:17
 msgid "Male 👨‍🦱"
 msgstr "Erkak 👨‍🦱"
 
-#: app/keyboards.py:14
+#: app/keyboards.py:18
 msgid "Female 👩‍🦱"
 msgstr "Ayol 👩‍🦱"
 
-#: app/keyboards.py:18
+#: app/keyboards.py:22
 msgid "I'm looking for a man 👨‍🦱"
 msgstr "Erkak kishi qidiryapman 👨‍🦱"
 
-#: app/keyboards.py:19
+#: app/keyboards.py:23
 msgid "I'm looking for a woman 👩‍🦱"
 msgstr "Ayol kishi qidiryapman 👩‍🦱"
 
-#: app/keyboards.py:20
+#: app/keyboards.py:24
 msgid "I'm looking for friends 👫"
 msgstr "Do'st qidiryapman 👫"
 
-#: app/handlers/search.py:24 app/keyboards.py:30
+#: app/handlers/search.py:24 app/keyboards.py:35
 msgid "🔎 Watch profiles"
 msgstr "🔎 Profillarni ko'rish"
 
-#: app/handlers/likes.py:17 app/keyboards.py:30
+#: app/handlers/likes.py:17 app/keyboards.py:35
 msgid "👍 Likes"
 msgstr "👍 Yoqtirishlar"
 
-#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:31
+#: app/handlers/matches.py:18 app/handlers/matches.py:20 app/keyboards.py:36
 msgid "❤️ Matches"
 msgstr "❤️ Mosliklar"
 
-#: app/handlers/menu.py:54 app/keyboards.py:31
+#: app/handlers/menu.py:54 app/keyboards.py:36
 msgid "⚙️ Settings"
 msgstr "⚙️ Sozlamalar"
 
 #: app/handlers/menu.py:28 app/handlers/menu.py:29 app/handlers/menu.py:30
-#: app/keyboards.py:36 app/keyboards.py:47
+#: app/keyboards.py:41 app/keyboards.py:52
 msgid "✍️ Report"
 msgstr "✍️ Shikoyat qilish"
 
-#: app/handlers/menu.py:18 app/keyboards.py:36 app/keyboards.py:47
-#: app/keyboards.py:54 app/keyboards.py:63 app/keyboards.py:97
+#: app/handlers/menu.py:18 app/keyboards.py:41 app/keyboards.py:52
+#: app/keyboards.py:59 app/keyboards.py:68
 msgid "⬅️ Menu"
 msgstr "⬅️ Menyu"
 
-#: app/handlers/menu.py:100 app/keyboards.py:52
-msgid "🌐 Language"
-msgstr "🌐 Til"
-
-#: app/handlers/profile.py:25 app/keyboards.py:52
+#: app/handlers/profile.py:26 app/keyboards.py:57
 msgid "👤 My profile"
 msgstr "👤 Mening profilim"
 
-#: app/handlers/menu.py:60 app/keyboards.py:53
+#: app/handlers/profile.py:37 app/keyboards.py:57
+msgid "🔎 Search settings"
+msgstr "🔎 Qidiruv sozlamalari"
+
+#: app/handlers/menu.py:100 app/keyboards.py:58
+msgid "🌐 Language"
+msgstr "🌐 Til"
+
+#: app/handlers/menu.py:60 app/keyboards.py:58
 msgid "⛔️ Deactivate"
 msgstr "⛔️ To'xtatish"
 
-#: app/handlers/menu.py:121 app/keyboards.py:53
+#: app/handlers/menu.py:121 app/keyboards.py:59
 msgid "❌ Delete account"
 msgstr "❌ Akkountni o'chirish"
 
-#: app/handlers/search.py:45 app/keyboards.py:63
+#: app/handlers/search.py:45 app/keyboards.py:68
 msgid "⏪ Rewind"
 msgstr "⏪ Orqaga"
 
-#: app/keyboards.py:81
+#: app/keyboards.py:86
 msgid "📱 Share phone number"
 msgstr "📱 Telefon raqamni jo'natish"
 
-#: app/keyboards.py:88
+#: app/keyboards.py:93
 msgid "📍 Send location"
 msgstr "📍 Lokatsiya jo'natish"
 
-#: app/handlers/profile.py:36 app/keyboards.py:95
+#: app/handlers/profile.py:51 app/keyboards.py:100
 msgid "✏️ Name"
 msgstr "✏️ Ism"
 
-#: app/handlers/profile.py:64 app/keyboards.py:95
+#: app/handlers/profile.py:79 app/keyboards.py:100
 msgid "🔢 Birth date"
 msgstr "🔢 Tug'ilgan sana"
 
-#: app/handlers/profile.py:95 app/keyboards.py:95
+#: app/handlers/profile.py:110 app/keyboards.py:100
 msgid "👫 Gender"
 msgstr "👫 Jins"
 
-#: app/handlers/profile.py:121 app/keyboards.py:95
+#: app/handlers/profile.py:136 app/keyboards.py:101
 msgid "📝 Bio"
 msgstr "📝 Bio"
 
-#: app/handlers/profile.py:148 app/keyboards.py:96
-msgid "👩‍❤️‍👨 Gender preferences"
-msgstr "👩‍❤️‍👨 Yoqtirilgan jins"
-
-#: app/handlers/profile.py:174 app/keyboards.py:96
-msgid "🔢 Age preferences"
-msgstr "🔢 Yosh chegarasi"
-
-#: app/handlers/profile.py:201 app/keyboards.py:97
+#: app/handlers/profile.py:220 app/keyboards.py:101
 msgid "📍 Location"
 msgstr "📍 Joylashuv"
 
-#: app/handlers/profile.py:224 app/keyboards.py:97
+#: app/handlers/profile.py:243 app/keyboards.py:101
 msgid "📷 Media"
 msgstr "📷 Media"
+
+#: app/handlers/profile.py:45 app/handlers/profile.py:46 app/keyboards.py:102
+#: app/keyboards.py:110
+msgid "⬅️ Back"
+msgstr "⬅️ Orqaga"
+
+#: app/handlers/profile.py:166 app/keyboards.py:109
+msgid "👩‍❤️‍👨 Gender preferences"
+msgstr "👩‍❤️‍👨 Yoqtirilgan jins"
+
+#: app/handlers/profile.py:191 app/keyboards.py:109
+msgid "🔢 Age preferences"
+msgstr "🔢 Yosh chegarasi"
 
 #: app/utils.py:30
 msgid "📍 {dist} km"
@@ -164,7 +177,7 @@ msgid "Age can't be higher than {max_age}"
 msgstr "Yosh {max_age} dan katta bo'lishi mumkin emas"
 
 #: app/validators.py:132
-msgid "Minimum age needs to be lower than maximum age"
+msgid "Minimum age needs be to lower than maximum age"
 msgstr "Minimum yosh maksimum yoshdan kichik bo'lishi kerak"
 
 #: app/handlers/likes.py:24
@@ -184,7 +197,8 @@ msgid ""
 "You both liked each other. You can talk to them by clicking this <a "
 "href='https://t.me/{phone_number}'>link</a>"
 msgstr ""
-"Siz bir-biringizni yoqtirdingiz. Quyidagi <a href='https://t.me/{phone_number}'>havola</a> orqali ular bilan "
+"Siz bir-biringizni yoqtirdingiz. Quyidagi <a "
+"href='https://t.me/{phone_number}'>havola</a> orqali ular bilan "
 "gaplashishingiz mumkin"
 
 #: app/handlers/menu.py:24
@@ -251,15 +265,19 @@ msgstr "Akkountingiz o'chirildi. Qaytadan boshlash uchun, pastdagi tugmani bosin
 msgid "Start registration"
 msgstr "Registratsiyani boshlash"
 
-#: app/handlers/profile.py:30
+#: app/handlers/profile.py:31
 msgid "Press the buttons below to update your profile"
 msgstr "Profilingizni o'zgartirish uchun pastdagi tugmalardan birini bosing"
 
-#: app/handlers/profile.py:38
+#: app/handlers/profile.py:39
+msgid "Search settings"
+msgstr "Qidiruv sozlamari"
+
+#: app/handlers/profile.py:53
 msgid "Enter your name"
 msgstr "Ismingizni yozing"
 
-#: app/handlers/profile.py:66 app/handlers/registration.py:92
+#: app/handlers/profile.py:81 app/handlers/registration.py:92
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
@@ -273,44 +291,44 @@ msgstr ""
 "<b>KK.OO.YYYY</b> (Masalan, 31.12.2000)\n"
 "<b>OO/KK/YYYY</b> (Masalan, 12/31/2000)"
 
-#: app/handlers/profile.py:97
+#: app/handlers/profile.py:112
 msgid "Select your gender"
 msgstr "Jinsni tanlang"
 
-#: app/handlers/profile.py:123 app/handlers/registration.py:139
+#: app/handlers/profile.py:138 app/handlers/registration.py:139
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr "O'zingiz haqingizda aytib bering (qiziqishlaringiz, hobbilaringiz, ...)"
 
-#: app/handlers/profile.py:150 app/handlers/registration.py:162
+#: app/handlers/profile.py:168 app/handlers/registration.py:162
 msgid "Who are you looking for?"
 msgstr "Qanaqa inson qidiryapsiz?"
 
-#: app/handlers/profile.py:176
-msgid "Enter preferred age range"
-msgstr "Yosh chegarasini belgilang"
+#: app/handlers/profile.py:193 app/handlers/registration.py:181
+msgid "What is your preferred age range? (e.g. 18-25)"
+msgstr "Yosh chegarasini belgilang. Masalan: 18-25"
 
-#: app/handlers/profile.py:203
+#: app/handlers/profile.py:222
 msgid "Send your location"
 msgstr "Yashash manzilingizni jo'nating"
 
-#: app/handlers/profile.py:226 app/handlers/registration.py:223
+#: app/handlers/profile.py:245 app/handlers/registration.py:223
 msgid "Please upload photos or videos of yourself"
 msgstr "Rasm va videolaringizni jo'nating"
 
-#: app/handlers/profile.py:230 app/handlers/profile.py:294
+#: app/handlers/profile.py:249 app/handlers/profile.py:313
 #: app/handlers/registration.py:228 app/handlers/registration.py:292
 msgid "Continue"
 msgstr "Davom ettirish"
 
-#: app/handlers/profile.py:234
+#: app/handlers/profile.py:253
 msgid "Please upload at least one photo"
 msgstr "Iltimos, kamida 1 ta rasm joylashtiring"
 
-#: app/handlers/profile.py:290 app/handlers/registration.py:288
+#: app/handlers/profile.py:309 app/handlers/registration.py:288
 msgid "File has been uploaded"
 msgstr "Fayl joylashtirildi"
 
-#: app/handlers/profile.py:293 app/handlers/registration.py:291
+#: app/handlers/profile.py:312 app/handlers/registration.py:291
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
@@ -343,10 +361,6 @@ msgstr "Iltimos, berilgan variantlardan birini tanlang"
 msgid "Skip"
 msgstr "O'tkazib yuborish"
 
-#: app/handlers/registration.py:181
-msgid "What is your preferred age range? (e.g. 18-25)"
-msgstr "Yosh chegarasini belgilang. Masalan: 18-25"
-
 #: app/handlers/registration.py:208
 msgid "Please share your location"
 msgstr "Iltimos, lokatsiya jo'nating"
@@ -363,7 +377,7 @@ msgstr "Iltimos, o'z telefon raqamingizni jo'nating"
 msgid "Please share your phone number by clicking the button below"
 msgstr "Iltimos, pastdagi tugmani bosish orqali telefon raqamingizni jo'nating"
 
-#: app/handlers/registration.py:353
+#: app/handlers/registration.py:357
 msgid "Registration has been completed!"
 msgstr "Registratsiya yakunlandi!"
 
@@ -382,28 +396,6 @@ msgstr "⏪ Orqaga"
 #: app/handlers/search.py:93
 msgid "User not found"
 msgstr "Foydalanuvchi topilmadi"
-
-#: app/handlers/search.py:122
-msgid ""
-"Congratulations. You have matched with {match.name}.\n"
-"You can have a chat with them by clicking this <a "
-"href='https://t.me/{match.phone_number}'>link</a>\n"
-"\n"
-"Click \"❤️ Matches\" in /menu to see your matches"
-msgstr ""
-"Tabriklaymiz. Siz va {match.name} bir biringizga mos keldingiz. \n"
-"Ushbu <a href='https://t.me/{match.phone_number}'>link</a> orqali ular "
-"bilan gaplashishingiz mumkin\n"
-"\n"
-"Mosliklarni ko'rish uchun /menu ga o'tib \"❤️ Mosliklar\" tugmasini bosing"
-
-#: app/handlers/search.py:134
-msgid ""
-"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
-"them"
-msgstr ""
-"Sizning profilingizni yoqtirishdi. Ularni ko'rish uchun, /menu ga o'tib "
-"\"👍 Yoqtirishlar\" tugmasini bosing"
 
 #: app/handlers/test.py:59
 msgid "You are not registered!"

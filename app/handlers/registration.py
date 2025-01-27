@@ -9,7 +9,7 @@ from app.filters import IsHuman
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
-from app.states import MenuStates, RegistrationStates
+from app.states import AppStates
 from app.queries import get_user
 from app.utils import get_profile_card
 from app.handlers.menu import show_menu, activate_account_start
@@ -26,7 +26,7 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(MenuStates.deleted, F.text == __("Start registration"))
+@router.message(AppStates.deleted, F.text == __("Start registration"))
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     assert message.from_user
@@ -50,10 +50,10 @@ async def cmd_start(message: types.Message, state: FSMContext):
 async def set_language_start(message: types.Message, state: FSMContext):
     await message.answer(_("Hi! Please select a language"),
                          reply_markup=get_languages_keyboard())
-    await state.set_state(RegistrationStates.language)
+    await state.set_state(AppStates.set_ui_language)
 
 
-@router.message(RegistrationStates.language, F.text.in_(LANGUAGES.keys()))
+@router.message(AppStates.set_ui_language, F.text.in_(LANGUAGES.keys()))
 async def set_language(message: types.Message, state: FSMContext):
     assert message.text
     language = LANGUAGES[message.text]
@@ -64,7 +64,7 @@ async def set_language(message: types.Message, state: FSMContext):
     await set_name_start(message, state)
 
 
-@router.message(RegistrationStates.language)
+@router.message(AppStates.set_ui_language)
 async def set_language_invalid(message: types.Message, state: FSMContext):
     await message.answer(_("Please select one of the given languages"))
 
@@ -72,10 +72,10 @@ async def set_language_invalid(message: types.Message, state: FSMContext):
 async def set_name_start(message: types.Message, state: FSMContext):
     await message.answer(_("What is your name?"),
                          reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(RegistrationStates.name)
+    await state.set_state(AppStates.set_name)
 
 
-@router.message(RegistrationStates.name, F.text)
+@router.message(AppStates.set_name, F.text)
 async def set_name(message: types.Message, state: FSMContext):
     assert message.text
 
@@ -95,10 +95,10 @@ async def set_birth_date_start(message: types.Message, state: FSMContext):
             "\n<b>DD.MM.YYYY</b> (For example, 31.12.2000)"
             "\n<b>MM/DD/YYYY</b> (For example, 12/31/2000)")
     await message.answer(msg, parse_mode="HTML")
-    await state.set_state(RegistrationStates.birth_date)
+    await state.set_state(AppStates.set_birth_date)
 
 
-@router.message(RegistrationStates.birth_date, F.text)
+@router.message(AppStates.set_birth_date, F.text)
 async def set_birth_date(message: types.Message, state: FSMContext):
     assert message.text
 
@@ -114,10 +114,10 @@ async def set_birth_date(message: types.Message, state: FSMContext):
 async def set_gender_start(message: types.Message, state: FSMContext):
     await message.answer(_("What is your gender?"),
                          reply_markup=get_genders_keyboard())
-    await state.set_state(RegistrationStates.gender)
+    await state.set_state(AppStates.set_gender)
 
 
-@router.message(RegistrationStates.gender, F.text.in_([x[0] for x in GENDERS]))
+@router.message(AppStates.set_gender, F.text.in_([x[0] for x in GENDERS]))
 async def set_gender(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
     gender = None
@@ -130,7 +130,7 @@ async def set_gender(message: types.Message, state: FSMContext):
     await set_bio_start(message, state)
 
 
-@router.message(RegistrationStates.gender)
+@router.message(AppStates.set_gender)
 async def set_gender_invalid(message: types.Message):
     await message.answer(_("Please select one of the given options"))
 
@@ -138,16 +138,16 @@ async def set_gender_invalid(message: types.Message):
 async def set_bio_start(message: types.Message, state: FSMContext):
     msg = _("Tell us more about yourself. What are your hobbies, interests, etc.?")
     await message.answer(msg, reply_markup=make_keyboard([[_("Skip")]]))
-    await state.set_state(RegistrationStates.bio)
+    await state.set_state(AppStates.set_bio)
 
 
-@router.message(RegistrationStates.bio, F.text == __("Skip"))
+@router.message(AppStates.set_bio, F.text == __("Skip"))
 async def skip_bio(message: types.Message, state: FSMContext):
     await state.update_data(bio=None)
     await set_preferred_gender_start(message, state)
 
 
-@router.message(RegistrationStates.bio, F.text)
+@router.message(AppStates.set_bio, F.text)
 async def set_bio(message: types.Message, state: FSMContext):
     try:
         validate_bio(message.text)
@@ -161,10 +161,10 @@ async def set_bio(message: types.Message, state: FSMContext):
 async def set_preferred_gender_start(message: types.Message, state: FSMContext):
     await message.answer(_("Who are you looking for?"),
                          reply_markup=get_preferred_genders_keyboard())
-    await state.set_state(RegistrationStates.gender_preferences)
+    await state.set_state(AppStates.set_gender_preferences)
 
 
-@router.message(RegistrationStates.gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
+@router.message(AppStates.set_gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES]))
 async def set_preferred_gender(message: types.Message, state: FSMContext):
     preferred_gender = None
     for k, v in GENDER_PREFERENCES:
@@ -180,17 +180,17 @@ async def set_preferred_gender(message: types.Message, state: FSMContext):
 async def set_age_preferences_start(message: types.Message, state: FSMContext):
     await message.answer(_("What is your preferred age range? (e.g. 18-25)"),
                          reply_markup=make_keyboard([[_("Skip")]]))
-    await state.set_state(RegistrationStates.age_preferences)
+    await state.set_state(AppStates.set_age_preferences)
 
 
-@router.message(RegistrationStates.age_preferences, F.text == __("Skip"))
+@router.message(AppStates.set_age_preferences, F.text == __("Skip"))
 async def skip_age_preferences(message: types.Message, state: FSMContext):
     await state.update_data(preferred_min_age=None)
     await state.update_data(preferred_max_age=None)
     await set_location_start(message, state)
 
 
-@router.message(RegistrationStates.age_preferences, F.text)
+@router.message(AppStates.set_age_preferences, F.text)
 async def set_age_preferences(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
 
@@ -207,10 +207,10 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
 async def set_location_start(message: types.Message, state: FSMContext):
     await message.answer(_("Please share your location"),
                          reply_markup=get_ask_location_keyboard())
-    await state.set_state(RegistrationStates.location)
+    await state.set_state(AppStates.set_location)
 
 
-@router.message(RegistrationStates.location, F.location)
+@router.message(AppStates.set_location, F.location)
 async def set_location(message: types.Message, state: FSMContext):
     assert message.location and message.from_user
 
@@ -222,10 +222,10 @@ async def set_location(message: types.Message, state: FSMContext):
 async def set_media_start(message: types.Message, state: FSMContext):
     await message.answer(_("Please upload photos or videos of yourself"),
                          reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(RegistrationStates.media)
+    await state.set_state(AppStates.set_media)
 
 
-@router.message(RegistrationStates.media, F.text == __("Continue"))
+@router.message(AppStates.set_media, F.text == __("Continue"))
 async def continue_registration(message: types.Message, state: FSMContext):
     media = await state.get_value("media")
     try:
@@ -235,7 +235,7 @@ async def continue_registration(message: types.Message, state: FSMContext):
     await set_phone_number_start(message, state)
 
 
-@router.message(RegistrationStates.media, F.photo | F.video)
+@router.message(AppStates.set_media, F.photo | F.video)
 async def set_media(message: types.Message, state: FSMContext):
     file = None
     if message.photo:
@@ -295,10 +295,10 @@ async def set_media(message: types.Message, state: FSMContext):
 async def set_phone_number_start(message: types.Message, state: FSMContext):
     await message.answer(_("Please share your phone number"), 
                          reply_markup=get_ask_phone_number_keyboard())
-    await state.set_state(RegistrationStates.phone_number)
+    await state.set_state(AppStates.set_phone_number)
 
 
-@router.message(RegistrationStates.phone_number, F.contact)
+@router.message(AppStates.set_phone_number, F.contact)
 async def set_phone_number(message: types.Message, state: FSMContext):
     assert message.contact and message.from_user
 
@@ -309,7 +309,7 @@ async def set_phone_number(message: types.Message, state: FSMContext):
     await finish_registration(message, state)
 
 
-@router.message(RegistrationStates.phone_number)
+@router.message(AppStates.set_phone_number)
 async def set_phone_number_invalid(message: types.Message):
     await message.answer(_("Please share your phone number by clicking the button below"))
 
