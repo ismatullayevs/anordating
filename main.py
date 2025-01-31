@@ -20,7 +20,12 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
-    mongo = AsyncIOMotorClient(settings.MONGO_HOST, settings.MONGO_PORT)
+    mongo = AsyncIOMotorClient(
+        host=settings.MONGO_HOST,
+        port=settings.MONGO_PORT,
+        username=settings.MONGO_ADMIN,
+        password=settings.MONGO_PASSWORD,
+    )
     mongo_storage = MongoStorage(mongo)
     dp = Dispatcher(storage=mongo_storage)
 

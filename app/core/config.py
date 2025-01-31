@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     MONGO_HOST: str
     MONGO_PORT: int
+    MONGO_ADMIN: str
+    MONGO_PASSWORD: str
 
     MEDIA_PATH: Path = BASE_DIR / "media"
 
