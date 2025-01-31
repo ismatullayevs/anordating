@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import Path
+from urllib.parse import quote_plus
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
     POSTGRES_DB: str
     MONGO_HOST: str
-    MONGO_PORT: int
+    MONGO_PORT: int | None = None
     MONGO_ADMIN: str
     MONGO_PASSWORD: str
 
@@ -33,10 +34,17 @@ class Settings(BaseSettings):
     def database_url(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
-    DEFAULT_RATING: int = 1400
+    @property
+    def mongo_url(self):
+        admin = quote_plus(self.MONGO_ADMIN)
+        password = quote_plus(self.MONGO_PASSWORD)
+        if self.ENVIRONMENT == EnvironmentTypes.production:
+            return f"mongodb+srv://{admin}:{password}@{self.MONGO_HOST}/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
+        return f"mongodb://{admin}:{password}@{self.MONGO_HOST}:{self.MONGO_PORT}"
 
     # App settings
     REWIND_LIMIT: int = 5
+    DEFAULT_RATING: int = 1400
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -36,6 +36,9 @@ services:
       - mongo_data:/data/db
     env_file:
       - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ADMIN}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     restart: always
     logging:
       driver: "json-file"
