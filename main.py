@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import RedisStorage
-from redis.asyncio.client import Redis
+from aiogram.fsm.storage.mongo import MongoStorage
+from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.core.config import settings
 from app.handlers.likes import router as likes_router
@@ -20,14 +20,9 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
-    redis = Redis(
-        host=settings.REDIS_HOST,
-        port=settings.REDIS_PORT,
-        password=settings.REDIS_PASSWORD,
-        ssl=settings.REDIS_SSL,
-    )
-    redis_storage = RedisStorage(redis)
-    dp = Dispatcher(storage=redis_storage)
+    mongo = AsyncIOMotorClient(settings.MONGO_HOST, settings.MONGO_PORT)
+    mongo_storage = MongoStorage(mongo)
+    dp = Dispatcher(storage=mongo_storage)
 
     i18n_middleware.setup(dp)
 

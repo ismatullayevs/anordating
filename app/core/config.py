@@ -22,10 +22,9 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
-    REDIS_HOST: str
-    REDIS_PASSWORD: str | None = None
-    REDIS_PORT: int
-    REDIS_SSL: bool
+    MONGO_HOST: str
+    MONGO_PORT: int
+
     MEDIA_PATH: Path = BASE_DIR / "media"
 
     @property

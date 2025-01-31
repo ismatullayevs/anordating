@@ -30,17 +30,13 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+  mongo:
+    image: mongo:5.0
     volumes:
-      - redis_data:/data
+      - mongo_data:/data/db
+    env_file:
+      - .env
     restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     logging:
       driver: "json-file"
       options:
