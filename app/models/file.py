@@ -1,8 +1,8 @@
-from sqlalchemy import ForeignKey, UniqueConstraint, String
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from app.models.base import Base, intpk, created_at
+from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.enums import FileTypes
+from app.models.base import Base, created_at, intpk
 
 
 class File(Base):
@@ -15,7 +15,9 @@ class File(Base):
     file_type: Mapped[FileTypes]
     file_size: Mapped[int | None]
     mime_type: Mapped[str | None]
-    thumbnail_id: Mapped[int | None] = mapped_column(ForeignKey("file.id", ondelete="SET NULL"))
+    thumbnail_id: Mapped[int | None] = mapped_column(
+        ForeignKey("file.id", ondelete="SET NULL")
+    )
     duration: Mapped[int | None]
     uploaded_at: Mapped[created_at]
 
@@ -26,7 +28,11 @@ class UserMedia(Base):
     __tablename__ = "user_media"
 
     id: Mapped[intpk]
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id", ondelete="CASCADE"), index=True)
-    file_id: Mapped[int] = mapped_column(ForeignKey("file.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+    )
+    file_id: Mapped[int] = mapped_column(
+        ForeignKey("file.id", ondelete="CASCADE"), index=True
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "file_id"),)

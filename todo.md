@@ -1,9 +1,7 @@
 # Tasks
 
-keyboard texts don't fit
-replace "menu" button with "settings" button in settings/profile
+set bot commands
 add explanation messages
-add an option to clear preferred age range
 use webhooks
 delete files that are not attached to users
 add emojis to messages
