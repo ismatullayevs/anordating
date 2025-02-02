@@ -5,7 +5,9 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.mongo import MongoStorage
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from app.bot_commands import set_bot_commands
 from app.core.config import settings
+from app.handlers.default import router as default_router
 from app.handlers.likes import router as likes_router
 from app.handlers.matches import router as matches_router
 from app.handlers.menu import router as menu_router
@@ -27,13 +29,15 @@ async def main():
     dp = Dispatcher(storage=mongo_storage)
 
     i18n_middleware.setup(dp)
+    await set_bot_commands(bot)
 
     dp.include_router(registration_router)
+    dp.include_router(menu_router)
     dp.include_router(search_router)
     dp.include_router(likes_router)
     dp.include_router(profile_router)
     dp.include_router(matches_router)
-    dp.include_router(menu_router)
+    dp.include_router(default_router)
 
     if settings.DEBUG:
         dp.include_router(test_router)

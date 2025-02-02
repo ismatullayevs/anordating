@@ -1,5 +1,7 @@
 from aiogram.filters import Filter
 from aiogram.types import Message
+from sqlalchemy import exc
+
 from app.queries import get_user
 
 
@@ -10,7 +12,7 @@ class IsHuman(Filter):
     async def __call__(self, message: Message):
         if not message.from_user or message.from_user.is_bot:
             return False
-        return {'from_user': message.from_user}
+        return {"from_user": message.from_user}
 
 
 class IsBot(Filter):
@@ -30,10 +32,16 @@ class IsHumanUser(Filter):
         if not await IsHuman().__call__(message):
             return False
 
-        user = await get_user(telegram_id=message.from_user.id,  # type: ignore
-                              with_media=self.with_media,
-                              with_preferences=self.with_preferences)
-        return {'user': user}
+        try:
+            user = await get_user(
+                telegram_id=message.from_user.id,  # type: ignore
+                with_media=self.with_media,
+                with_preferences=self.with_preferences,
+            )
+        except exc.NoResultFound:
+            return False
+
+        return {"user": user}
 
 
 class IsActiveHumanUser(Filter):
@@ -42,7 +50,9 @@ class IsActiveHumanUser(Filter):
         self.with_preferences = with_preferences
 
     async def __call__(self, message: Message):
-        result = await IsHumanUser(self.with_media, self.with_preferences).__call__(message)
+        result = await IsHumanUser(self.with_media, self.with_preferences).__call__(
+            message
+        )
         if not result:
             return False
 
@@ -58,11 +68,13 @@ class IsInactiveHumanUser(Filter):
         self.with_preferences = with_preferences
 
     async def __call__(self, message: Message):
-        result = await IsHumanUser(self.with_media, self.with_preferences).__call__(message)
+        result = await IsHumanUser(self.with_media, self.with_preferences).__call__(
+            message
+        )
         if not result:
             return False
 
         if result["user"].is_active:
             return False
 
-        return {'user': result["user"]}
+        return {"user": result["user"]}

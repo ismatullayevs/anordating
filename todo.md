@@ -1,6 +1,9 @@
 # Tasks
 
-set bot commands
+add bot image and text
+add option to change phone number
+reports, customer service
+change user.id to UUID
 add explanation messages
 use webhooks
 delete files that are not attached to users
