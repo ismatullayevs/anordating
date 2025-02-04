@@ -1,4 +1,4 @@
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 
 
 class AppStates(StatesGroup):
@@ -34,8 +34,8 @@ class AppStates(StatesGroup):
     update_bio = State()
     update_location = State()
     update_media = State()
+    update_phone_number = State()
 
     preferences = State()
     update_gender_preferences = State()
     update_age_preferences = State()
-

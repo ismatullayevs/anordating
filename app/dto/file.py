@@ -1,7 +1,12 @@
-from app.enums import FileTypes
 import datetime
-from app.models.file import File
+from typing import Annotated
+
+from pydantic import AfterValidator
+
 from app.dto.base import BaseModelWithOrm
+from app.enums import FileTypes
+from app.models.file import File
+from app.validators import validate_video_duration
 
 
 class FileAddDTO(BaseModelWithOrm[File]):
@@ -11,7 +16,7 @@ class FileAddDTO(BaseModelWithOrm[File]):
     file_type: FileTypes
     file_size: int | None
     mime_type: str | None
-    duration: int | None
+    duration: Annotated[int | None, AfterValidator(validate_video_duration)]
 
     @property
     def orm_model(self):

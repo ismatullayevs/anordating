@@ -1,12 +1,21 @@
-from aiogram.utils.i18n import gettext as _
-from app.enums import Genders, ReactionType, UILanguages, PreferredGenders
-from app.dto.file import FileDTO, FileAddDTO
-from app.models.user import Preferences, Reaction, User, Report
-from app.dto.base import BaseModelWithOrm
-from app.validators import validate_bio, validate_birth_date, validate_media, validate_name, validate_preference_age, validate_preference_ages
 from datetime import datetime
-from pydantic import AfterValidator, BeforeValidator, model_validator
 from typing import Annotated
+
+from aiogram.utils.i18n import gettext as _
+from pydantic import AfterValidator, BeforeValidator, model_validator
+
+from app.dto.base import BaseModelWithOrm
+from app.dto.file import FileAddDTO, FileDTO
+from app.enums import Genders, PreferredGenders, ReactionType, UILanguages
+from app.models.user import Preferences, Reaction, Report, User
+from app.validators import (
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age,
+    validate_preference_ages,
+)
 
 
 class PreferenceAddDTO(BaseModelWithOrm[Preferences]):
@@ -46,7 +55,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
 
 
 class UserRelMediaAddDTO(UserAddDTO):
-    media: Annotated[list[FileAddDTO], AfterValidator(validate_media)]
+    media: Annotated[list[FileAddDTO], AfterValidator(validate_media_size)]
 
 
 class UserRelPreferencesAddDTO(UserAddDTO):

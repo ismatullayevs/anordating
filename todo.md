@@ -1,8 +1,8 @@
 # Tasks
 
-add error handlers for registration and profile
+notify user after updating their profile
+add option to include existing images
 add bot image and text
-add option to change phone number
 reports, customer service
 change user.id to UUID
 add explanation messages

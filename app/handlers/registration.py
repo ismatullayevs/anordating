@@ -13,30 +13,19 @@ from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
 from app.filters import IsHuman
 from app.handlers.menu import activate_account_start, show_menu
-from app.keyboards import (
-    GENDER_PREFERENCES,
-    GENDERS,
-    LANGUAGES,
-    get_ask_location_keyboard,
-    get_ask_phone_number_keyboard,
-    get_genders_keyboard,
-    get_languages_keyboard,
-    get_menu_keyboard,
-    get_preferred_genders_keyboard,
-    make_keyboard,
-)
+from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
+                           get_ask_location_keyboard,
+                           get_ask_phone_number_keyboard, get_genders_keyboard,
+                           get_languages_keyboard, get_menu_keyboard,
+                           get_preferred_genders_keyboard, make_keyboard)
 from app.middlewares import i18n_middleware
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import get_profile_card
-from app.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media,
-    validate_name,
-    validate_preference_age_string,
-)
+from app.validators import (Params, validate_bio, validate_birth_date,
+                            validate_media_size, validate_name,
+                            validate_preference_age_string,
+                            validate_video_duration)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -99,7 +88,10 @@ async def set_language(message: types.Message, state: FSMContext):
 
 @router.message(AppStates.set_ui_language)
 async def set_language_invalid(message: types.Message, state: FSMContext):
-    await message.answer(_("Please select one of the given languages"))
+    await message.answer(
+        _("Please select one of the given languages"),
+        reply_markup=get_languages_keyboard(),
+    )
 
 
 async def set_name_start(message: types.Message, state: FSMContext):
@@ -215,6 +207,14 @@ async def set_preferred_gender(message: types.Message, state: FSMContext):
     await set_age_preferences_start(message, state)
 
 
+@router.message(AppStates.set_gender_preferences, F.text)
+async def set_gender_preferences_invalid(message: types.Message):
+    await message.answer(
+        _("Please select one of the given options"),
+        reply_markup=get_preferred_genders_keyboard(),
+    )
+
+
 async def set_age_preferences_start(message: types.Message, state: FSMContext):
     await message.answer(
         _("What is your preferred age range? (e.g. 18-25)"),
@@ -260,6 +260,14 @@ async def set_location(message: types.Message, state: FSMContext):
     await set_media_start(message, state)
 
 
+@router.message(AppStates.set_location)
+async def set_location_invalid(message: types.Message):
+    await message.answer(
+        _("Please share your location by clicking the button below"),
+        reply_markup=get_ask_location_keyboard(),
+    )
+
+
 async def set_media_start(message: types.Message, state: FSMContext):
     await message.answer(
         _("Please upload photos or videos of yourself"),
@@ -272,13 +280,13 @@ async def set_media_start(message: types.Message, state: FSMContext):
 async def continue_registration(message: types.Message, state: FSMContext):
     media = await state.get_value("media")
     try:
-        validate_media(media or [])
+        validate_media_size(media or [])
     except ValueError as e:
         return await message.answer(str(e))
     await set_phone_number_start(message, state)
 
 
-@router.message(AppStates.set_media, F.photo | F.video)
+@router.message(AppStates.set_media, F.photo | F.video | F.video_note)
 async def set_media(message: types.Message, state: FSMContext):
     file = None
     if message.photo:
@@ -294,27 +302,59 @@ async def set_media(message: types.Message, state: FSMContext):
         }
 
     elif message.video:
-        if message.video.thumbnail:
-            p = message.video.thumbnail
-            thumbnail = {
-                "telegram_id": p.file_id,
-                "telegram_unique_id": p.file_unique_id,
-                "file_type": FileTypes.image,
-                "path": None,
-                "duration": None,
-                "file_size": p.file_size,
-                "mime_type": None,
-            }
+        try:
+            thumbnail = None
+            if message.video.thumbnail:
+                p = message.video.thumbnail
+                thumbnail = {
+                    "telegram_id": p.file_id,
+                    "telegram_unique_id": p.file_unique_id,
+                    "file_type": FileTypes.image,
+                    "path": None,
+                    "duration": None,
+                    "file_size": p.file_size,
+                    "mime_type": None,
+                }
             file = {
                 "telegram_id": message.video.file_id,
                 "telegram_unique_id": message.video.file_unique_id,
                 "file_type": FileTypes.video,
                 "path": None,
-                "duration": message.video.duration,
+                "duration": validate_video_duration(message.video.duration),
                 "file_size": message.video.file_size,
                 "mime_type": message.video.mime_type,
                 "thumbnail": thumbnail,
             }
+        except ValueError as e:
+            return await message.answer(str(e))
+
+    elif message.video_note:
+        try:
+            thumbnail = None
+            if message.video_note.thumbnail:
+                p = message.video_note.thumbnail
+                thumbnail = {
+                    "telegram_id": p.file_id,
+                    "telegram_unique_id": p.file_unique_id,
+                    "file_type": FileTypes.image,
+                    "path": None,
+                    "duration": None,
+                    "file_size": p.file_size,
+                    "mime_type": None,
+                }
+            file = {
+                "telegram_id": message.video_note.file_id,
+                "telegram_unique_id": message.video_note.file_unique_id,
+                "file_type": FileTypes.video,
+                "path": None,
+                "duration": validate_video_duration(message.video_note.duration),
+                "file_size": message.video_note.file_size,
+                "mime_type": None,
+                "thumbnail": thumbnail,
+            }
+        except ValueError as e:
+            return await message.answer(str(e))
+
     assert file is not None
 
     media = (await state.get_value("media")) or []
@@ -322,7 +362,7 @@ async def set_media(message: types.Message, state: FSMContext):
     await state.update_data(media=media)
 
     try:
-        validate_media(media)
+        validate_media_size(media)
     except ValueError as e:
         await message.answer(str(e))
         return await set_phone_number_start(message, state)
@@ -352,7 +392,10 @@ async def set_phone_number(message: types.Message, state: FSMContext):
     if not message.contact.user_id == message.from_user.id:
         return await message.answer(_("Please share your own phone number"))
 
-    await state.update_data(phone_number=message.contact.phone_number)
+    phone_number = message.contact.phone_number
+    if not phone_number.startswith("+"):
+        phone_number = "+" + phone_number
+    await state.update_data(phone_number=phone_number)
     await finish_registration(message, state)
 
 
@@ -380,10 +423,6 @@ async def finish_registration(message: types.Message, state: FSMContext):
     else:
         telegram_id = message.from_user.id
 
-    phone_number = data["phone_number"]
-    if not phone_number.startswith("+"):
-        phone_number = "+" + phone_number
-
     user = UserRelAddDTO(
         telegram_id=telegram_id,
         name=data["name"],
@@ -393,7 +432,7 @@ async def finish_registration(message: types.Message, state: FSMContext):
         ui_language=data["language"],
         latitude=data["latitude"],
         longitude=data["longitude"],
-        phone_number=phone_number,
+        phone_number=data["phone_number"],
         media=media,
         preferences=preferences,
     )

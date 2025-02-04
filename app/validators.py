@@ -14,6 +14,7 @@ class Params:
 
     media_min_count = 1
     media_max_count = 5
+    media_max_duration = 60
 
 
 def validate_name(value: str) -> str:
@@ -109,7 +110,7 @@ def validate_bio(value: str | None) -> str | None:
     return value
 
 
-def validate_media(value: list) -> list:
+def validate_media_size(value: list) -> list:
     if len(value) < Params.media_min_count:
         raise ValueError(
             _("Please upload at least {min_length} media files").format(
@@ -156,3 +157,13 @@ def validate_preference_ages(min_age: int | None, max_age: int | None):
     if min_age >= max_age:
         raise ValueError(_("Minimum age needs be to lower than maximum age"))
     return (min_age, max_age)
+
+
+def validate_video_duration(value: int | None):
+    if value and value > Params.media_max_duration:
+        raise ValueError(
+            _("Video duration can't be longer than {max_duration} seconds").format(
+                max_duration=Params.media_max_duration
+            )
+        )
+    return value
