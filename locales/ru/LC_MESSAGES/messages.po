@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-02 11:50+0500\n"
+"POT-Creation-Date: 2025-02-04 10:38+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -43,7 +43,7 @@ msgstr "Я ищу женщину 👩‍🦱"
 msgid "I'm looking for friends 👫"
 msgstr "Я ищу друзей 👫"
 
-#: app/handlers/search.py:31 app/keyboards.py:35
+#: app/handlers/search.py:32 app/keyboards.py:35
 msgid "🔎 Watch profiles"
 msgstr "🔎 Смотреть профили"
 
@@ -89,7 +89,7 @@ msgstr "⛔️ Деактивировать"
 msgid "❌ Delete account"
 msgstr "❌ Удалить аккаунт"
 
-#: app/handlers/search.py:59 app/keyboards.py:68
+#: app/handlers/search.py:60 app/keyboards.py:68
 msgid "⏪ Rewind"
 msgstr "⏪ Отмотать"
 
@@ -190,7 +190,7 @@ msgstr "Лайков не обнаружено"
 msgid "Likes"
 msgstr "Лайки"
 
-#: app/handlers/matches.py:33 app/handlers/search.py:41
+#: app/handlers/matches.py:33 app/handlers/search.py:42
 msgid "No matches found"
 msgstr "Пользователи не найдены"
 
@@ -406,21 +406,44 @@ msgstr "Пожалуйста, поделитесь своим номером т�
 msgid "Registration has been completed!"
 msgstr "Регистрация завершена!"
 
-#: app/handlers/search.py:74
+#: app/handlers/search.py:75
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr "Вы не можете перематывать назад более {rewind_limit} раз."
 
-#: app/handlers/search.py:81
+#: app/handlers/search.py:82
 msgid "No more matches to rewind"
 msgstr "Больше нет профили для перемотки"
 
-#: app/handlers/search.py:86
+#: app/handlers/search.py:87
 msgid "⏪ Rewinding"
 msgstr "⏪ Перематываем"
 
-#: app/handlers/search.py:116
+#: app/handlers/search.py:117
 msgid "User not found"
 msgstr "Пользователь не найден"
+
+#: app/handlers/search.py:148 app/handlers/search.py:154
+msgid ""
+"Congratulations. You have matched with {match.name}.\n"
+"You can have a chat with them by clicking this <a "
+"href='https://t.me/{match.phone_number}'>link</a>\n"
+"\n"
+"Click \"❤️ Matches\" in /menu to see your matches"
+msgstr ""
+"Поздравляем. Вы совпали с {match.name}.\n"
+"Вы можете поговорить с ними, перейдя по этой <a "
+"href='https://t.me/{match.phone_number}'>ссылке</a>\n"
+"\n"
+"Перейдите в /меню и нажмите \"❤️ Совпадения\", чтобы увидеть свои "
+"совпадения"
+
+#: app/handlers/search.py:178
+msgid ""
+"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
+"them"
+msgstr ""
+"Кто-то лайкнул ваш профиль. Перейдите в /меню и нажмите кнопку \"👍 "
+"Лайки\", чтобы посмотреть их"
 
 #: app/handlers/test.py:59
 msgid "You are not registered!"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-02 11:50+0500\n"
+"POT-Creation-Date: 2025-02-04 10:38+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "I'm looking for friends 👫"
 msgstr ""
 
-#: app/handlers/search.py:31 app/keyboards.py:35
+#: app/handlers/search.py:32 app/keyboards.py:35
 msgid "🔎 Watch profiles"
 msgstr ""
 
@@ -87,7 +87,7 @@ msgstr ""
 msgid "❌ Delete account"
 msgstr ""
 
-#: app/handlers/search.py:59 app/keyboards.py:68
+#: app/handlers/search.py:60 app/keyboards.py:68
 msgid "⏪ Rewind"
 msgstr ""
 
@@ -188,7 +188,7 @@ msgstr ""
 msgid "Likes"
 msgstr ""
 
-#: app/handlers/matches.py:33 app/handlers/search.py:41
+#: app/handlers/matches.py:33 app/handlers/search.py:42
 msgid "No matches found"
 msgstr ""
 
@@ -380,20 +380,35 @@ msgstr ""
 msgid "Registration has been completed!"
 msgstr ""
 
-#: app/handlers/search.py:74
+#: app/handlers/search.py:75
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr ""
 
-#: app/handlers/search.py:81
+#: app/handlers/search.py:82
 msgid "No more matches to rewind"
 msgstr ""
 
-#: app/handlers/search.py:86
+#: app/handlers/search.py:87
 msgid "⏪ Rewinding"
 msgstr ""
 
-#: app/handlers/search.py:116
+#: app/handlers/search.py:117
 msgid "User not found"
+msgstr ""
+
+#: app/handlers/search.py:148 app/handlers/search.py:154
+msgid ""
+"Congratulations. You have matched with {match.name}.\n"
+"You can have a chat with them by clicking this <a "
+"href='https://t.me/{match.phone_number}'>link</a>\n"
+"\n"
+"Click \"❤️ Matches\" in /menu to see your matches"
+msgstr ""
+
+#: app/handlers/search.py:178
+msgid ""
+"Someone liked your profile. Click \"👍 Likes\" button on the /menu to see "
+"them"
 msgstr ""
 
 #: app/handlers/test.py:59

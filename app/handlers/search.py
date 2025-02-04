@@ -2,6 +2,7 @@ from aiogram import Bot, F, Router, types
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
+from aiogram.utils.i18n import gettext as _v
 from aiogram.utils.i18n import lazy_gettext as __
 from sqlalchemy import exc
 
@@ -142,20 +143,30 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
 async def notify_mutual(user: User, match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-    msg = (
+
+    # duplicate messages so pybabel could extract them
+    msg1 = _v(
         "Congratulations. You have matched with {match.name}."
         "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
-        '\n\nClick "❤️ Matches" in /menu to see your matches'
+        '\n\nClick "❤️ Matches" in /menu to see your matches',
+        locale=user.ui_language.name,
     )
+    msg2 = _v(
+        "Congratulations. You have matched with {match.name}."
+        "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
+        '\n\nClick "❤️ Matches" in /menu to see your matches',
+        locale=match.ui_language.name,
+    )
+
     try:
         await bot.send_message(
             user.telegram_id,
-            _(msg, locale=user.ui_language.name).format(match=match),
+            msg1.format(match=match),
             parse_mode="HTML",
         )
         await bot.send_message(
             match.telegram_id,
-            _(msg, locale=match.ui_language.name).format(match=user),
+            msg2.format(match=user),
             parse_mode="HTML",
         )
     except TelegramBadRequest:
@@ -164,7 +175,7 @@ async def notify_mutual(user: User, match: User):
 
 async def notify_match(match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-    msg = _(
+    msg = _v(
         'Someone liked your profile. Click "👍 Likes" button on the /menu to see them',
         locale=match.ui_language.name,
     )
