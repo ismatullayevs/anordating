@@ -13,19 +13,31 @@ from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes
 from app.filters import IsHuman
 from app.handlers.menu import activate_account_start, show_menu
-from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
-                           get_ask_location_keyboard,
-                           get_ask_phone_number_keyboard, get_genders_keyboard,
-                           get_languages_keyboard, get_menu_keyboard,
-                           get_preferred_genders_keyboard, make_keyboard)
+from app.keyboards import (
+    GENDER_PREFERENCES,
+    GENDERS,
+    LANGUAGES,
+    get_ask_location_keyboard,
+    get_ask_phone_number_keyboard,
+    get_genders_keyboard,
+    get_languages_keyboard,
+    get_menu_keyboard,
+    get_preferred_genders_keyboard,
+    make_keyboard,
+)
 from app.middlewares import i18n_middleware
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import get_profile_card
-from app.validators import (Params, validate_bio, validate_birth_date,
-                            validate_media_size, validate_name,
-                            validate_preference_age_string,
-                            validate_video_duration)
+from app.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -286,7 +298,7 @@ async def continue_registration(message: types.Message, state: FSMContext):
     await set_phone_number_start(message, state)
 
 
-@router.message(AppStates.set_media, F.photo | F.video | F.video_note)
+@router.message(AppStates.set_media, F.photo | F.video)
 async def set_media(message: types.Message, state: FSMContext):
     file = None
     if message.photo:
@@ -323,33 +335,6 @@ async def set_media(message: types.Message, state: FSMContext):
                 "duration": validate_video_duration(message.video.duration),
                 "file_size": message.video.file_size,
                 "mime_type": message.video.mime_type,
-                "thumbnail": thumbnail,
-            }
-        except ValueError as e:
-            return await message.answer(str(e))
-
-    elif message.video_note:
-        try:
-            thumbnail = None
-            if message.video_note.thumbnail:
-                p = message.video_note.thumbnail
-                thumbnail = {
-                    "telegram_id": p.file_id,
-                    "telegram_unique_id": p.file_unique_id,
-                    "file_type": FileTypes.image,
-                    "path": None,
-                    "duration": None,
-                    "file_size": p.file_size,
-                    "mime_type": None,
-                }
-            file = {
-                "telegram_id": message.video_note.file_id,
-                "telegram_unique_id": message.video_note.file_unique_id,
-                "file_type": FileTypes.video,
-                "path": None,
-                "duration": validate_video_duration(message.video_note.duration),
-                "file_size": message.video_note.file_size,
-                "mime_type": None,
                 "thumbnail": thumbnail,
             }
         except ValueError as e:

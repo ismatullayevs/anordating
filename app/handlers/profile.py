@@ -355,33 +355,6 @@ async def update_media(message: types.Message, state: FSMContext):
         except ValueError as e:
             return await message.answer(str(e))
 
-    elif message.video_note:
-        try:
-            thumbnail = None
-            if message.video_note.thumbnail:
-                p = message.video_note.thumbnail
-                thumbnail = {
-                    "telegram_id": p.file_id,
-                    "telegram_unique_id": p.file_unique_id,
-                    "file_type": FileTypes.image,
-                    "path": None,
-                    "duration": None,
-                    "file_size": p.file_size,
-                    "mime_type": None,
-                }
-            file = {
-                "telegram_id": message.video_note.file_id,
-                "telegram_unique_id": message.video_note.file_unique_id,
-                "file_type": FileTypes.video,
-                "path": None,
-                "duration": validate_video_duration(message.video_note.duration),
-                "file_size": message.video_note.file_size,
-                "mime_type": None,
-                "thumbnail": thumbnail,
-            }
-        except ValueError as e:
-            return await message.answer(str(e))
-
     assert file is not None
 
     media = (await state.get_value("media")) or []
