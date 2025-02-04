@@ -24,6 +24,7 @@ async def main():
     bot = Bot(token=settings.BOT_TOKEN)
     mongo = AsyncIOMotorClient(
         host=settings.mongo_url,
+        uuidRepresentation="standard",
     )
     mongo_storage = MongoStorage(mongo)
     dp = Dispatcher(storage=mongo_storage)
