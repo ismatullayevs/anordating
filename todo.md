@@ -1,5 +1,7 @@
 # Tasks
 
+put `deactivate` in main menu
+notify_match is shown only in english
 add bot image and text
 add option to change phone number
 reports, customer service

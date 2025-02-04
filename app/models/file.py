@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,7 +30,7 @@ class UserMedia(Base):
     __tablename__ = "user_media"
 
     id: Mapped[intpk]
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("user_account.id", ondelete="CASCADE"), index=True
     )
     file_id: Mapped[int] = mapped_column(
