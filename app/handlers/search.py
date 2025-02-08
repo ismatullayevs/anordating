@@ -196,8 +196,12 @@ async def notify_match(match: User):
     bot = Bot(token=settings.BOT_TOKEN)
     builder = InlineKeyboardBuilder()
     builder.add(
-        types.InlineKeyboardButton(text=_("Yes"), callback_data="show_likes"),
-        types.InlineKeyboardButton(text=_("No"), callback_data="delete_message"),
+        types.InlineKeyboardButton(
+            text=_v("Yes", locale=match.ui_language.name), callback_data="show_likes"
+        ),
+        types.InlineKeyboardButton(
+            text=_v("No", locale=match.ui_language.name), callback_data="delete_message"
+        ),
     )
     msg = _v(
         "Someone liked your profile. Do you want to see who liked you?",
