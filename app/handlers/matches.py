@@ -36,15 +36,22 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
         has_previous = True
 
     match = matches[0]
-    profile = await get_profile_card(match, dist=haversine_distance(
-        user.latitude, user.longitude, match.latitude, match.longitude))
+    profile = await get_profile_card(
+        match,
+        dist=haversine_distance(
+            user.latitude, user.longitude, match.latitude, match.longitude
+        ),
+    )
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
 
-    await message.answer(_("You both liked each other. You can talk to them by clicking this "
-                           "<a href='https://t.me/{phone_number}'>link</a>")
-                         .format(phone_number=match.phone_number),
-                         reply_markup=get_matches_keyboard(has_previous, has_next),
-                         parse_mode="HTML")
+    await message.answer(
+        _(
+            "You both liked each other. You can talk to them by clicking this "
+            "<a href='https://t.me/{phone_number}'>link</a>"
+        ).format(phone_number=match.phone_number),
+        reply_markup=get_matches_keyboard(has_previous, has_next),
+        parse_mode="HTML",
+    )
     await state.set_state(AppStates.matches)
     await state.update_data(index=index)

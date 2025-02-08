@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import gettext as _v
 from aiogram.utils.i18n import lazy_gettext as __
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import exc
 
 from app.core.config import settings
@@ -143,18 +144,34 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
 async def notify_mutual(user: User, match: User):
     bot = Bot(token=settings.BOT_TOKEN)
-
+    builder1, builder2 = InlineKeyboardBuilder(), InlineKeyboardBuilder()
+    builder1.add(
+        types.InlineKeyboardButton(
+            text=_v("Yes", locale=user.ui_language), callback_data="show_matches"
+        ),
+        types.InlineKeyboardButton(
+            text=_v("No", locale=user.ui_language), callback_data="delete_message"
+        ),
+    )
+    builder2.add(
+        types.InlineKeyboardButton(
+            text=_v("Yes", locale=match.ui_language), callback_data="show_matches"
+        ),
+        types.InlineKeyboardButton(
+            text=_v("No", locale=match.ui_language), callback_data="delete_message"
+        ),
+    )
     # duplicate messages so pybabel could extract them
     msg1 = _v(
         "Congratulations. You have matched with {match.name}."
         "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
-        '\n\nClick "❤️ Matches" in /menu to see your matches',
+        "\n\nDo you want to see your matches?",
         locale=user.ui_language.name,
     )
     msg2 = _v(
         "Congratulations. You have matched with {match.name}."
         "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
-        '\n\nClick "❤️ Matches" in /menu to see your matches',
+        "\n\nDo you want to see your matches?",
         locale=match.ui_language.name,
     )
 
@@ -163,11 +180,13 @@ async def notify_mutual(user: User, match: User):
             user.telegram_id,
             msg1.format(match=match),
             parse_mode="HTML",
+            reply_markup=builder1.as_markup(),
         )
         await bot.send_message(
             match.telegram_id,
             msg2.format(match=user),
             parse_mode="HTML",
+            reply_markup=builder2.as_markup(),
         )
     except TelegramBadRequest:
         pass
@@ -175,11 +194,37 @@ async def notify_mutual(user: User, match: User):
 
 async def notify_match(match: User):
     bot = Bot(token=settings.BOT_TOKEN)
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(text=_("Yes"), callback_data="show_likes"),
+        types.InlineKeyboardButton(text=_("No"), callback_data="delete_message"),
+    )
     msg = _v(
-        'Someone liked your profile. Click "👍 Likes" button on the /menu to see them',
+        "Someone liked your profile. Do you want to see who liked you?",
         locale=match.ui_language.name,
     )
     try:
-        await bot.send_message(match.telegram_id, msg)
+        await bot.send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
     except TelegramBadRequest:
         pass
+
+
+@router.callback_query(F.data == "delete_message")
+async def delete_message(callback: types.CallbackQuery):
+    if callback.message and isinstance(callback.message, types.Message):
+        await callback.message.delete()
+    await callback.answer()
+
+
+@router.callback_query(F.data == "show_matches")
+async def show_matches_callback(callback: types.CallbackQuery, state: FSMContext):
+    await callback.answer()
+    user = await get_user(telegram_id=callback.from_user.id, is_active=True)
+    await show_matches(callback.message, state, user)
+
+
+@router.callback_query(F.data == "show_likes")
+async def show_likes_callback(callback: types.CallbackQuery, state: FSMContext):
+    await callback.answer()
+    user = await get_user(telegram_id=callback.from_user.id, is_active=True)
+    await show_likes(callback.message, state, user)

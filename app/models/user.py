@@ -47,6 +47,8 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
 
+    is_superuser: Mapped[bool] = mapped_column(server_default=text("false"))
+
     @hybrid_property
     def age(self) -> int:
         today = date.today()

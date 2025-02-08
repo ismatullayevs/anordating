@@ -11,19 +11,29 @@ from app.enums import FileTypes
 from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_settings
 from app.handlers.registration import GENDER_PREFERENCES, GENDERS
-from app.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
-                           get_ask_phone_number_keyboard, get_genders_keyboard,
-                           get_preferences_update_keyboard,
-                           get_preferred_genders_keyboard,
-                           get_profile_update_keyboard, make_keyboard)
+from app.keyboards import (
+    CLEAR_TXT,
+    get_ask_location_keyboard,
+    get_ask_phone_number_keyboard,
+    get_genders_keyboard,
+    get_preferences_update_keyboard,
+    get_preferred_genders_keyboard,
+    get_profile_update_keyboard,
+    make_keyboard,
+)
 from app.models.user import Preferences, User
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import clear_state, get_profile_card
-from app.validators import (Params, validate_bio, validate_birth_date,
-                            validate_media_size, validate_name,
-                            validate_preference_age_string,
-                            validate_video_duration)
+from app.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -47,7 +57,9 @@ async def show_profile(message: types.Message, state: FSMContext, user: User):
 
 
 @router.message(AppStates.settings, F.text == __("🔎 Search settings"))
-async def update_preferences(message: types.Message, state: FSMContext, with_keyboard: bool = True):
+async def update_preferences(
+    message: types.Message, state: FSMContext, with_keyboard: bool = True
+):
     if with_keyboard:
         await message.answer(
             _("Search settings"), reply_markup=get_preferences_update_keyboard()
@@ -227,7 +239,10 @@ async def update_gender_preferences(message: types.Message, state: FSMContext):
         await session.execute(query)
         await session.commit()
 
-    await message.answer(_("Search settings have been updated"), reply_markup=get_preferences_update_keyboard())
+    await message.answer(
+        _("Search settings have been updated"),
+        reply_markup=get_preferences_update_keyboard(),
+    )
     await update_preferences(message, state, with_keyboard=False)
 
 
@@ -261,7 +276,10 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
         await session.execute(query)
         await session.commit()
 
-    await message.answer(_("Search settings have been updated"), reply_markup=get_preferences_update_keyboard())
+    await message.answer(
+        _("Search settings have been updated"),
+        reply_markup=get_preferences_update_keyboard(),
+    )
     await update_preferences(message, state, with_keyboard=False)
 
 
@@ -297,7 +315,12 @@ async def update_location(message: types.Message, state: FSMContext):
 @router.message(AppStates.profile, F.text == __("📷 Media"))
 async def update_media_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Please upload photos or videos of yourself"),
+        _(
+            "Please upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+        ).format(
+            min_media_count=Params.media_min_count,
+            max_media_count=Params.media_max_count,
+        ),
         reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.set_state(AppStates.update_media)
@@ -410,7 +433,7 @@ async def update_phone_number(message: types.Message, state: FSMContext):
 
     if not message.contact.user_id == message.from_user.id:
         return await message.answer(_("Please share your own phone number"))
-    
+
     phone_number = message.contact.phone_number
     if not phone_number.startswith("+"):
         phone_number = "+" + phone_number

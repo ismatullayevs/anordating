@@ -15,7 +15,12 @@ router.message.filter(IsHuman())
 
 
 @router.message(AppStates.menu, F.text == __("👍 Likes"), IsActiveHumanUser())
-async def show_likes(message: types.Message, state: FSMContext, user: User, with_keyboard: bool | None = True):
+async def show_likes(
+    message: types.Message,
+    state: FSMContext,
+    user: User,
+    with_keyboard: bool | None = True,
+):
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
 
@@ -28,8 +33,12 @@ async def show_likes(message: types.Message, state: FSMContext, user: User, with
         await message.answer(_("Likes"), reply_markup=get_search_keyboard())
 
     match = likes[0]
-    profile = await get_profile_card(match, dist=haversine_distance(
-        user.latitude, user.longitude, match.latitude, match.longitude))
+    profile = await get_profile_card(
+        match,
+        dist=haversine_distance(
+            user.latitude, user.longitude, match.latitude, match.longitude
+        ),
+    )
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
     await state.set_state(AppStates.likes)

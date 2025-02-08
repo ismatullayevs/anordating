@@ -28,8 +28,7 @@ def get_new_rating(user_rating, swiper_rating, reaction_type: ReactionType):
         New rating for the user being swiped on
     """
     actual_score = 1 if reaction_type == ReactionType.like else 0
-    expected_score = calculate_expected_score(
-        user_rating, swiper_rating)
+    expected_score = calculate_expected_score(user_rating, swiper_rating)
 
     k_factor = 32
     rating_change = k_factor * (actual_score - expected_score)

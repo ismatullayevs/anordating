@@ -23,7 +23,7 @@ async def get_data(message: types.Message, state: FSMContext):
     await message.answer(str(data))
 
 
-@router.message(Command('getstate'))
+@router.message(Command("getstate"))
 async def get_state(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     await message.answer(f"Current state: {current_state}")
@@ -36,12 +36,14 @@ async def cmd_new_user(message: types.Message, state: FSMContext):
     locale = await state.get_value("locale")
     await state.set_data({"locale": locale, "testing": True})
 
-    await message.answer(_("Hi! Please select a language"),
-                         reply_markup=make_keyboard([list(LANGUAGES.keys())]))
+    await message.answer(
+        _("Hi! Please select a language"),
+        reply_markup=make_keyboard([list(LANGUAGES.keys())]),
+    )
     await state.set_state(AppStates.set_ui_language)
 
 
-@router.message(Command('me'), IsHumanUser())
+@router.message(Command("me"), IsHumanUser())
 async def get_me(message: types.Message, state: FSMContext, user: User):
     assert message.from_user
     profile = await get_profile_card(user)
@@ -49,7 +51,7 @@ async def get_me(message: types.Message, state: FSMContext, user: User):
     await show_menu(message, state)
 
 
-@router.message(Command('delete'))
+@router.message(Command("delete"))
 async def delete_me(message: types.Message):
     assert message.from_user
 

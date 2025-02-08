@@ -22,6 +22,12 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
+    await bot.set_my_description(
+        "🤖 Привет! Я помогу тебе найти свою вторую половинку. "
+        "Для начала, нажми /start и заполни анкету."
+    )
+    await set_bot_commands(bot)
+
     mongo = AsyncIOMotorClient(
         host=settings.mongo_url,
         uuidRepresentation="standard",
@@ -30,7 +36,6 @@ async def main():
     dp = Dispatcher(storage=mongo_storage)
 
     i18n_middleware.setup(dp)
-    await set_bot_commands(bot)
 
     dp.include_router(registration_router)
     dp.include_router(menu_router)

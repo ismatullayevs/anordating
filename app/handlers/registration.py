@@ -282,7 +282,12 @@ async def set_location_invalid(message: types.Message):
 
 async def set_media_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Please upload photos or videos of yourself"),
+        _(
+            "Please upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+        ).format(
+            min_media_count=Params.media_min_count,
+            max_media_count=Params.media_max_count,
+        ),
         reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.set_state(AppStates.set_media)

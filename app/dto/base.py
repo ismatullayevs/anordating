@@ -26,4 +26,6 @@ class BaseModelWithOrm[T: Base](BaseModel):
         try:
             return self.orm_model(**parsed_schema)
         except AttributeError:
-            raise AttributeError(f"Schema {self} doesn't have a Meta.orm_model attribute")
+            raise AttributeError(
+                f"Schema {self} doesn't have a Meta.orm_model attribute"
+            )

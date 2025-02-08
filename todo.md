@@ -1,12 +1,8 @@
 # Tasks
 
-notify user after updating their profile
-add option to include existing images
-add bot image and text
-reports, customer service
-change user.id to UUID
 add explanation messages
-use webhooks
+show city name, and other profile data in profile card, save telegram formatting
+reports, customer service
 delete files that are not attached to users
 add emojis to messages
 show city on profile page

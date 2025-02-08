@@ -13,42 +13,49 @@ async def get_potential_matches(current_user: User):
         session.add(current_user)
         await current_user.awaitable_attrs.preferences
 
-        query = select(User).join(Preferences).where(
-            User.id != current_user.id,
-            User.is_active == True,
-
-            ~exists().where(and_(
-                Reaction.from_user_id == current_user.id,
-                Reaction.to_user_id == User.id
-            )),
-
-            ~exists().where(and_(
-                Reaction.from_user_id == User.id,
-                Reaction.to_user_id == current_user.id,
-                Reaction.reaction_type == ReactionType.dislike
-            )),
-
-            ~exists().where(and_(
-                Report.from_user_id == current_user.id,
-                Report.to_user_id == User.id
-            )),
-
-            ~exists().where(and_(
-                Report.from_user_id == User.id,
-                Report.to_user_id == current_user.id
-            )),
+        query = (
+            select(User)
+            .join(Preferences)
+            .where(
+                User.id != current_user.id,
+                User.is_active == True,
+                ~exists().where(
+                    and_(
+                        Reaction.from_user_id == current_user.id,
+                        Reaction.to_user_id == User.id,
+                    )
+                ),
+                ~exists().where(
+                    and_(
+                        Reaction.from_user_id == User.id,
+                        Reaction.to_user_id == current_user.id,
+                        Reaction.reaction_type == ReactionType.dislike,
+                    )
+                ),
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == current_user.id,
+                        Report.to_user_id == User.id,
+                    )
+                ),
+                ~exists().where(
+                    and_(
+                        Report.from_user_id == User.id,
+                        Report.to_user_id == current_user.id,
+                    )
+                ),
+            )
         )
 
-        min_age, max_age = current_user.preferences.min_age, current_user.preferences.max_age
+        min_age, max_age = (
+            current_user.preferences.min_age,
+            current_user.preferences.max_age,
+        )
         if min_age and max_age:
-            query = query.where(
-                User.age.between(min_age, max_age)
-            )
+            query = query.where(User.age.between(min_age, max_age))
 
         if current_user.preferences.preferred_gender == "friends":
-            query = query.where(
-                Preferences.preferred_gender == "friends"
-            )
+            query = query.where(Preferences.preferred_gender == "friends")
         else:
             query = query.where(
                 User.gender == current_user.preferences.preferred_gender,
@@ -88,14 +95,22 @@ async def calculate_similarity(current_user: User, potential_match: User) -> flo
 
     total_score, total_weight = 0, 0
 
-    total_score += calculate_location_similarity(
-        current_user.latitude, current_user.longitude, potential_match.latitude,
-        potential_match.longitude) * SimilarityWeights.location
+    total_score += (
+        calculate_location_similarity(
+            current_user.latitude,
+            current_user.longitude,
+            potential_match.latitude,
+            potential_match.longitude,
+        )
+        * SimilarityWeights.location
+    )
     total_weight += SimilarityWeights.location
 
     if not current_user.preferences.min_age:
-        total_score += calculate_age_similarity(
-            current_user.age, potential_match.age) * SimilarityWeights.age
+        total_score += (
+            calculate_age_similarity(current_user.age, potential_match.age)
+            * SimilarityWeights.age
+        )
         total_weight += SimilarityWeights.age
 
     if total_weight == 0:
@@ -131,8 +146,8 @@ async def calculate_total_score(user1: User, user2: User) -> float:
     normalized_rating = max(0, min(1, normalized_rating))
 
     total_score = (
-        similarity_score * ScoreWeights.similarity +
-        normalized_rating * ScoreWeights.rating
+        similarity_score * ScoreWeights.similarity
+        + normalized_rating * ScoreWeights.rating
     )
 
     return round(total_score, 2)
