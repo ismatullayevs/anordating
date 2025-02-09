@@ -36,6 +36,7 @@ class User(Base):
     gender: Mapped[Genders]
     latitude: Mapped[float]
     longitude: Mapped[float]
+    city_name: Mapped[str | None]
 
     ui_language: Mapped[UILanguages]
     phone_number: Mapped[str]
