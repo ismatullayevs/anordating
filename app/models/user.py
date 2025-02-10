@@ -7,8 +7,13 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.config import settings
-from app.enums import (Genders, PreferredGenders, ReactionType,
-                       ReportStatusTypes, UILanguages)
+from app.enums import (
+    Genders,
+    PreferredGenders,
+    ReactionType,
+    ReportStatusTypes,
+    UILanguages,
+)
 from app.models.base import Base, created_at, intpk, updated_at
 from app.models.file import File
 

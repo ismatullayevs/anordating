@@ -1,16 +1,18 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
+from aiogram.types.inline_keyboard_button import InlineKeyboardButton
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
-from sqlalchemy import exc, update
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy import update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
-from app.enums import FileTypes
+from app.enums import FileTypes, UILanguages
 from app.filters import IsActiveHumanUser, IsHuman
-from app.geocoding import get_place_id
+from app.geocoding import get_place, get_place_id, get_places
 from app.handlers.menu import show_settings
 from app.handlers.registration import GENDER_PREFERENCES, GENDERS
 from app.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
@@ -18,7 +20,7 @@ from app.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
                            get_preferences_update_keyboard,
                            get_preferred_genders_keyboard,
                            get_profile_update_keyboard, make_keyboard)
-from app.models.user import Place, Preferences, User
+from app.models.user import Place, PlaceName, Preferences, User
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import clear_state, get_profile_card
@@ -278,9 +280,70 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
 @router.message(AppStates.profile, F.text == __("📍 Location"))
 async def update_location_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Send your location"), reply_markup=get_ask_location_keyboard()
+        _("Send your location or type the name of your city"),
+        reply_markup=get_ask_location_keyboard(),
     )
     await state.set_state(AppStates.update_location)
+
+
+@router.message(AppStates.update_location, F.text)
+async def update_location_by_name(message: types.Message, state: FSMContext):
+    assert message.text and message.from_user
+
+    language = await state.get_value("locale") or "en"
+    assert language
+    cities = get_places(message.text, UILanguages[language])
+    if not cities:
+        return await message.answer(_("City not found"))
+
+    msg = _("Please select your city")
+    builder = InlineKeyboardBuilder()
+    for city, place_id in cities:
+        builder.row(
+            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}")
+        )
+
+    await message.answer(msg, reply_markup=builder.as_markup())
+
+
+@router.callback_query(AppStates.update_location, F.data.startswith("place_id:"))
+async def set_location_by_name_selected(
+    callback: types.CallbackQuery, state: FSMContext
+):
+    assert callback.data and isinstance(callback.message, types.Message)
+
+    place_id = callback.data.split(":")[1]
+    latitude, longitude, city_name = get_place(place_id, UILanguages.en)
+
+    async with session_factory() as session:
+        if place_id:
+            query = (
+                insert(Place)
+                .values(id=place_id)
+                .on_conflict_do_nothing(index_elements=["id"])
+            )
+            await session.execute(query)
+            query = (
+                insert(PlaceName)
+                .values(place_id=place_id, language=UILanguages.en, name=city_name)
+                .on_conflict_do_nothing(index_elements=["place_id", "language"])
+            )
+            await session.execute(query)
+
+        query = (
+            update(User)
+            .where(User.telegram_id == callback.from_user.id)
+            .values(latitude=latitude, longitude=longitude, place_id=place_id)
+            .returning(User)
+            .options(selectinload(User.media))
+        )
+        user = (await session.execute(query)).scalar_one()
+        await session.commit()
+
+    await callback.message.answer(_("Your profile has been updated"))
+    await show_profile(callback.message, state, user)
+
+    await callback.message.delete()
 
 
 @router.message(AppStates.update_location, F.location)
@@ -293,7 +356,11 @@ async def update_location(message: types.Message, state: FSMContext):
 
     async with session_factory() as session:
         if place_id:
-            query = (insert(Place).values(id=place_id).on_conflict_do_nothing(index_elements=['id']))
+            query = (
+                insert(Place)
+                .values(id=place_id)
+                .on_conflict_do_nothing(index_elements=["id"])
+            )
             await session.execute(query)
 
         query = (

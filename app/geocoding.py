@@ -33,10 +33,10 @@ def get_places(
     result = geocode(client, city_name, language=language.name)
     cities = []
     for res in result:
-        if "locality" in res["types"]:
+        if "locality" in res["types"] or "administrative_area_level_2" in res["types"]:
             cities.append(
                 (
-                    res["address_components"][0]["short_name"],
+                    res["formatted_address"],
                     res["place_id"],
                 )
             )
@@ -53,7 +53,7 @@ def get_place(
         return (
             result[0]["geometry"]["location"]["lat"],
             result[0]["geometry"]["location"]["lng"],
-            result[0]["address_components"][0]["short_name"],
+            result[0]["address_components"][0]["long_name"],
         )
     except (IndexError, KeyError):
         raise ValueError("Location not found")

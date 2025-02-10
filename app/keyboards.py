@@ -104,7 +104,9 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text=_("📍 Send location"), request_location=True)],
     ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=_("City name")
+    )
 
 
 def get_profile_update_keyboard() -> ReplyKeyboardMarkup:

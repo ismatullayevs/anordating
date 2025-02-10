@@ -71,7 +71,6 @@ class UserRelPreferencesAddDTO(UserAddDTO):
 
 
 class UserRelAddDTO(UserAddDTO):
-    place: PlaceAddDTO | None
     media: list[FileAddDTO]
     preferences: PreferenceAddDTO
 

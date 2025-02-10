@@ -5,14 +5,16 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.dto.user import PlaceAddDTO, PreferenceAddDTO, UserRelAddDTO
-from app.enums import FileTypes
+from app.enums import FileTypes, UILanguages
 from app.filters import IsHuman
-from app.geocoding import get_place_id
+from app.geocoding import get_place, get_place_id, get_places
 from app.handlers.menu import activate_account_start, show_menu
 from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
                            get_ask_location_keyboard,
@@ -20,7 +22,7 @@ from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
                            get_languages_keyboard, get_menu_keyboard,
                            get_preferred_genders_keyboard, make_keyboard)
 from app.middlewares import i18n_middleware
-from app.models.user import Place
+from app.models.user import Place, PlaceName
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import get_profile_card
@@ -248,9 +250,44 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
 
 async def set_location_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Please share your location"), reply_markup=get_ask_location_keyboard()
+        _("Please share your location or type the name of your city"),
+        reply_markup=get_ask_location_keyboard(),
     )
     await state.set_state(AppStates.set_location)
+
+
+@router.message(AppStates.set_location, F.text)
+async def set_location_by_name(message: types.Message, state: FSMContext):
+    assert message.text and message.from_user
+
+    language = await state.get_value("language")
+    assert language
+    cities = get_places(message.text, UILanguages[language])
+    if not cities:
+        return await message.answer(_("City not found"))
+
+    msg = _("Please select your city")
+    builder = InlineKeyboardBuilder()
+    for city, place_id in cities:
+        builder.row(
+            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}")
+        )
+
+    await message.answer(msg, reply_markup=builder.as_markup())
+
+
+@router.callback_query(AppStates.set_location, F.data.startswith("place_id:"))
+async def set_location_by_name_selected(query: types.CallbackQuery, state: FSMContext):
+    assert query.data and isinstance(query.message, types.Message)
+    place_id = query.data.split(":")[1]
+    lat, lng, _ = get_place(place_id)
+
+    await state.update_data(place_id=place_id)
+    await state.update_data(latitude=lat)
+    await state.update_data(longitude=lng)
+
+    await query.message.delete()
+    await set_media_start(query.message, state)
 
 
 @router.message(AppStates.set_location, F.location)
@@ -420,11 +457,27 @@ async def finish_registration(message: types.Message, state: FSMContext):
         phone_number=data["phone_number"],
         media=media,
         preferences=preferences,
-        place=PlaceAddDTO(id=data["place_id"]) if data["place_id"] else None,
     )
 
     user_db = user.to_orm()
+
     async with session_factory() as session:
+        if "place_id" in data:
+            query = select(Place).where(Place.id == data["place_id"])
+            result = await session.scalars(query)
+            place = result.one_or_none()
+            if not place:
+                place = Place(id=data["place_id"])
+                lat, lng, place_name = get_place(place.id, UILanguages.en)
+                place_name_db = PlaceName(
+                    place_id=place.id,
+                    language=UILanguages.en,
+                    name=place_name,
+                )
+                session.add(place)
+                session.add(place_name_db)
+            user_db.place = place
+
         session.add(user_db)
         await session.commit()
 
