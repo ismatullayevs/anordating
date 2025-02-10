@@ -7,15 +7,33 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.config import settings
-from app.enums import (
-    Genders,
-    PreferredGenders,
-    ReactionType,
-    ReportStatusTypes,
-    UILanguages,
-)
+from app.enums import (Genders, PreferredGenders, ReactionType,
+                       ReportStatusTypes, UILanguages)
 from app.models.base import Base, created_at, intpk, updated_at
 from app.models.file import File
+
+
+class Place(Base):
+    __tablename__ = "place"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    users: Mapped[list["User"]] = relationship("User", back_populates="place")
+    names: Mapped[list["PlaceName"]] = relationship("PlaceName", back_populates="place")
+
+
+class PlaceName(Base):
+    __tablename__ = "place_name"
+
+    id: Mapped[intpk]
+    place_id: Mapped[str] = mapped_column(
+        ForeignKey("place.id", ondelete="CASCADE"), index=True
+    )
+    language: Mapped[UILanguages]
+    name: Mapped[str]
+
+    place: Mapped[Place] = relationship("Place", back_populates="names")
+
+    __table_args__ = (UniqueConstraint("place_id", "language"),)
 
 
 class User(Base):
@@ -34,9 +52,13 @@ class User(Base):
     bio: Mapped[str | None] = mapped_column(String(255))
     media: Mapped[list[File]] = relationship(secondary="user_media")
     gender: Mapped[Genders]
+
     latitude: Mapped[float]
     longitude: Mapped[float]
-    city_name: Mapped[str | None]
+    place_id: Mapped[str | None] = mapped_column(
+        ForeignKey("place.id", ondelete="SET NULL"), index=True
+    )
+    place: Mapped[Place | None] = relationship("Place", back_populates="users")
 
     ui_language: Mapped[UILanguages]
     phone_number: Mapped[str]

@@ -1,37 +1,59 @@
 import os
 
-from azure.core.credentials import AzureKeyCredential
-from azure.maps.search import MapsSearchClient
+import googlemaps
 from dotenv import load_dotenv
+from googlemaps.geocoding import geocode, reverse_geocode
+
+from app.enums import UILanguages
 
 load_dotenv()
 
 
-def get_azure_client(language: str | None = None) -> MapsSearchClient:
-    subscription_key = os.getenv("AZURE_SUBSCRIPTION_KEY", "your subscription key")
-    return MapsSearchClient(
-        credential=AzureKeyCredential(subscription_key), accept_language=language
+def get_maps_client() -> googlemaps.Client:
+    return googlemaps.Client(key=os.getenv("GOOGLE_API_KEY"))
+
+
+def get_place_id(latitude: float, longitude: float) -> str | None:
+    client = get_maps_client()
+    result = reverse_geocode(
+        client,
+        (latitude, longitude),
+        result_type=["locality", "administrative_area_level_2"],
     )
-
-
-def get_city_name(
-    latitude: float, longitude: float, language: str | None = None
-) -> str:
-    client = get_azure_client(language)
-    result = client.get_reverse_geocoding(coordinates=[longitude, latitude])
     try:
-        return result["features"][0]["properties"]["address"]["locality"]
-    except (KeyError, IndexError):
-        raise ValueError("City name not found")
+        return result[0]["place_id"]
+    except (IndexError, KeyError):
+        return None
 
 
-def get_location(city_name: str, language: str | None = None) -> tuple[float, float]:
-    client = get_azure_client(language)
-    result = client.get_geocoding(top=1, locality=city_name)
+def get_places(
+    city_name: str, language: UILanguages = UILanguages.en, max_results: int = 5
+) -> list[tuple[str, str]]:
+    client = get_maps_client()
+    result = geocode(client, city_name, language=language.name)
+    cities = []
+    for res in result:
+        if "locality" in res["types"]:
+            cities.append(
+                (
+                    res["address_components"][0]["short_name"],
+                    res["place_id"],
+                )
+            )
+
+    return cities[:max_results]
+
+
+def get_place(
+    place_id: str, language: UILanguages = UILanguages.en
+) -> tuple[float, float, str]:
+    client = get_maps_client()
+    result = geocode(client, place_id=place_id, language=language.name)
     try:
-        longitude, latitude = result["features"][0]["properties"]["geocodePoints"][0][
-            "geometry"
-        ]["coordinates"]
-        return (latitude, longitude)
-    except (KeyError, IndexError):
-        raise ValueError("City not found")
+        return (
+            result[0]["geometry"]["location"]["lat"],
+            result[0]["geometry"]["location"]["lng"],
+            result[0]["address_components"][0]["short_name"],
+        )
+    except (IndexError, KeyError):
+        raise ValueError("Location not found")

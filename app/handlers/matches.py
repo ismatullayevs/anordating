@@ -1,14 +1,15 @@
-from aiogram import Router, types, F
+from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _, lazy_gettext as __
+from aiogram.utils.i18n import gettext as _
+from aiogram.utils.i18n import lazy_gettext as __
+
 from app.filters import IsActiveHumanUser, IsHuman
 from app.handlers.menu import show_menu
-from app.models.user import User
-from app.states import AppStates
 from app.keyboards import get_matches_keyboard
-from app.utils import get_profile_card, haversine_distance
+from app.models.user import User
 from app.queries import get_matches
-
+from app.states import AppStates
+from app.utils import get_profile_card, haversine_distance
 
 router = Router()
 router.message.filter(IsHuman())
@@ -36,12 +37,7 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
         has_previous = True
 
     match = matches[0]
-    profile = await get_profile_card(
-        match,
-        dist=haversine_distance(
-            user.latitude, user.longitude, match.latitude, match.longitude
-        ),
-    )
+    profile = await get_profile_card(match, user)
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
 

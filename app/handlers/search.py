@@ -47,12 +47,7 @@ async def search(
     if with_keyboard:
         await message.answer("🔎", reply_markup=get_search_keyboard())
 
-    card = await get_profile_card(
-        match,
-        dist=haversine_distance(
-            user.latitude, user.longitude, match.latitude, match.longitude
-        ),
-    )
+    card = await get_profile_card(match, user)
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
     await state.set_state(AppStates.search)
@@ -87,12 +82,7 @@ async def rewind(
     if with_keyboard:
         await message.answer(_("⏪ Rewinding"), reply_markup=get_search_keyboard())
 
-    card = await get_profile_card(
-        match,
-        dist=haversine_distance(
-            user.latitude, user.longitude, match.latitude, match.longitude
-        ),
-    )
+    card = await get_profile_card(match, user)
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
     await state.update_data(rewind_index=rewind_index + 1)

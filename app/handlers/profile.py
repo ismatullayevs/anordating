@@ -2,38 +2,30 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
-from sqlalchemy import update
+from sqlalchemy import exc, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.enums import FileTypes
 from app.filters import IsActiveHumanUser, IsHuman
+from app.geocoding import get_place_id
 from app.handlers.menu import show_settings
 from app.handlers.registration import GENDER_PREFERENCES, GENDERS
-from app.keyboards import (
-    CLEAR_TXT,
-    get_ask_location_keyboard,
-    get_ask_phone_number_keyboard,
-    get_genders_keyboard,
-    get_preferences_update_keyboard,
-    get_preferred_genders_keyboard,
-    get_profile_update_keyboard,
-    make_keyboard,
-)
-from app.models.user import Preferences, User
+from app.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
+                           get_ask_phone_number_keyboard, get_genders_keyboard,
+                           get_preferences_update_keyboard,
+                           get_preferred_genders_keyboard,
+                           get_profile_update_keyboard, make_keyboard)
+from app.models.user import Place, Preferences, User
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import clear_state, get_profile_card
-from app.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from app.validators import (Params, validate_bio, validate_birth_date,
+                            validate_media_size, validate_name,
+                            validate_preference_age_string,
+                            validate_video_duration)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -297,11 +289,17 @@ async def update_location(message: types.Message, state: FSMContext):
 
     latitude = message.location.latitude
     longitude = message.location.longitude
+    place_id = get_place_id(latitude, longitude)
+
     async with session_factory() as session:
+        if place_id:
+            query = (insert(Place).values(id=place_id).on_conflict_do_nothing(index_elements=['id']))
+            await session.execute(query)
+
         query = (
             update(User)
             .where(User.telegram_id == message.from_user.id)
-            .values(latitude=latitude, longitude=longitude)
+            .values(latitude=latitude, longitude=longitude, place_id=place_id)
             .returning(User)
             .options(selectinload(User.media))
         )

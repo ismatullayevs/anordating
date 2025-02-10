@@ -1,9 +1,11 @@
-from app.matching.rating import get_new_rating
-from app.models.user import Reaction, User, Report
+from sqlalchemy import and_, exc, exists, func, select
+from sqlalchemy.orm import aliased, joinedload, selectinload
+
 from app.core.db import session_factory
-from app.enums import ReactionType
-from sqlalchemy import and_, exists, select, exc, func
-from sqlalchemy.orm import selectinload, joinedload, aliased
+from app.enums import ReactionType, UILanguages
+from app.geocoding import get_place
+from app.matching.rating import get_new_rating
+from app.models.user import PlaceName, Reaction, Report, User
 
 
 async def get_user(
@@ -193,3 +195,24 @@ async def is_mutual(reaction: Reaction):
         )
         res = await session.scalars(query)
         return res.one_or_none() is not None
+
+
+async def get_city_name(user: User, language: UILanguages):
+    if not user.place_id:
+        return None
+
+    async with session_factory() as session:
+        query = select(PlaceName).where(
+            PlaceName.place_id == user.place_id, PlaceName.language == language
+        )
+        res = await session.scalars(query)
+        try:
+            return res.one().name
+        except exc.NoResultFound:
+            _, _, place_name = get_place(user.place_id, language)
+            place = PlaceName(
+                place_id=user.place_id, language=language, name=place_name
+            )
+            session.add(place)
+            await session.commit()
+            return place_name

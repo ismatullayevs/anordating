@@ -1,5 +1,7 @@
 # Tasks
 
+make geocoding async
+index tables
 add explanation messages
 show city name, and other profile data in profile card, save telegram formatting
 reports, customer service

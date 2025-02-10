@@ -7,7 +7,7 @@ from pydantic import AfterValidator, BeforeValidator, model_validator
 from app.dto.base import BaseModelWithOrm
 from app.dto.file import FileAddDTO, FileDTO
 from app.enums import Genders, PreferredGenders, ReactionType, UILanguages
-from app.models.user import Preferences, Reaction, Report, User
+from app.models.user import Place, Preferences, Reaction, Report, User
 from app.validators import (
     validate_bio,
     validate_birth_date,
@@ -38,6 +38,14 @@ class PreferenceDTO(PreferenceAddDTO):
     user_id: int
 
 
+class PlaceAddDTO(BaseModelWithOrm[Place]):
+    id: str
+
+    @property
+    def orm_model(self):
+        return Place
+
+
 class UserAddDTO(BaseModelWithOrm[User]):
     telegram_id: int
     name: Annotated[str, AfterValidator(validate_name)]
@@ -63,6 +71,7 @@ class UserRelPreferencesAddDTO(UserAddDTO):
 
 
 class UserRelAddDTO(UserAddDTO):
+    place: PlaceAddDTO | None
     media: list[FileAddDTO]
     preferences: PreferenceAddDTO
 
