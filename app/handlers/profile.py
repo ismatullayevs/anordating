@@ -333,7 +333,12 @@ async def set_location_by_name_selected(
         query = (
             update(User)
             .where(User.telegram_id == callback.from_user.id)
-            .values(latitude=latitude, longitude=longitude, place_id=place_id)
+            .values(
+                latitude=latitude,
+                longitude=longitude,
+                place_id=place_id,
+                is_location_precise=False,
+            )
             .returning(User)
             .options(selectinload(User.media))
         )
@@ -366,7 +371,12 @@ async def update_location(message: types.Message, state: FSMContext):
         query = (
             update(User)
             .where(User.telegram_id == message.from_user.id)
-            .values(latitude=latitude, longitude=longitude, place_id=place_id)
+            .values(
+                latitude=latitude,
+                longitude=longitude,
+                place_id=place_id,
+                is_location_precise=True,
+            )
             .returning(User)
             .options(selectinload(User.media))
         )

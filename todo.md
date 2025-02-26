@@ -1,5 +1,6 @@
 # Tasks
 
+notify user even if the notify_match doesn't succeed
 make geocoding more understandable
 Add an option to ban users
 make geocoding async

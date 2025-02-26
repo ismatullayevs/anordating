@@ -11,25 +11,37 @@ from sqlalchemy.exc import NoResultFound
 
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
-from app.dto.user import PlaceAddDTO, PreferenceAddDTO, UserRelAddDTO
+from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes, UILanguages
 from app.filters import IsHuman
 from app.geocoding import get_place, get_place_id, get_places
 from app.handlers.menu import activate_account_start, show_menu
-from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
-                           get_ask_location_keyboard,
-                           get_ask_phone_number_keyboard, get_genders_keyboard,
-                           get_languages_keyboard, get_menu_keyboard,
-                           get_preferred_genders_keyboard, make_keyboard)
+from app.keyboards import (
+    GENDER_PREFERENCES,
+    GENDERS,
+    LANGUAGES,
+    get_ask_location_keyboard,
+    get_ask_phone_number_keyboard,
+    get_genders_keyboard,
+    get_languages_keyboard,
+    get_menu_keyboard,
+    get_preferred_genders_keyboard,
+    make_keyboard,
+)
 from app.middlewares import i18n_middleware
 from app.models.user import Place, PlaceName
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import get_profile_card
-from app.validators import (Params, validate_bio, validate_birth_date,
-                            validate_media_size, validate_name,
-                            validate_preference_age_string,
-                            validate_video_duration)
+from app.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -285,6 +297,7 @@ async def set_location_by_name_selected(query: types.CallbackQuery, state: FSMCo
     await state.update_data(place_id=place_id)
     await state.update_data(latitude=lat)
     await state.update_data(longitude=lng)
+    await state.update_data(is_location_precise=False)
 
     await query.message.delete()
     await set_media_start(query.message, state)
@@ -297,6 +310,7 @@ async def set_location(message: types.Message, state: FSMContext):
     lat, lng = message.location.latitude, message.location.longitude
     await state.update_data(latitude=lat)
     await state.update_data(longitude=lng)
+    await state.update_data(is_location_precise=True)
 
     place_id = get_place_id(lat, lng)
     await state.update_data(place_id=place_id)
@@ -454,6 +468,7 @@ async def finish_registration(message: types.Message, state: FSMContext):
         ui_language=data["language"],
         latitude=data["latitude"],
         longitude=data["longitude"],
+        is_location_precise=data["is_location_precise"],
         phone_number=data["phone_number"],
         media=media,
         preferences=preferences,

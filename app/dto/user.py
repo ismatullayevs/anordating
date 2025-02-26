@@ -56,6 +56,7 @@ class UserAddDTO(BaseModelWithOrm[User]):
     longitude: float
     ui_language: UILanguages
     phone_number: str
+    is_location_precise: bool
 
     @property
     def orm_model(self):

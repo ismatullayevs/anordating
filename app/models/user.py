@@ -64,6 +64,7 @@ class User(Base):
         ForeignKey("place.id", ondelete="SET NULL"), index=True
     )
     place: Mapped[Place | None] = relationship("Place", back_populates="users")
+    is_location_precise: Mapped[bool] = mapped_column(server_default=text("true"))
 
     ui_language: Mapped[UILanguages]
     phone_number: Mapped[str]

@@ -31,7 +31,7 @@ async def get_profile_card(user: User, from_user: User | None = None):
     language = from_user.ui_language if from_user else user.ui_language
     city = await get_city_name(user, language)
     location_str = f"📍 {city}" if city else ""
-    if from_user:
+    if from_user and from_user.is_location_precise and user.is_location_precise:
         dist = haversine_distance(
             user.latitude, user.longitude, from_user.latitude, from_user.longitude
         )
