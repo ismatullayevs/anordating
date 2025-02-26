@@ -9,7 +9,7 @@ from app.models.user import PlaceName, Reaction, Report, User
 
 
 async def get_user(
-    id: int | None = None,
+    id: str | None = None,
     telegram_id: int | None = None,
     is_active: bool | None = None,
     with_media=False,

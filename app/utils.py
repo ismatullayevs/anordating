@@ -1,12 +1,12 @@
 import math
-from math import atan2, ceil, cos, radians, sin, sqrt
+from math import atan2, cos, radians, sin, sqrt
 
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.media_group import MediaGroupBuilder
 
 from app.core.db import session_factory
-from app.enums import FileTypes, UILanguages
+from app.enums import FileTypes
 from app.models.user import User
 from app.queries import get_city_name
 
