@@ -1,9 +1,10 @@
 # Tasks
 
+make geocoding more understandable
+Add an option to ban users
 make geocoding async
 index tables
 add explanation messages
-show city name, and other profile data in profile card, save telegram formatting
 reports, customer service
 delete files that are not attached to users
 add emojis to messages
