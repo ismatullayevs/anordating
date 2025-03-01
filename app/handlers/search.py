@@ -1,5 +1,5 @@
 from aiogram import Bot, F, Router, types
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import gettext as _v
@@ -24,7 +24,7 @@ from app.queries import (
     is_mutual,
 )
 from app.states import AppStates
-from app.utils import get_profile_card, haversine_distance
+from app.utils import get_profile_card
 
 router = Router()
 router.message.filter(IsHuman())
@@ -72,6 +72,7 @@ async def rewind(
                 rewind_limit=settings.REWIND_LIMIT
             )
         )
+        return show_menu(message, state)
 
     match = await get_nth_last_reacted_match(user, rewind_index)
     if not match:
@@ -178,7 +179,7 @@ async def notify_mutual(user: User, match: User):
             parse_mode="HTML",
             reply_markup=builder2.as_markup(),
         )
-    except TelegramBadRequest:
+    except (TelegramBadRequest, TelegramForbiddenError):
         pass
 
 
@@ -199,7 +200,7 @@ async def notify_match(match: User):
     )
     try:
         await bot.send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
-    except TelegramBadRequest:
+    except (TelegramBadRequest, TelegramForbiddenError):
         pass
 
 

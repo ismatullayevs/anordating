@@ -77,7 +77,7 @@ class UserRelAddDTO(UserAddDTO):
 
 
 class UserDTO(UserAddDTO):
-    id: int
+    id: str
     rating: int
     is_active: bool
     created_at: datetime
