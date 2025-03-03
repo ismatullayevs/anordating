@@ -17,12 +17,8 @@ from app.handlers.menu import show_menu
 from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
 from app.models.user import User
-from app.queries import (
-    create_or_update_reaction,
-    get_nth_last_reacted_match,
-    get_user,
-    is_mutual,
-)
+from app.queries import (create_or_update_reaction, get_nth_last_reacted_match,
+                         get_user, is_mutual)
 from app.states import AppStates
 from app.utils import get_profile_card
 
@@ -72,7 +68,7 @@ async def rewind(
                 rewind_limit=settings.REWIND_LIMIT
             )
         )
-        return show_menu(message, state)
+        return await show_menu(message, state)
 
     match = await get_nth_last_reacted_match(user, rewind_index)
     if not match:
