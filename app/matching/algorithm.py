@@ -153,7 +153,7 @@ async def calculate_total_score(user1: User, user2: User) -> float:
         + normalized_rating * ScoreWeights.rating
     )
 
-    return round(total_score, 2)
+    return round(total_score, 3)
 
 
 async def get_best_match(current_user: User):
@@ -169,5 +169,4 @@ async def get_best_match(current_user: User):
             best_match = match
             best_score = score
 
-    print(f"Best match: {best_match}, score: {best_score}")
     return best_match
