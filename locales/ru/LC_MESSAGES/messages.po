@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-10 19:32+0500\n"
+"POT-Creation-Date: 2025-03-03 12:33+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -125,11 +125,11 @@ msgstr "📝 Био"
 msgid "📍 Location"
 msgstr "📍 Местоположение"
 
-#: app/handlers/profile.py:380 app/keyboards.py:115
+#: app/handlers/profile.py:390 app/keyboards.py:115
 msgid "📷 Media"
 msgstr "📷 Медиа"
 
-#: app/handlers/profile.py:486 app/keyboards.py:116
+#: app/handlers/profile.py:496 app/keyboards.py:116
 msgid "📞 Phone number"
 msgstr "📞 Номер телефона"
 
@@ -194,16 +194,15 @@ msgstr "Минимальный возраст должен быть ниже м�
 msgid "Video duration can't be longer than {max_duration} seconds"
 msgstr "Видео не может быть длиннее {max_duration} секунд."
 
-#: app/handlers/default.py:18
+#: app/handlers/default.py:19 app/handlers/default.py:38
 msgid "Only superusers can use this command"
 msgstr ""
 
-#: app/handlers/default.py:26 app/handlers/registration.py:77
-#: app/handlers/test.py:40
+#: app/handlers/default.py:27 app/handlers/registration.py:89
 msgid "Hi! Please select a language"
 msgstr "Привет! Пожалуйста, выберите язык"
 
-#: app/handlers/default.py:34
+#: app/handlers/default.py:49
 msgid "Unknown command. Please use /start to start the bot."
 msgstr "Неизвестная команда. Нажмите /start, чтобы начать бота."
 
@@ -252,14 +251,14 @@ msgstr ""
 "аккаунт, даже те пользователи, которые вам понравились"
 
 #: app/handlers/menu.py:75 app/handlers/menu.py:84 app/handlers/menu.py:147
-#: app/handlers/menu.py:157 app/handlers/search.py:140
-#: app/handlers/search.py:148 app/handlers/search.py:190
+#: app/handlers/menu.py:157 app/handlers/search.py:141
+#: app/handlers/search.py:149 app/handlers/search.py:191
 msgid "Yes"
 msgstr "Да"
 
 #: app/handlers/menu.py:75 app/handlers/menu.py:79 app/handlers/menu.py:147
-#: app/handlers/menu.py:152 app/handlers/search.py:143
-#: app/handlers/search.py:151 app/handlers/search.py:193
+#: app/handlers/menu.py:152 app/handlers/search.py:144
+#: app/handlers/search.py:152 app/handlers/search.py:194
 msgid "No"
 msgstr "Нет"
 
@@ -291,7 +290,7 @@ msgstr ""
 msgid "Your account has been deleted. To start again, press the button below"
 msgstr "Ваш аккаунт был удален. Чтобы начать заново, нажмите кнопку ниже"
 
-#: app/handlers/menu.py:168 app/handlers/registration.py:54
+#: app/handlers/menu.py:168 app/handlers/registration.py:66
 msgid "Start registration"
 msgstr "Начать регистрацию"
 
@@ -309,12 +308,12 @@ msgstr "Введите свое имя"
 
 #: app/handlers/profile.py:98 app/handlers/profile.py:137
 #: app/handlers/profile.py:167 app/handlers/profile.py:203
-#: app/handlers/profile.py:343 app/handlers/profile.py:376
-#: app/handlers/profile.py:482 app/handlers/profile.py:517
+#: app/handlers/profile.py:348 app/handlers/profile.py:386
+#: app/handlers/profile.py:492 app/handlers/profile.py:527
 msgid "Your profile has been updated"
 msgstr "Ваш профиль обновлен"
 
-#: app/handlers/profile.py:104 app/handlers/registration.py:122
+#: app/handlers/profile.py:104 app/handlers/registration.py:134
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
@@ -332,11 +331,11 @@ msgstr ""
 msgid "Select your gender"
 msgstr "Выберите свой пол"
 
-#: app/handlers/profile.py:174 app/handlers/registration.py:170
+#: app/handlers/profile.py:174 app/handlers/registration.py:182
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr "Расскажите нам больше о себе. Какие у вас хобби, интересы и т. д.?"
 
-#: app/handlers/profile.py:210 app/handlers/registration.py:194
+#: app/handlers/profile.py:210 app/handlers/registration.py:206
 msgid "Who are you looking for?"
 msgstr "Какого человека вы ищете?"
 
@@ -344,7 +343,7 @@ msgstr "Какого человека вы ищете?"
 msgid "Search settings have been updated"
 msgstr "Настройки поиска обновлены"
 
-#: app/handlers/profile.py:246 app/handlers/registration.py:224
+#: app/handlers/profile.py:246 app/handlers/registration.py:236
 msgid "What is your preferred age range? (e.g. 18-25)"
 msgstr "Каков ваш предпочтительный возрастной диапазон? (например, 18–25)"
 
@@ -352,15 +351,15 @@ msgstr "Каков ваш предпочтительный возрастной 
 msgid "Send your location or type the name of your city"
 msgstr "Отправьте свое местоположение или введите название своего города"
 
-#: app/handlers/profile.py:297 app/handlers/registration.py:267
+#: app/handlers/profile.py:297 app/handlers/registration.py:279
 msgid "City not found"
 msgstr "Город не найден"
 
-#: app/handlers/profile.py:299 app/handlers/registration.py:269
+#: app/handlers/profile.py:299 app/handlers/registration.py:281
 msgid "Please select your city"
 msgstr "Пожалуйста, выберите свой город"
 
-#: app/handlers/profile.py:383 app/handlers/registration.py:317
+#: app/handlers/profile.py:393 app/handlers/registration.py:331
 msgid ""
 "Please upload photos or videos of yourself "
 "({min_media_count}-{max_media_count})"
@@ -368,20 +367,20 @@ msgstr ""
 "Пожалуйста, загрузите свои фотографии или видео "
 "({min_media_count}-{max_media_count})"
 
-#: app/handlers/profile.py:394 app/handlers/profile.py:465
-#: app/handlers/registration.py:328 app/handlers/registration.py:399
+#: app/handlers/profile.py:404 app/handlers/profile.py:475
+#: app/handlers/registration.py:342 app/handlers/registration.py:413
 msgid "Continue"
-msgstr "Продолжать"
+msgstr "Продолжить"
 
-#: app/handlers/profile.py:398
+#: app/handlers/profile.py:408
 msgid "Please upload at least one photo"
 msgstr "Пожалуйста, загрузите хотя бы одну фотографию"
 
-#: app/handlers/profile.py:459 app/handlers/registration.py:393
+#: app/handlers/profile.py:469 app/handlers/registration.py:407
 msgid "File has been uploaded"
 msgstr "Файл загружен"
 
-#: app/handlers/profile.py:462 app/handlers/registration.py:396
+#: app/handlers/profile.py:472 app/handlers/registration.py:410
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
@@ -389,15 +388,15 @@ msgstr ""
 "Файл загружен. Если хотите, загрузите еще медиафайлы или нажмите "
 "\"Продолжать\""
 
-#: app/handlers/profile.py:489 app/handlers/registration.py:404
+#: app/handlers/profile.py:499 app/handlers/registration.py:418
 msgid "Please share your phone number"
 msgstr "Пожалуйста, поделитесь своим номером телефона"
 
-#: app/handlers/profile.py:500 app/handlers/registration.py:415
+#: app/handlers/profile.py:510 app/handlers/registration.py:429
 msgid "Please share your own phone number"
 msgstr "Пожалуйста, поделитесь своим номером телефона"
 
-#: app/handlers/registration.py:41
+#: app/handlers/registration.py:53
 msgid ""
 "Hi there! I'm a bot to help you find your soulmate.\n"
 "\n"
@@ -419,40 +418,42 @@ msgstr ""
 "Если у вас есть вопросы, свяжитесь с нашей <a "
 "href='{support_link}'>службой поддержки</a>."
 
-#: app/handlers/registration.py:96
+#: app/handlers/registration.py:108
 msgid "Please select one of the given languages"
 msgstr "Пожалуйста, выберите один из указанных языков"
 
-#: app/handlers/registration.py:103
+#: app/handlers/registration.py:115
 msgid "What is your name?"
 msgstr "Как вас зовут?"
 
-#: app/handlers/registration.py:147
+#: app/handlers/registration.py:159
 msgid "What is your gender?"
 msgstr "Какой у вас пол?"
 
-#: app/handlers/registration.py:166 app/handlers/registration.py:217
+#: app/handlers/registration.py:178 app/handlers/registration.py:229
 msgid "Please select one of the given options"
 msgstr "Пожалуйста, выберите один из предложенных вариантов"
 
-#: app/handlers/registration.py:171 app/handlers/registration.py:175
-#: app/handlers/registration.py:225 app/handlers/registration.py:230
+#: app/handlers/registration.py:183 app/handlers/registration.py:187
+#: app/handlers/registration.py:237 app/handlers/registration.py:242
 msgid "Skip"
-msgstr "Пропускать"
+msgstr "Пропустить"
 
-#: app/handlers/registration.py:253
+#: app/handlers/registration.py:265
 msgid "Please share your location or type the name of your city"
-msgstr "Пожалуйста, поделитесь своим местоположением или введите название своего города"
+msgstr ""
+"Пожалуйста, поделитесь своим местоположением или введите название своего "
+"города"
 
-#: app/handlers/registration.py:310
+#: app/handlers/registration.py:324
 msgid "Please share your location by clicking the button below"
 msgstr "Пожалуйста, поделитесь своим местоположением, нажав кнопку ниже."
 
-#: app/handlers/registration.py:427
+#: app/handlers/registration.py:441
 msgid "Please share your phone number by clicking the button below"
 msgstr "Пожалуйста, поделитесь своим номером телефона, нажав кнопку ниже."
 
-#: app/handlers/registration.py:484
+#: app/handlers/registration.py:500
 msgid "Registration has been completed!"
 msgstr "Регистрация завершена!"
 
@@ -460,19 +461,19 @@ msgstr "Регистрация завершена!"
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr "Вы не можете перематывать назад более {rewind_limit} раз."
 
-#: app/handlers/search.py:78
+#: app/handlers/search.py:79
 msgid "No more matches to rewind"
 msgstr "Больше нет профили для перемотки"
 
-#: app/handlers/search.py:83
+#: app/handlers/search.py:84
 msgid "⏪ Rewinding"
 msgstr "⏪ Перематываем"
 
-#: app/handlers/search.py:108
+#: app/handlers/search.py:109
 msgid "User not found"
 msgstr "Пользователь не найден"
 
-#: app/handlers/search.py:155 app/handlers/search.py:161
+#: app/handlers/search.py:156 app/handlers/search.py:162
 msgid ""
 "Congratulations. You have matched with {match.name}.\n"
 "You can have a chat with them by clicking this <a "
@@ -486,17 +487,7 @@ msgstr ""
 "\n"
 "Хотите посмотреть свои совпадения?"
 
-#: app/handlers/search.py:196
+#: app/handlers/search.py:197
 msgid "Someone liked your profile. Do you want to see who liked you?"
 msgstr "Кому-то понравился ваш профиль. Хотите узнать, кому вы понравились?"
-
-#: app/handlers/test.py:61
-msgid "You are not registered!"
-msgstr "Вы не зарегистрированы!"
-
-#~ msgid "Send your location"
-#~ msgstr "Отправьте свое местоположение"
-
-#~ msgid "Please share your location"
-#~ msgstr "Пожалуйста, поделитесь своим местоположением"
 
