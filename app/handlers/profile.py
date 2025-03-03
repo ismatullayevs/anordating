@@ -1,6 +1,5 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
-from aiogram.types.inline_keyboard_button import InlineKeyboardButton
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder

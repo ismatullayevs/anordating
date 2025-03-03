@@ -1,9 +1,11 @@
-from app.enums import ReactionType
-from app.models.user import Preferences, Report, User, Reaction
-from app.core.db import session_factory
-from app.utils import haversine_distance
 from dataclasses import dataclass
-from sqlalchemy import select, and_, exists
+
+from sqlalchemy import and_, exists, or_, select
+
+from app.core.db import session_factory
+from app.enums import PreferredGenders, ReactionType
+from app.models.user import Preferences, Reaction, Report, User
+from app.utils import haversine_distance
 
 
 async def get_potential_matches(current_user: User):
@@ -18,7 +20,11 @@ async def get_potential_matches(current_user: User):
             .join(Preferences)
             .where(
                 User.id != current_user.id,
-                User.is_active == True,
+                User.is_active,
+                or_(
+                    Preferences.preferred_gender == current_user.gender,
+                    Preferences.preferred_gender == PreferredGenders.both,
+                ),
                 ~exists().where(
                     and_(
                         Reaction.from_user_id == current_user.id,
@@ -54,12 +60,9 @@ async def get_potential_matches(current_user: User):
         if min_age and max_age:
             query = query.where(User.age.between(min_age, max_age))
 
-        if current_user.preferences.preferred_gender == "friends":
-            query = query.where(Preferences.preferred_gender == "friends")
-        else:
+        if not current_user.preferences.preferred_gender == PreferredGenders.both:
             query = query.where(
                 User.gender == current_user.preferences.preferred_gender,
-                Preferences.preferred_gender == current_user.gender,
             )
 
         res = await session.scalars(query)

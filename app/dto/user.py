@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Annotated
 
-from aiogram.utils.i18n import gettext as _
 from pydantic import AfterValidator, BeforeValidator, model_validator
 
 from app.dto.base import BaseModelWithOrm

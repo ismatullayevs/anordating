@@ -9,7 +9,7 @@ from app.keyboards import get_search_keyboard
 from app.models.user import User
 from app.queries import get_likes
 from app.states import AppStates
-from app.utils import get_profile_card, haversine_distance
+from app.utils import get_profile_card
 
 router = Router()
 router.message.filter(IsHuman())

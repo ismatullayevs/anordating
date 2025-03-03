@@ -49,7 +49,7 @@ async def get_likes(user: User, limit: int | None = None):
                 ),
             )
             .where(
-                User.is_active == True,
+                User.is_active,
                 ~exists().where(
                     and_(
                         my_reaction.from_user_id == user.id,
@@ -103,7 +103,7 @@ async def get_matches(user: User, limit: int | None = None, offset: int | None =
                 ),
             )
             .where(
-                User.is_active == True,
+                User.is_active,
                 ~exists().where(
                     and_(
                         Report.from_user_id == user.id,
@@ -170,7 +170,7 @@ async def get_nth_last_reacted_match(user: User, n: int):
         query = (
             select(User)
             .join(Reaction, Reaction.to_user_id == User.id)
-            .where(and_(Reaction.from_user_id == user.id, User.is_active == True))
+            .where(and_(Reaction.from_user_id == user.id, User.is_active))
             .order_by(Reaction.updated_at.desc())
             .limit(1)
             .offset(n)

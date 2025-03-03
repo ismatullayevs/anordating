@@ -1,18 +1,10 @@
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _
-from aiogram.utils.i18n import lazy_gettext as __
-from sqlalchemy.exc import NoResultFound
 
-from app.core.db import session_factory
 from app.filters import IsHumanUser
 from app.handlers.menu import show_menu
-from app.handlers.registration import LANGUAGES
-from app.keyboards import make_keyboard
 from app.models.user import User
-from app.queries import get_user
-from app.states import AppStates
 from app.utils import get_profile_card
 
 router = Router()

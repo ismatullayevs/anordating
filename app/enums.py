@@ -23,7 +23,7 @@ class Genders(str, Enum):
 class PreferredGenders(str, Enum):
     male = "male"
     female = "female"
-    friends = "friends"
+    both = "both"
 
 
 class ReactionType(str, Enum):
