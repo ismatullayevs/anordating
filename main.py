@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.mongo import MongoStorage
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from app.bot_commands import set_bot_commands
+from app.bot_commands import set_bot_profile
 from app.core.config import settings
 from app.handlers.default import router as default_router
 from app.handlers.likes import router as likes_router
@@ -22,11 +22,7 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
-    await bot.set_my_description(
-        "🤖 Привет! Я помогу тебе найти свою вторую половинку. "
-        "Для начала, нажми /start и заполни анкету."
-    )
-    await set_bot_commands(bot)
+    await set_bot_profile(bot)
 
     mongo = AsyncIOMotorClient(
         host=settings.mongo_url,
