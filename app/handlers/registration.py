@@ -16,32 +16,20 @@ from app.enums import FileTypes, UILanguages
 from app.filters import IsHuman
 from app.geocoding import get_place, get_place_id, get_places
 from app.handlers.menu import activate_account_start, show_menu
-from app.keyboards import (
-    GENDER_PREFERENCES,
-    GENDERS,
-    LANGUAGES,
-    get_ask_location_keyboard,
-    get_ask_phone_number_keyboard,
-    get_genders_keyboard,
-    get_languages_keyboard,
-    get_menu_keyboard,
-    get_preferred_genders_keyboard,
-    make_keyboard,
-)
+from app.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
+                           get_ask_location_keyboard,
+                           get_ask_phone_number_keyboard, get_genders_keyboard,
+                           get_languages_keyboard, get_menu_keyboard,
+                           get_preferred_genders_keyboard, make_keyboard)
 from app.middlewares import i18n_middleware
 from app.models.user import Place, PlaceName
 from app.queries import get_user
 from app.states import AppStates
 from app.utils import get_profile_card
-from app.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from app.validators import (Params, validate_bio, validate_birth_date,
+                            validate_media_size, validate_name,
+                            validate_preference_age_string,
+                            validate_video_duration)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -313,7 +301,8 @@ async def set_location(message: types.Message, state: FSMContext):
     await state.update_data(is_location_precise=True)
 
     place_id = get_place_id(lat, lng)
-    await state.update_data(place_id=place_id)
+    if place_id:
+        await state.update_data(place_id=place_id)
 
     await set_media_start(message, state)
 
@@ -477,7 +466,7 @@ async def finish_registration(message: types.Message, state: FSMContext):
     user_db = user.to_orm()
 
     async with session_factory() as session:
-        if "place_id" in data:
+        if "place_id" in data and data["place_id"] is not None:
             query = select(Place).where(Place.id == data["place_id"])
             result = await session.scalars(query)
             place = result.one_or_none()
