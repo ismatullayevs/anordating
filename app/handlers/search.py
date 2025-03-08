@@ -17,8 +17,12 @@ from app.handlers.menu import show_menu
 from app.keyboards import get_empty_search_keyboard, get_search_keyboard
 from app.matching.algorithm import get_best_match
 from app.models.user import User
-from app.queries import (create_or_update_reaction, get_nth_last_reacted_match,
-                         get_user, is_mutual)
+from app.queries import (
+    create_or_update_reaction,
+    get_nth_last_reacted_match,
+    get_user,
+    is_mutual,
+)
 from app.states import AppStates
 from app.utils import get_profile_card
 
@@ -177,6 +181,8 @@ async def notify_mutual(user: User, match: User):
         )
     except (TelegramBadRequest, TelegramForbiddenError):
         pass
+    finally:
+        await bot.session.close()
 
 
 async def notify_match(match: User):
@@ -198,6 +204,8 @@ async def notify_match(match: User):
         await bot.send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
     except (TelegramBadRequest, TelegramForbiddenError):
         pass
+    finally:
+        await bot.session.close()
 
 
 @router.callback_query(F.data == "delete_message")
