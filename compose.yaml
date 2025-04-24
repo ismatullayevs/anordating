@@ -1,22 +1,22 @@
 services:
   bot:
     build:
-      context: .
+      context: ./backend
       target: dev
     develop:
       watch:
         - action: sync
-          path: .
+          path: ./backend
           target: /app
         - action: rebuild
-          path: ./pyproject.toml
+          path: ./backend/pyproject.toml
     env_file:
       - .env
     depends_on:
       - db
       - mongo
     user: appuser
-    command: sh -c "alembic upgrade head && watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 main.py"
+    command: sh -c "alembic upgrade head && watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 -m bot.main"
 
   db:
     image: postgres:15-alpine

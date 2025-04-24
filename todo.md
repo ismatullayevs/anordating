@@ -1,5 +1,6 @@
 # Tasks
 
+allow users message anonymously after matching
 make geocoding more understandable
 Add an option to ban users
 make geocoding async
