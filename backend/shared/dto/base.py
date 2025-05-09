@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-from shared.models.base import Base
 from typing import Type
+
+from pydantic import BaseModel, ConfigDict
+
+from shared.models.base import Base
 
 
 class BaseModelWithOrm[T: Base](BaseModel):
@@ -29,3 +31,5 @@ class BaseModelWithOrm[T: Base](BaseModel):
             raise AttributeError(
                 f"Schema {self} doesn't have a Meta.orm_model attribute"
             )
+
+    model_config = ConfigDict(from_attributes=True)

@@ -11,19 +11,56 @@ services:
         - action: rebuild
           path: ./backend/pyproject.toml
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       - db
       - mongo
     user: appuser
     command: sh -c "alembic upgrade head && watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 -m bot.main"
 
+  api:
+    build:
+      context: ./backend
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+        - action: rebuild
+          path: ./backend/pyproject.toml
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    user: appuser
+    ports:
+      - "8000:8000"
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 -m api.main
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - ./frontend/.env
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+        - action: rebuild
+          path: ./frontend/package.json
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+
   db:
     image: postgres:15-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - .env
+      - ./backend/.env
     ports:
       - "5432:5432"
 
@@ -32,7 +69,7 @@ services:
     volumes:
       - mongo_data:/data/db
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ADMIN}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}

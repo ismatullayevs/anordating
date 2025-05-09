@@ -7,7 +7,7 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import exc
 
-from shared.core.config import settings
+from shared.core.config import EnvironmentTypes, settings
 from shared.core.db import session_factory
 from shared.enums import ReactionType
 from bot.filters import IsActiveHumanUser, IsHuman
@@ -25,6 +25,8 @@ from shared.queries import (
 )
 from bot.states import AppStates
 from bot.utils import get_profile_card
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TEST
 
 router = Router()
 router.message.filter(IsHuman())
@@ -135,6 +137,9 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
 async def notify_mutual(user: User, match: User):
     bot = Bot(token=settings.BOT_TOKEN)
+    if settings.ENVIRONMENT == EnvironmentTypes.testing:
+        session = AiohttpSession(api=TEST)
+        bot = Bot(token=settings.BOT_TOKEN, session=session)
     builder1, builder2 = InlineKeyboardBuilder(), InlineKeyboardBuilder()
     builder1.add(
         types.InlineKeyboardButton(
@@ -187,6 +192,9 @@ async def notify_mutual(user: User, match: User):
 
 async def notify_match(match: User):
     bot = Bot(token=settings.BOT_TOKEN)
+    if settings.ENVIRONMENT == EnvironmentTypes.testing:
+        session = AiohttpSession(api=TEST)
+        bot = Bot(token=settings.BOT_TOKEN, session=session)
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(

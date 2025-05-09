@@ -16,13 +16,19 @@ from bot.handlers.registration import router as registration_router
 from bot.handlers.search import router as search_router
 from bot.handlers.test import router as test_router
 from bot.middlewares import i18n_middleware
-from shared.core.config import settings
+from shared.core.config import EnvironmentTypes, settings
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TEST
 
 logging.basicConfig(level=logging.INFO)
 
 
 async def main():
     bot = Bot(token=settings.BOT_TOKEN)
+    if settings.ENVIRONMENT == EnvironmentTypes.testing:
+        session = AiohttpSession(api=TEST)
+        bot = Bot(token=settings.BOT_TOKEN, session=session)
+
     await set_bot_profile(bot)
     await bot.set_chat_menu_button(menu_button=MenuButtonWebApp(text="App", web_app=WebAppInfo(url="https://3135-82-215-85-234.ngrok-free.app")))
 

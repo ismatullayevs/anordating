@@ -1,10 +1,14 @@
+from uuid import UUID
+
 from sqlalchemy import and_, exc, exists, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, joinedload, selectinload
 
 from shared.core.db import session_factory
 from shared.enums import ReactionType, UILanguages
 from shared.geocoding import get_place
 from shared.matching.rating import get_new_rating
+from shared.models.chat import Chat, ChatMember
 from shared.models.user import PlaceName, Reaction, Report, User
 
 
@@ -195,6 +199,67 @@ async def is_mutual(reaction: Reaction):
         )
         res = await session.scalars(query)
         return res.one_or_none() is not None
+
+
+async def can_write(session: AsyncSession, user_id: UUID, match_id: UUID):
+    if user_id == match_id:
+        return False
+
+    my_reaction = aliased(Reaction)
+    their_reaction = aliased(Reaction)
+
+    query = (
+        select(my_reaction)
+        .join(
+            their_reaction,
+            and_(
+                their_reaction.from_user_id == match_id,
+                their_reaction.to_user_id == user_id,
+                their_reaction.reaction_type == ReactionType.like,
+            ),
+        )
+        .where(
+            my_reaction.from_user_id == user_id,
+            my_reaction.to_user_id == match_id,
+            my_reaction.reaction_type == ReactionType.like,
+        )
+    )
+    res = (await session.scalars(query)).one_or_none()
+    return bool(res)
+
+
+async def get_chat_by_users(session: AsyncSession, user_id: UUID, match_id: UUID):
+    mych = aliased(ChatMember)
+    theirch = aliased(ChatMember)
+
+    query = (
+        select(Chat)
+        .join(mych)
+        .join(theirch)
+        .where(
+            and_(
+                mych.user_id == user_id,
+                theirch.user_id == match_id,
+                mych.chat_id == theirch.chat_id,
+            )
+        )
+    )
+    res = await session.scalars(query)
+    return res.one_or_none()
+
+
+async def select_chat_members(session: AsyncSession, chat_id: int):
+    query = select(ChatMember).where(ChatMember.chat_id == chat_id)
+    res = await session.scalars(query)
+    return res.all()
+
+
+async def get_chat_member(session: AsyncSession, user_id: UUID, chat_id: int):
+    query = select(ChatMember).where(
+        and_(ChatMember.user_id == user_id, ChatMember.chat_id == chat_id)
+    )
+    res = await session.scalars(query)
+    return res.one_or_none()
 
 
 async def get_city_name(user: User, language: UILanguages):

@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     MONGO_PASSWORD: str
 
     MEDIA_PATH: Path = BASE_DIR / "media"
+    MINI_APP_URL: str
 
     @property
     def database_url(self):
@@ -46,7 +47,7 @@ class Settings(BaseSettings):
     REWIND_LIMIT: int = 5
     DEFAULT_RATING: int = 1400
 
-    model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings.model_validate({})

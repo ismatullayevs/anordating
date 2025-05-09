@@ -1,6 +1,8 @@
 # Tasks
 
-allow users message anonymously after matching
+show timezone specific time and dates in chat
+check if the user is active when using twa
+show texts in user's locale in twa
 make geocoding more understandable
 Add an option to ban users
 make geocoding async

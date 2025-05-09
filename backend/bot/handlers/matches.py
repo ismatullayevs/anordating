@@ -10,6 +10,7 @@ from shared.models.user import User
 from shared.queries import get_matches
 from bot.states import AppStates
 from bot.utils import get_profile_card
+from shared.core.config import settings
 
 router = Router()
 router.message.filter(IsHuman())
@@ -41,13 +42,35 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
     await state.update_data(match_id=match.id)
     await message.answer_media_group(profile)
 
+    # await message.answer(
+    #     _(
+    #         "You both liked each other. You can talk to them by clicking this "
+    #         "<a href='https://t.me/{phone_number}'>link</a>"
+    #     ).format(phone_number=match.phone_number),
+    #     reply_markup=get_matches_keyboard(has_previous, has_next),
+    #     parse_mode="HTML",
+    # )
     await message.answer(
         _(
-            "You both liked each other. You can talk to them by clicking this "
-            "<a href='https://t.me/{phone_number}'>link</a>"
-        ).format(phone_number=match.phone_number),
+            "You both liked each other. Start a chat with them by clicking the button below."
+        ),
+        reply_markup=types.InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    types.InlineKeyboardButton(
+                        text=_("Start a chat"),
+                        web_app=types.WebAppInfo(
+                            url=f"{settings.MINI_APP_URL}/users/{match.id}/chat",
+                        ),
+                    )
+                ]
+            ],
+        ))
+
+    await message.answer(
+        _("Matches"),
         reply_markup=get_matches_keyboard(has_previous, has_next),
-        parse_mode="HTML",
     )
+
     await state.set_state(AppStates.matches)
     await state.update_data(index=index)

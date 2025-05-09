@@ -8,6 +8,7 @@ from alembic import context
 
 import shared.models.user
 import shared.models.file
+import shared.models.chat
 from shared.models.base import Base
 from shared.core.config import settings
 
