@@ -2,11 +2,6 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-
-html {
-    @apply h-full overflow-y-auto;
-}
-
 body {
-    @apply bg-white h-full;
+    @apply bg-white;
 }

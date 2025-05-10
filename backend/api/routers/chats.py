@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 
 from aiogram.utils.web_app import WebAppInitData
@@ -10,6 +11,7 @@ from shared.core.db import session_factory
 from shared.dto.chat import ChatDTO, ChatInDTO, ChatMemberDTO, MessageDTO
 from shared.models.chat import Chat, ChatMember, Message
 from shared.queries import can_write, get_chat_by_users, get_user, select_chat_members
+from api.websocket import manager
 
 router = APIRouter()
 
@@ -19,7 +21,7 @@ async def get_chats(
     init_data: Annotated[WebAppInitData, Depends(validate_init_data)],
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
     async with session_factory() as session:
         query = select(Chat).join(ChatMember).where(ChatMember.user_id == user.id)
         res = await session.scalars(query)
@@ -33,8 +35,8 @@ async def create_chat(
     chat: ChatInDTO,
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
-    match = await get_user(id=chat.match_id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
+    match = await get_user(id=chat.match_id, is_active=True)
     async with session_factory() as session:
         if not await can_write(session, user.id, match.id):
             raise HTTPException(status_code=403, detail="You are not a match")
@@ -51,6 +53,13 @@ async def create_chat(
         session.add(chat_member1)
         session.add(chat_member2)
         await session.commit()
+
+        await manager.send_message(str(match.id), json.dumps({
+            'type': 'new_chat',
+            'payload': {
+                'id': chat_db.id,
+            }
+        }))
         return chat_db
 
 
