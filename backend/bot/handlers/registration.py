@@ -9,39 +9,26 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
+from bot.filters import IsHuman
+from bot.handlers.menu import activate_account_start, show_menu
+from bot.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
+                           get_ask_location_keyboard, get_genders_keyboard,
+                           get_languages_keyboard, get_menu_keyboard,
+                           get_preferred_genders_keyboard, make_keyboard)
+from bot.middlewares import i18n_middleware
+from bot.states import AppStates
+from bot.utils import get_profile_card
 from shared.core.db import session_factory
 from shared.dto.file import FileAddDTO
 from shared.dto.user import PreferenceAddDTO, UserRelAddDTO
 from shared.enums import FileTypes, UILanguages
-from bot.filters import IsHuman
 from shared.geocoding import get_place, get_place_id, get_places
-from bot.handlers.menu import activate_account_start, show_menu
-from bot.keyboards import (
-    GENDER_PREFERENCES,
-    GENDERS,
-    LANGUAGES,
-    get_ask_location_keyboard,
-    get_ask_phone_number_keyboard,
-    get_genders_keyboard,
-    get_languages_keyboard,
-    get_menu_keyboard,
-    get_preferred_genders_keyboard,
-    make_keyboard,
-)
-from bot.middlewares import i18n_middleware
 from shared.models.user import Place, PlaceName
 from shared.queries import get_user
-from bot.states import AppStates
-from bot.utils import get_profile_card
-from shared.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from shared.validators import (Params, validate_bio, validate_birth_date,
+                               validate_media_size, validate_name,
+                               validate_preference_age_string,
+                               validate_video_duration)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -347,7 +334,7 @@ async def continue_registration(message: types.Message, state: FSMContext):
         validate_media_size(media or [])
     except ValueError as e:
         return await message.answer(str(e))
-    await set_phone_number_start(message, state)
+    await finish_registration(message, state)
 
 
 @router.message(AppStates.set_media, F.photo | F.video)
@@ -402,45 +389,16 @@ async def set_media(message: types.Message, state: FSMContext):
         validate_media_size(media)
     except ValueError as e:
         await message.answer(str(e))
-        return await set_phone_number_start(message, state)
+        return await finish_registration(message, state)
 
     if len(media) >= Params.media_max_count:
         await message.answer(_("File has been uploaded"))
-        return await set_phone_number_start(message, state)
+        return await finish_registration(message, state)
 
     msg = _(
         'File has been uploaded. Upload more media files if you want or press "Continue"'
     )
     await message.answer(msg, reply_markup=make_keyboard([[_("Continue")]]))
-
-
-async def set_phone_number_start(message: types.Message, state: FSMContext):
-    await message.answer(
-        _("Please share your phone number"),
-        reply_markup=get_ask_phone_number_keyboard(),
-    )
-    await state.set_state(AppStates.set_phone_number)
-
-
-@router.message(AppStates.set_phone_number, F.contact)
-async def set_phone_number(message: types.Message, state: FSMContext):
-    assert message.contact and message.from_user
-
-    if not message.contact.user_id == message.from_user.id:
-        return await message.answer(_("Please share your own phone number"))
-
-    phone_number = message.contact.phone_number
-    if not phone_number.startswith("+"):
-        phone_number = "+" + phone_number
-    await state.update_data(phone_number=phone_number)
-    await finish_registration(message, state)
-
-
-@router.message(AppStates.set_phone_number)
-async def set_phone_number_invalid(message: types.Message):
-    await message.answer(
-        _("Please share your phone number by clicking the button below")
-    )
 
 
 async def finish_registration(message: types.Message, state: FSMContext):
@@ -470,7 +428,6 @@ async def finish_registration(message: types.Message, state: FSMContext):
         latitude=data["latitude"],
         longitude=data["longitude"],
         is_location_precise=data["is_location_precise"],
-        phone_number=data["phone_number"],
         media=media,
         preferences=preferences,
     )

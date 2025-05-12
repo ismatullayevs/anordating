@@ -92,13 +92,6 @@ def get_preferred_genders_keyboard():
     return make_keyboard([[str(x[0])] for x in GENDER_PREFERENCES])
 
 
-def get_ask_phone_number_keyboard() -> ReplyKeyboardMarkup:
-    keyboard = [
-        [KeyboardButton(text=_("📞 Share phone number"), request_contact=True)],
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-
 def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton(text=_("📍 Send location"), request_location=True)],

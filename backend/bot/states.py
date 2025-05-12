@@ -12,7 +12,6 @@ class AppStates(StatesGroup):
     set_age_preferences = State()
     set_location = State()
     set_media = State()
-    set_phone_number = State()
 
     menu = State()
     search = State()
@@ -34,7 +33,6 @@ class AppStates(StatesGroup):
     update_bio = State()
     update_location = State()
     update_media = State()
-    update_phone_number = State()
 
     preferences = State()
     update_gender_preferences = State()

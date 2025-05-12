@@ -7,36 +7,26 @@ from sqlalchemy import update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import selectinload
 
+from bot.filters import IsActiveHumanUser, IsHuman
+from bot.handlers.menu import show_settings
+from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
+from bot.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
+                           get_genders_keyboard,
+                           get_preferences_update_keyboard,
+                           get_preferred_genders_keyboard,
+                           get_profile_update_keyboard, make_keyboard)
+from bot.states import AppStates
+from bot.utils import clear_state, get_profile_card
 from shared.core.db import session_factory
 from shared.dto.file import FileAddDTO
 from shared.enums import FileTypes, UILanguages
-from bot.filters import IsActiveHumanUser, IsHuman
 from shared.geocoding import get_place, get_place_id, get_places
-from bot.handlers.menu import show_settings
-from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
-from bot.keyboards import (
-    CLEAR_TXT,
-    get_ask_location_keyboard,
-    get_ask_phone_number_keyboard,
-    get_genders_keyboard,
-    get_preferences_update_keyboard,
-    get_preferred_genders_keyboard,
-    get_profile_update_keyboard,
-    make_keyboard,
-)
 from shared.models.user import Place, PlaceName, Preferences, User
 from shared.queries import get_user
-from bot.states import AppStates
-from bot.utils import clear_state, get_profile_card
-from shared.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from shared.validators import (Params, validate_bio, validate_birth_date,
+                               validate_media_size, validate_name,
+                               validate_preference_age_string,
+                               validate_video_duration)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -496,41 +486,6 @@ async def update_media_finish(message: types.Message, state: FSMContext):
     async with session_factory() as session:
         session.add(user)
         user.media = media
-        await session.commit()
-
-    await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
-
-
-@router.message(AppStates.profile, F.text == __("📞 Phone number"))
-async def update_phone_number_start(message: types.Message, state: FSMContext):
-    await message.answer(
-        _("Please share your phone number"),
-        reply_markup=get_ask_phone_number_keyboard(),
-    )
-    await state.set_state(AppStates.update_phone_number)
-
-
-@router.message(AppStates.update_phone_number, F.contact)
-async def update_phone_number(message: types.Message, state: FSMContext):
-    assert message.contact and message.from_user
-
-    if not message.contact.user_id == message.from_user.id:
-        return await message.answer(_("Please share your own phone number"))
-
-    phone_number = message.contact.phone_number
-    if not phone_number.startswith("+"):
-        phone_number = "+" + phone_number
-
-    async with session_factory() as session:
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(phone_number=phone_number)
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-        user = (await session.execute(query)).scalar_one()
         await session.commit()
 
     await message.answer(_("Your profile has been updated"))
