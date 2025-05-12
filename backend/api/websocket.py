@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 from aiogram.utils.web_app import WebAppInitData
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
 
 from shared.core.db import session_factory
 from shared.dto.chat import MessageAddDTO
@@ -97,8 +97,14 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData):
                     "payload": chat_db.__dict__,
                 }
 
-                await manager.send_message(str(match_id), json.dumps(ws_message, default=str))
-                await manager.send_message(str(user.id), json.dumps(ws_message, default=str))
+                await manager.send_message(
+                    str(match_id), json.dumps(ws_message, default=str)
+                )
+                await manager.send_message(
+                    str(user.id), json.dumps(ws_message, default=str)
+                )
 
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
     finally:
         await manager.disconnect(str(user.id), websocket)

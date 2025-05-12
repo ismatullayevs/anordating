@@ -27,7 +27,7 @@ def upgrade() -> None:
         existing_type=postgresql.TIMESTAMP(),
         type_=sa.TIMESTAMP(timezone=True),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     op.alter_column(
         "report",
@@ -35,7 +35,7 @@ def upgrade() -> None:
         existing_type=postgresql.TIMESTAMP(),
         type_=sa.TIMESTAMP(timezone=True),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     op.alter_column(
         "user_account",
@@ -43,7 +43,7 @@ def upgrade() -> None:
         existing_type=postgresql.TIMESTAMP(),
         type_=sa.TIMESTAMP(timezone=True),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     # ### end Alembic commands ###
 
@@ -56,7 +56,7 @@ def downgrade() -> None:
         existing_type=sa.TIMESTAMP(timezone=True),
         type_=postgresql.TIMESTAMP(),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     op.alter_column(
         "report",
@@ -64,7 +64,7 @@ def downgrade() -> None:
         existing_type=sa.TIMESTAMP(timezone=True),
         type_=postgresql.TIMESTAMP(),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     op.alter_column(
         "reaction",
@@ -72,6 +72,6 @@ def downgrade() -> None:
         existing_type=sa.TIMESTAMP(timezone=True),
         type_=postgresql.TIMESTAMP(),
         existing_nullable=False,
-        existing_server_default=sa.text("timezone('utc'::text, now())"), # type: ignore
+        existing_server_default=sa.text("timezone('utc'::text, now())"),  # type: ignore
     )  # type: ignore
     # ### end Alembic commands ###

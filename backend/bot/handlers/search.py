@@ -1,4 +1,6 @@
 from aiogram import Bot, F, Router, types
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TEST
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -7,26 +9,20 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import exc
 
-from shared.core.config import EnvironmentTypes, settings
-from shared.core.db import session_factory
-from shared.enums import ReactionType
 from bot.filters import IsActiveHumanUser, IsHuman
 from bot.handlers.likes import show_likes
 from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_empty_search_keyboard, get_search_keyboard
-from shared.matching.algorithm import get_best_match
-from shared.models.user import User
-from shared.queries import (
-    create_or_update_reaction,
-    get_nth_last_reacted_match,
-    get_user,
-    is_mutual,
-)
 from bot.states import AppStates
 from bot.utils import get_profile_card
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.telegram import TEST
+from shared.core.config import EnvironmentTypes, settings
+from shared.core.db import session_factory
+from shared.enums import ReactionType
+from shared.matching.algorithm import get_best_match
+from shared.models.user import User
+from shared.queries import (create_or_update_reaction,
+                            get_nth_last_reacted_match, get_user, is_mutual)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -140,34 +136,39 @@ async def notify_mutual(user: User, match: User):
     if settings.ENVIRONMENT == EnvironmentTypes.testing:
         session = AiohttpSession(api=TEST)
         bot = Bot(token=settings.BOT_TOKEN, session=session)
-    builder1, builder2 = InlineKeyboardBuilder(), InlineKeyboardBuilder()
-    builder1.add(
-        types.InlineKeyboardButton(
-            text=_v("Yes", locale=user.ui_language), callback_data="show_matches"
-        ),
-        types.InlineKeyboardButton(
-            text=_v("No", locale=user.ui_language), callback_data="delete_message"
-        ),
-    )
-    builder2.add(
-        types.InlineKeyboardButton(
-            text=_v("Yes", locale=match.ui_language), callback_data="show_matches"
-        ),
-        types.InlineKeyboardButton(
-            text=_v("No", locale=match.ui_language), callback_data="delete_message"
-        ),
-    )
     # duplicate messages so pybabel could extract them
+    mk1 = types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=_("Start a chat"),
+                    web_app=types.WebAppInfo(
+                        url=f"{settings.MINI_APP_URL}/users/{match.id}/chat"
+                    ),
+                )
+            ],
+        ]
+    )
+    mk2 = types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=_("Start a chat"),
+                    web_app=types.WebAppInfo(
+                        url=f"{settings.MINI_APP_URL}/users/{user.id}/chat"
+                    ),
+                )
+            ],
+        ]
+    )
     msg1 = _v(
-        "Congratulations. You have matched with {match.name}."
-        "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
-        "\n\nDo you want to see your matches?",
+        "Congratulations 🎉. You have matched with {match.name}."
+        "\nStart a chat with them by clicking the button below 👇",
         locale=user.ui_language.name,
     )
     msg2 = _v(
-        "Congratulations. You have matched with {match.name}."
-        "\nYou can have a chat with them by clicking this <a href='https://t.me/{match.phone_number}'>link</a>"
-        "\n\nDo you want to see your matches?",
+        "Congratulations 🎉. You have matched with {match.name}."
+        "\nStart a chat with them by clicking the button below 👇",
         locale=match.ui_language.name,
     )
 
@@ -176,13 +177,13 @@ async def notify_mutual(user: User, match: User):
             user.telegram_id,
             msg1.format(match=match),
             parse_mode="HTML",
-            reply_markup=builder1.as_markup(),
+            reply_markup=mk1,
         )
         await bot.send_message(
             match.telegram_id,
             msg2.format(match=user),
             parse_mode="HTML",
-            reply_markup=builder2.as_markup(),
+            reply_markup=mk2,
         )
     except (TelegramBadRequest, TelegramForbiddenError):
         pass

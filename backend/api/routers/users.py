@@ -2,8 +2,8 @@ from operator import and_
 from typing import Annotated
 
 from aiogram.utils.web_app import WebAppInitData
-from fastapi import APIRouter, Depends
-from sqlalchemy import exists, select
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import exc, exists, select
 
 from api.dependencies import validate_init_data
 from shared.core.db import session_factory
@@ -18,7 +18,7 @@ async def read_users_me(
     init_data: Annotated[WebAppInitData, Depends(validate_init_data)],
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
     return user
 
 
@@ -29,6 +29,8 @@ async def read_user(
 ):
     assert init_data.user
     user = await get_user(id=user_id)
+    if not user.is_active:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
@@ -38,7 +40,7 @@ async def get_user_chat(
     match_id: str,
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
 
     async with session_factory() as session:
         query = select(Chat).where(
@@ -50,4 +52,7 @@ async def get_user_chat(
             ),
         )
         res = await session.scalars(query)
-        return res.one_or_none()
+        try:
+            return res.one()
+        except exc.NoResultFound:
+            raise HTTPException(status_code=404, detail="Chat not found")

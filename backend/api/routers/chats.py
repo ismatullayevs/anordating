@@ -54,12 +54,17 @@ async def create_chat(
         session.add(chat_member2)
         await session.commit()
 
-        await manager.send_message(str(match.id), json.dumps({
-            'type': 'new_chat',
-            'payload': {
-                'id': chat_db.id,
-            }
-        }))
+        await manager.send_message(
+            str(match.id),
+            json.dumps(
+                {
+                    "type": "new_chat",
+                    "payload": {
+                        "id": chat_db.id,
+                    },
+                }
+            ),
+        )
         return chat_db
 
 
@@ -69,16 +74,24 @@ async def delete_chat(
     chat_id: int,
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
     async with session_factory() as session:
-        member = select(Chat).join(ChatMember).where(
-            Chat.id == chat_id, ChatMember.user_id == user.id, ChatMember.chat_id == chat_id
+        member = (
+            select(Chat)
+            .join(ChatMember)
+            .where(
+                Chat.id == chat_id,
+                ChatMember.user_id == user.id,
+                ChatMember.chat_id == chat_id,
+            )
         )
         res = await session.scalars(member)
         chat = res.one_or_none()
         if not chat:
-            raise HTTPException(status_code=403, detail="You are not a member of this chat")
-        
+            raise HTTPException(
+                status_code=403, detail="You are not a member of this chat"
+            )
+
         await session.delete(chat)
         await session.commit()
         return {"detail": "Chat deleted"}
@@ -90,7 +103,7 @@ async def get_messages(
     chat_id: int,
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
     async with session_factory() as session:
         query = select(ChatMember).where(
             ChatMember.chat_id == chat_id, ChatMember.user_id == user.id
@@ -114,7 +127,7 @@ async def get_chat_members(
     chat_id: int,
 ):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
+    user = await get_user(telegram_id=init_data.user.id, is_active=True)
     async with session_factory() as session:
         members = await select_chat_members(session, chat_id=chat_id)
         return members

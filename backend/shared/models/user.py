@@ -75,7 +75,7 @@ class User(Base):
     preferences: Mapped["Preferences"] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
-    chat_members: Mapped["ChatMember"] = relationship(back_populates="user") # type: ignore
+    chat_members: Mapped["ChatMember"] = relationship(back_populates="user")  # type: ignore
 
     is_superuser: Mapped[bool] = mapped_column(server_default=text("false"))
 

@@ -12,7 +12,7 @@ app.include_router(chats_router)
 
 origins = [
     "http://localhost:5173",
-   f"http://{settings.MINI_APP_URL}",
+    f"http://{settings.MINI_APP_URL}",
 ]
 
 app.add_middleware(

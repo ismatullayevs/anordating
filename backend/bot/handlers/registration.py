@@ -16,20 +16,32 @@ from shared.enums import FileTypes, UILanguages
 from bot.filters import IsHuman
 from shared.geocoding import get_place, get_place_id, get_places
 from bot.handlers.menu import activate_account_start, show_menu
-from bot.keyboards import (GENDER_PREFERENCES, GENDERS, LANGUAGES,
-                           get_ask_location_keyboard,
-                           get_ask_phone_number_keyboard, get_genders_keyboard,
-                           get_languages_keyboard, get_menu_keyboard,
-                           get_preferred_genders_keyboard, make_keyboard)
+from bot.keyboards import (
+    GENDER_PREFERENCES,
+    GENDERS,
+    LANGUAGES,
+    get_ask_location_keyboard,
+    get_ask_phone_number_keyboard,
+    get_genders_keyboard,
+    get_languages_keyboard,
+    get_menu_keyboard,
+    get_preferred_genders_keyboard,
+    make_keyboard,
+)
 from bot.middlewares import i18n_middleware
 from shared.models.user import Place, PlaceName
 from shared.queries import get_user
 from bot.states import AppStates
 from bot.utils import get_profile_card
-from shared.validators import (Params, validate_bio, validate_birth_date,
-                            validate_media_size, validate_name,
-                            validate_preference_age_string,
-                            validate_video_duration)
+from shared.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())

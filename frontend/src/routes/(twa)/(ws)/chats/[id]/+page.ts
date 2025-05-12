@@ -1,8 +1,8 @@
 import { getChatMembers, getUserById, getChatMessages } from "@/api";
 import { error } from "@sveltejs/kit";
-import { type LoadEvent } from "@sveltejs/kit";
+import type { PageLoad } from "./$types";
 
-export async function load({ parent, params }: LoadEvent) {
+export const load: PageLoad = async ({ parent, params }) => {
     const data = await parent();
     const members = await getChatMembers(Number(params.id), data.init_data);
     const match_id = members.find((m) => m.user_id !== data.user.id)?.user_id;

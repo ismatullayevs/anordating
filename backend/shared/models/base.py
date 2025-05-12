@@ -7,9 +7,9 @@ import datetime
 
 intpk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 created_at = Annotated[
-    datetime.datetime, 
+    datetime.datetime,
     mapped_column(
-        server_default=text("TIMEZONE('utc', now())"), 
+        server_default=text("TIMEZONE('utc', now())"),
         type_=TIMESTAMP(timezone=True),
     ),
 ]

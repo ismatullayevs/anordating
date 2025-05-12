@@ -6,7 +6,6 @@
 
 	async function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
-		console.log(JSON.stringify(messageData));
 		if (messageData.type === 'new_chat') {
 			const members = await getChatMembers(messageData.payload.id, data.init_data);
 			if (members.map(m => m.user_id).includes(data.match.id)) {

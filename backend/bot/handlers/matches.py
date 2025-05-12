@@ -6,11 +6,11 @@ from aiogram.utils.i18n import lazy_gettext as __
 from bot.filters import IsActiveHumanUser, IsHuman
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_matches_keyboard
-from shared.models.user import User
-from shared.queries import get_matches
 from bot.states import AppStates
 from bot.utils import get_profile_card
 from shared.core.config import settings
+from shared.models.user import User
+from shared.queries import get_matches
 
 router = Router()
 router.message.filter(IsHuman())
@@ -52,7 +52,7 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
     # )
     await message.answer(
         _(
-            "You both liked each other. Start a chat with them by clicking the button below."
+            "You both liked each other. Start a chat with them by clicking the button below 👇"
         ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
@@ -65,7 +65,8 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
                     )
                 ]
             ],
-        ))
+        ),
+    )
 
     await message.answer(
         _("Matches"),

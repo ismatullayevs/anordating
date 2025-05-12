@@ -23,7 +23,7 @@ class MessageBaseDTO(BaseModelWithOrm[Message]):
     @property
     def orm_model(self):
         return Message
-    
+
 
 class MessageInDTO(MessageBaseDTO):
     pass

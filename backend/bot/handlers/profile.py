@@ -14,19 +14,29 @@ from bot.filters import IsActiveHumanUser, IsHuman
 from shared.geocoding import get_place, get_place_id, get_places
 from bot.handlers.menu import show_settings
 from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
-from bot.keyboards import (CLEAR_TXT, get_ask_location_keyboard,
-                           get_ask_phone_number_keyboard, get_genders_keyboard,
-                           get_preferences_update_keyboard,
-                           get_preferred_genders_keyboard,
-                           get_profile_update_keyboard, make_keyboard)
+from bot.keyboards import (
+    CLEAR_TXT,
+    get_ask_location_keyboard,
+    get_ask_phone_number_keyboard,
+    get_genders_keyboard,
+    get_preferences_update_keyboard,
+    get_preferred_genders_keyboard,
+    get_profile_update_keyboard,
+    make_keyboard,
+)
 from shared.models.user import Place, PlaceName, Preferences, User
 from shared.queries import get_user
 from bot.states import AppStates
 from bot.utils import clear_state, get_profile_card
-from shared.validators import (Params, validate_bio, validate_birth_date,
-                            validate_media_size, validate_name,
-                            validate_preference_age_string,
-                            validate_video_duration)
+from shared.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())
