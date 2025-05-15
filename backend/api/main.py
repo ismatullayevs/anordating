@@ -11,8 +11,8 @@ app.include_router(users_router)
 app.include_router(chats_router)
 
 origins = [
-    "http://localhost:5173",
     f"http://{settings.DOMAIN}",
+    f"https://{settings.DOMAIN}",
 ]
 
 app.add_middleware(
