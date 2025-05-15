@@ -1,5 +1,6 @@
 # Tasks
 
+remove .env from git history
 use db as dependancy in api
 add types to frontend
 in queries, pass session as argument

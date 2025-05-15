@@ -1,10 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from shared.core.config import settings
 
 from api.routers.chats import router as chats_router
 from api.routers.users import router as users_router
+from shared.core.config import settings
 
 app = FastAPI()
 app.include_router(users_router)
@@ -12,7 +12,7 @@ app.include_router(chats_router)
 
 origins = [
     "http://localhost:5173",
-    f"http://{settings.MINI_APP_URL}",
+    f"http://{settings.DOMAIN}",
 ]
 
 app.add_middleware(

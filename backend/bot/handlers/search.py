@@ -21,8 +21,12 @@ from shared.core.db import session_factory
 from shared.enums import ReactionType
 from shared.matching.algorithm import get_best_match
 from shared.models.user import User
-from shared.queries import (create_or_update_reaction,
-                            get_nth_last_reacted_match, get_user, is_mutual)
+from shared.queries import (
+    create_or_update_reaction,
+    get_nth_last_reacted_match,
+    get_user,
+    is_mutual,
+)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -143,7 +147,7 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.MINI_APP_URL}/users/{match.id}/chat"
+                        url=f"{settings.DOMAIN}/users/{match.id}/chat"
                     ),
                 )
             ],
@@ -155,7 +159,7 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.MINI_APP_URL}/users/{user.id}/chat"
+                        url=f"{settings.DOMAIN}/users/{user.id}/chat"
                     ),
                 )
             ],

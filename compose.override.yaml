@@ -1,0 +1,63 @@
+services:
+  bot:
+    build:
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+        - action: rebuild
+          path: ./backend/pyproject.toml
+    restart: unless-stopped
+
+  api:
+    build:
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /app
+        - action: rebuild
+          path: ./backend/pyproject.toml
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+        - action: rebuild
+          path: ./frontend/package.json
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+
+  db:
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+      
+  traefik:
+    restart: unless-stopped
+    command: 
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.le.acme.email=${EMAIL?Variable not set}"
+      - "--certificatesresolvers.le.acme.storage=/certificates/acme.json"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--accesslog"
+      - "--log"
+      - "--api"
+      - "--api.insecure=true"
+      - "--log.level=DEBUG"
+
+volumes:
+  postgres_data:
+  mongo_data:
