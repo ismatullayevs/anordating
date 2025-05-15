@@ -29,7 +29,11 @@ async def main():
         session = AiohttpSession(api=TEST)
         bot = Bot(token=settings.BOT_TOKEN, session=session)
 
-    await set_bot_profile(bot)
+    try:
+        await set_bot_profile(bot)
+    except:
+        pass
+
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="App",
