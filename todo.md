@@ -1,5 +1,6 @@
 # Tasks
 
+remove password hash from traefik config
 remove .env from git history
 use db as dependancy in api
 add types to frontend
