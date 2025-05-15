@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     MONGO_PORT: int | None = None
     MONGO_ADMIN: str
     MONGO_PASSWORD: str
+    MONGO_REMOTE: bool = False
 
     MEDIA_PATH: Path = BASE_DIR / "media"
     DOMAIN: str
@@ -39,7 +40,7 @@ class Settings(BaseSettings):
     def mongo_url(self):
         admin = quote_plus(self.MONGO_ADMIN)
         password = quote_plus(self.MONGO_PASSWORD)
-        if self.ENVIRONMENT == EnvironmentTypes.production:
+        if self.MONGO_REMOTE:
             return f"mongodb+srv://{admin}:{password}@{self.MONGO_HOST}/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
         return f"mongodb://{admin}:{password}@{self.MONGO_HOST}:{self.MONGO_PORT}"
 

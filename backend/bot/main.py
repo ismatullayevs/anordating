@@ -2,6 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TEST
 from aiogram.fsm.storage.mongo import MongoStorage
 from aiogram.types import MenuButtonWebApp, WebAppInfo
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -17,8 +19,6 @@ from bot.handlers.search import router as search_router
 from bot.handlers.test import router as test_router
 from bot.middlewares import i18n_middleware
 from shared.core.config import EnvironmentTypes, settings
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.telegram import TEST
 
 logging.basicConfig(level=logging.INFO)
 
