@@ -37,6 +37,10 @@ class Settings(BaseSettings):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     @property
+    def app_url(self):
+        return f"https://{self.DOMAIN}"
+
+    @property
     def mongo_url(self):
         admin = quote_plus(self.MONGO_ADMIN)
         password = quote_plus(self.MONGO_PASSWORD)
