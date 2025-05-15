@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - db 
       - mongo
     user: appuser
     command: sh -c "alembic upgrade head && python3 -m bot.main"
@@ -20,14 +20,22 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     user: appuser
     command: python3 -m api.main
     labels:
       - traefik.enable=true
+      - traefik.http.services.api.loadbalancer.server.port=8000
       - traefik.http.routers.api.rule=Host(`api.${DOMAIN}`)
       - traefik.http.routers.api.entrypoints=http
-      - traefik.http.services.api.loadbalancer.server.port=8000
+      - traefik.http.routers.api-https.rule=Host(`api.${DOMAIN}`)
+      - traefik.http.routers.api-https.entrypoints=http
+      - traefik.http.routers.api-https.tls=true
+      - traefik.http.routers.api-https.tls.certresolver=le
+
+      - traefik.http.routers.api.middlewares=https-redirect
 
   frontend:
     restart: always
@@ -42,6 +50,12 @@ services:
       - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.frontend.entrypoints=http
       - traefik.http.services.frontend.loadbalancer.server.port=5173
+      - traefik.http.routers.frontend-https.rule=Host(`frontend.${DOMAIN}`)
+      - traefik.http.routers.frontend-https.entrypoints=http
+      - traefik.http.routers.frontend-https.tls=true
+      - traefik.http.routers.frontend-https.tls.certresolver=le
+
+      - traefik.http.routers.frontend.middlewares=https-redirect
 
   db:
     image: postgres:15-alpine
@@ -89,6 +103,9 @@ services:
       - traefik.http.routers.traefik-dashboard-http.service=api@internal
       - traefik.http.middlewares.admin-auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD}
       - traefik.http.routers.traefik-dashboard-http.middlewares=admin-auth
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      - traefik.http.routers.traefik-dashboard-http.middlewares=https-redirect
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"

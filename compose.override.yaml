@@ -44,18 +44,22 @@ services:
       
   traefik:
     restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    labels: !override
+      - traefik.enable=true
+      - traefik.http.middlewares.https-redirect.contenttype.autodetect=false
     command: 
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
       - "--entrypoints.https.address=:443"
-      - "--certificatesresolvers.le.acme.email=${EMAIL?Variable not set}"
-      - "--certificatesresolvers.le.acme.storage=/certificates/acme.json"
-      - "--certificatesresolvers.le.acme.tlschallenge=true"
       - "--accesslog"
-      - "--log"
       - "--api"
       - "--api.insecure=true"
+      - "--log"
       - "--log.level=DEBUG"
 
 volumes:
