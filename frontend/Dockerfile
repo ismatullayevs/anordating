@@ -2,11 +2,16 @@ FROM node:23-slim
 
 WORKDIR /app
 
-COPY package.json ./
+RUN npm install -g pnpm@8.14.1
 
-RUN npm install
+COPY package.json pnpm-lock.yaml* ./
+
+RUN pnpm install --frozen-lockfile
+
 COPY . .
+
 RUN npm run build
 
 EXPOSE 3000
+
 CMD ["node", "--env-file=.env", "build"]
