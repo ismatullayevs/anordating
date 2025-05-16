@@ -1,5 +1,7 @@
 # Tasks
 
+use npm build instead of run dev
+use pnpm instead of npm
 remove password hash from traefik config
 remove .env from git history
 use db as dependancy in api
