@@ -4,6 +4,10 @@
 	import Chat from "@/components/Chat.svelte";
 	let { data } = $props();
 
+  if (data.chat) {
+    goto(`/chats/${data.chat.id}`);
+  }
+
 	async function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
 		if (messageData.type === 'new_chat') {
