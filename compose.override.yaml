@@ -57,8 +57,6 @@ services:
       - traefik.http.routers.traefik-dashboard-http.rule=Host(`traefik.${DOMAIN}`)
       - traefik.http.routers.traefik-dashboard-https.entrypoints=https
       - traefik.http.routers.traefik-dashboard-https.rule=Host(`traefik.${DOMAIN}`)
-      - traefik.http.routers.traefik-dashboard-https.tls=true
-      - traefik.http.routers.traefik-dashboard-https.tls.certresolver=le
       - traefik.http.routers.traefik-dashboard-http.service=api@internal
       - traefik.http.routers.traefik-dashboard-https.service=api@internal
       - traefik.http.middlewares.https-redirect.contenttype.autodetect=false

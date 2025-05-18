@@ -1,29 +1,53 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import Chat from '$lib/components/Chat.svelte';
 	import type { IMessage } from '@/types/Message.js';
-	const { data } = $props();
-	let messages = $state(data.messages);
+
+	import type { IUser } from '@/types/User';
+	import { getContext } from 'svelte';
+	import { page } from '$app/state';
+	import { getChatMembers, getChatMessages, getUserById } from '@/api';
+	import { error } from '@sveltejs/kit';
+
+	const websocket = (getContext('websocket') as () => {value: WebSocket | null})();
+	const init_data = (getContext('init_data') as () => {value: string | undefined})();
+	const user = (getContext('user') as () => {value: IUser | null})();
+	const match: {value: IUser | null} = $state({ value: null });
+	const messages: {value: IMessage[]} = $state({ value: [] });
+
+	if (init_data.value) {
+		getChatMembers(Number(page.params.id), init_data.value).then((members) => {
+			const match_id = members.find((m) => m.user_id !== user.value?.id)?.user_id;
+			if (!match_id) error(404, 'No match found');
+			getUserById(match_id, init_data.value || '').then((data) => {
+				match.value = data;
+			});
+			getChatMessages(Number(page.params.id), init_data.value || '').then((data) => {
+				messages.value = data;
+			});
+		});
+	}
 
 	function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
 		if (messageData.type === 'new_message') {
 			const newMessage: IMessage = messageData.payload;
 			if (newMessage.chat_id !== Number(page.params.id)) return;
-			if (messages.map((m: IMessage) => m.id).includes(newMessage.id)) return;
-			messages.push(newMessage);
+			if (messages.value.map((m: IMessage) => m.id).includes(newMessage.id)) return;
+			messages.value.push(newMessage);
 		}
 	}
 
 	$effect(() => {
-		data.websocket.addEventListener('message', handleWSMessage);
+		if (!websocket.value) return;
+		websocket.value.addEventListener('message', handleWSMessage);
 		return () => {
-			data.websocket.removeEventListener('message', handleWSMessage);
+			websocket.value?.removeEventListener('message', handleWSMessage);
 		};
 	});
 
 	async function onSendMessage(message: string) {
-		data.websocket.send(
+		if (!websocket.value) return;
+		websocket.value.send(
 			JSON.stringify({
 				type: 'new_message',
 				payload: {
@@ -35,4 +59,4 @@
 	}
 </script>
 
-<Chat user={data.user} match={data.match} {messages} {onSendMessage} />
+<Chat user={user.value} match={match.value} messages={messages.value} {onSendMessage} />
