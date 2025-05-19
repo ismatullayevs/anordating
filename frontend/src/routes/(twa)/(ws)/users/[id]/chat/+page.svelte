@@ -14,7 +14,11 @@
 	if (init_data.value) {
 		getChatByMatchId(page.params.id, init_data.value).then((chat) => {
 			if (chat) {
-				goto(`/chats/${chat.id}`);
+				let matchData;
+				if (match.value) {
+					matchData = encodeURIComponent(JSON.stringify(match.value));
+				}
+				goto(`/chats/${chat.id}?match=${matchData}`);
 			}
 		});
 		getUserById(page.params.id, init_data.value).then((data) => {
@@ -22,14 +26,10 @@
 		})
 	}
 
-
 	async function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
 		if (messageData.type === 'new_chat' && init_data.value && match.value) {
-			const members = await getChatMembers(messageData.payload.id, init_data.value);
-			if (members.map((m) => m.user_id).includes(match.value.id)) {
-				goto(`/chats/${messageData.payload.id}`);
-			}
+			goto(`/chats/${messageData.payload.id}`);
 		}
 	}
 

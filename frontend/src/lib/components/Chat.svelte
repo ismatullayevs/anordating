@@ -77,7 +77,7 @@
 </div>
 
 <div class="p-3 pt-12 pb-16 flex flex-col items-start max-w-3xl mx-auto">
-{#if !user || !messages}
+{#if !user || !messages.length}
     <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
     <div class="w-full max-w-2/3 h-10 mt-3 self-end bg-gray-300 rounded-lg shimmer"></div>
     <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>

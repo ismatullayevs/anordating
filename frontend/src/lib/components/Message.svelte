@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { IMessage } from '@/types/Message';
-	import { format, formatRelative, parseISO } from 'date-fns';
 
 	let { message, userId }: { message: IMessage; userId: string } = $props();
 	const isAuthor = message.user_id === userId;
