@@ -77,18 +77,18 @@
 </div>
 
 <div class="p-3 pt-12 pb-16 flex flex-col items-start max-w-3xl mx-auto">
-    {#if user}
-        {#each messages as message, i}
-            {#if isNewDay(message, messages[i - 1])}
-                <DateBadge date={new Date(message.created_at)} />
-            {/if}
-            <Message message={message} userId={user.id} />
-        {/each}
-    {:else}
-        <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
-        <div class="w-full max-w-2/3 h-10 mt-3 self-end bg-gray-300 rounded-lg shimmer"></div>
-        <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
-    {/if}
+{#if !user || !messages}
+    <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
+    <div class="w-full max-w-2/3 h-10 mt-3 self-end bg-gray-300 rounded-lg shimmer"></div>
+    <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
+{:else}
+    {#each messages as message, i}
+        {#if isNewDay(message, messages[i - 1])}
+            <DateBadge date={new Date(message.created_at)} />
+        {/if}
+        <Message message={message} userId={user.id} />
+    {/each}
+{/if}
 </div>
 
 <form onsubmit={onSubmit} class="bg-white fixed bottom-0 left-0 right-0 px-3 py-1 max-w-3xl mx-auto flex justify-between items-center gap-2 border-1 border-slate-200">
