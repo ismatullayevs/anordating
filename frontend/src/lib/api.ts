@@ -3,25 +3,17 @@ import type { IMessage } from "./types/Message";
 import type { IUser } from "./types/User";
 
 export const getMe = async (init_data: string): Promise<IUser> => {
-    const getter = async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `twa ${init_data}`,
-            },
-        });
-        if (!res.ok) {
-            throw new Error(`Error: ${res.status} ${res.statusText}`);
-        }
-        const data = await res.json();
-        return data;
-        }
-    return await new Promise<IUser>((resolve, reject) => {
-        setTimeout(() => {
-            getter().then(resolve).catch(reject);
-        }
-        , 1000000);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `twa ${init_data}`,
+        },
     });
+    if (!res.ok) {
+        throw new Error(`Error: ${res.status} ${res.statusText}`);
+    }
+    const data = await res.json();
+    return data;
 }
 
 export const getChatByMatchId = async (match_id: string, init_data: string): Promise<IChat> => {
@@ -101,23 +93,15 @@ export const createChat = async (match_id: string, init_data: string): Promise<I
 }
 
 export const getUserById = async (id: string, init_data: string): Promise<IUser> => {
-    const getter = async () => {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `twa ${init_data}`,
-            },
-        });
-        if (!res.ok) {
-            throw new Error(`Error: ${res.status} ${res.statusText}`);
-        }
-        const data = await res.json();
-        return data;
-    }
-    return await new Promise<IUser>((resolve, reject) => {
-        setTimeout(() => {
-            getter().then(resolve).catch(reject);
-        }
-        , 1000000);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `twa ${init_data}`,
+        },
     });
+    if (!res.ok) {
+        throw new Error(`Error: ${res.status} ${res.statusText}`);
+    }
+    const data = await res.json();
+    return data;
 }
