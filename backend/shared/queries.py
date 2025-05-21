@@ -248,8 +248,10 @@ async def get_chat_by_users(session: AsyncSession, user_id: UUID, match_id: UUID
     return res.one_or_none()
 
 
-async def select_chat_members(session: AsyncSession, chat_id: int):
+async def select_chat_members(session: AsyncSession, chat_id: int, with_user=False):
     query = select(ChatMember).where(ChatMember.chat_id == chat_id)
+    if with_user:
+        query = query.options(joinedload(ChatMember.user))
     res = await session.scalars(query)
     return res.all()
 

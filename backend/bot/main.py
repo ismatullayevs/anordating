@@ -34,13 +34,6 @@ async def main():
     except:
         pass
 
-    await bot.set_chat_menu_button(
-        menu_button=MenuButtonWebApp(
-            text="App",
-            web_app=WebAppInfo(url="https://3135-82-215-85-234.ngrok-free.app"),
-        )
-    )
-
     mongo = AsyncIOMotorClient(
         host=settings.mongo_url,
         uuidRepresentation="standard",

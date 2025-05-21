@@ -10,6 +10,7 @@ services:
         - action: rebuild
           path: ./backend/pyproject.toml
     restart: unless-stopped
+    command: sh -c "alembic upgrade head && watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 -m bot.main"
 
   api:
     build:
@@ -24,6 +25,7 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    command: sh -c "watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- python3 -m api.main"
 
   frontend:
     develop:
@@ -39,6 +41,7 @@ services:
     command: npm run dev -- --host
     labels:
       - traefik.http.services.frontend.loadbalancer.server.port=5173
+      - traefik.http.routers.frontend.rule=Host(`${DOMAIN_IP}`)
 
   db:
     ports:
@@ -66,9 +69,6 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
       - "--entrypoints.https.address=:443"
-      - "--certificatesresolvers.le.acme.email=${EMAIL?Variable not set}"
-      - "--certificatesresolvers.le.acme.storage=/certificates/acme.json"
-      - "--certificatesresolvers.le.acme.tlschallenge=true"
       - "--accesslog"
       - "--api"
       - "--log"

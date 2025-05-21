@@ -105,7 +105,7 @@ def get_profile_update_keyboard() -> ReplyKeyboardMarkup:
     items = [
         [_("✏️ Name"), _("🔢 Birth date"), _("👫 Gender")],
         [_("📝 Bio"), _("📍 Location"), _("📷 Media")],
-        [_("📞 Phone number"), _("⬅️ Back")],
+        [_("⬅️ Back")],
     ]
     return make_keyboard(items)
 

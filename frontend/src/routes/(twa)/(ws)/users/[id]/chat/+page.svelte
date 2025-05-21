@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { createChat, getChatByMatchId, getChatMembers, getUserById } from '@/api.js';
+	import { createChat, getChatByMatchId, getUserById } from '@/api.js';
 	import Chat from '@/components/Chat.svelte';
 	import type { IUser } from '@/types/User';
 	import { getContext } from 'svelte';
@@ -10,6 +10,7 @@
 	const init_data = (getContext('init_data') as () => {value: string | undefined})();
 	const user = (getContext('user') as () => {value: IUser | null})();
 	const match: {value: IUser | null} = $state({ value: null });
+	const isBlank = $state(true);
 
 	if (init_data.value) {
 		getChatByMatchId(page.params.id, init_data.value).then((chat) => {
@@ -20,9 +21,11 @@
 				}
 				goto(`/chats/${chat.id}?match=${matchData}`);
 			}
-		});
+		})
 		getUserById(page.params.id, init_data.value).then((data) => {
 			match.value = data;
+		}).catch((reason) => {
+			console.log(JSON.stringify(reason));
 		})
 	}
 
@@ -58,4 +61,4 @@
 	}
 </script>
 
-<Chat user={user.value} match={match.value} messages={[]} {onSendMessage} />
+<Chat user={user.value} match={match.value} messages={[]} {isBlank} {onSendMessage} />

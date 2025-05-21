@@ -52,7 +52,7 @@ async def show_matches(message: types.Message, state: FSMContext, user: User):
                     types.InlineKeyboardButton(
                         text=_("Start a chat"),
                         web_app=types.WebAppInfo(
-                            url=f"{settings.app_url}/users/{match.id}/chat",
+                            url=f"{settings.APP_URL}/users/{match.id}/chat",
                         ),
                     )
                 ]

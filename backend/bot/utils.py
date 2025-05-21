@@ -1,14 +1,19 @@
 import math
 from math import atan2, cos, radians, sin, sqrt
 
+from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.media_group import MediaGroupBuilder
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.telegram import TEST
 
+from shared.core.config import EnvironmentTypes, settings
 from shared.core.db import session_factory
 from shared.enums import FileTypes
 from shared.models.user import User
 from shared.queries import get_city_name
+
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -61,3 +66,14 @@ async def clear_state(state: FSMContext, except_locale=False):
         locale = await state.get_value("locale")
         data["locale"] = locale
     await state.set_data(data)
+
+
+async def send_message(*args, **kwargs):
+    bot = Bot(token=settings.BOT_TOKEN)
+    if settings.ENVIRONMENT == EnvironmentTypes.testing:
+        session = AiohttpSession(api=TEST)
+        bot = Bot(token=settings.BOT_TOKEN, session=session)
+    try:
+        await bot.send_message(*args, **kwargs)
+    finally:
+        await bot.session.close()

@@ -31,14 +31,11 @@ class Settings(BaseSettings):
 
     MEDIA_PATH: Path = BASE_DIR / "media"
     DOMAIN: str
+    APP_URL: str
 
     @property
     def database_url(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-
-    @property
-    def app_url(self):
-        return f"https://{self.DOMAIN}"
 
     @property
     def mongo_url(self):

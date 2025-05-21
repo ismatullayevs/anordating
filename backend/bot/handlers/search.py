@@ -1,6 +1,6 @@
-from aiogram import Bot, F, Router, types
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.telegram import TEST
+import asyncio
+from aiogram import F, Router, types
+
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -15,8 +15,8 @@ from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_empty_search_keyboard, get_search_keyboard
 from bot.states import AppStates
-from bot.utils import get_profile_card
-from shared.core.config import EnvironmentTypes, settings
+from bot.utils import get_profile_card, send_message
+from shared.core.config import settings
 from shared.core.db import session_factory
 from shared.enums import ReactionType
 from shared.matching.algorithm import get_best_match
@@ -120,9 +120,9 @@ async def react(message: types.Message, state: FSMContext, user: User):
     if message.text == "👍" and not reaction.is_match_notified:
         mutual = await is_mutual(reaction)
         if mutual:
-            await notify_mutual(user, match)
+            asyncio.ensure_future(notify_mutual(user, match))
         else:
-            await notify_match(match)
+            asyncio.ensure_future(notify_match(match))
         async with session_factory() as session:
             reaction.is_match_notified = True
             session.add(reaction)
@@ -136,10 +136,6 @@ async def react(message: types.Message, state: FSMContext, user: User):
 
 
 async def notify_mutual(user: User, match: User):
-    bot = Bot(token=settings.BOT_TOKEN)
-    if settings.ENVIRONMENT == EnvironmentTypes.testing:
-        session = AiohttpSession(api=TEST)
-        bot = Bot(token=settings.BOT_TOKEN, session=session)
     # duplicate messages so pybabel could extract them
     mk1 = types.InlineKeyboardMarkup(
         inline_keyboard=[
@@ -147,7 +143,7 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.app_url}/users/{match.id}/chat"
+                        url=f"{settings.APP_URL}/users/{match.id}/chat"
                     ),
                 )
             ],
@@ -159,7 +155,7 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.app_url}/users/{user.id}/chat"
+                        url=f"{settings.APP_URL}/users/{user.id}/chat"
                     ),
                 )
             ],
@@ -177,13 +173,17 @@ async def notify_mutual(user: User, match: User):
     )
 
     try:
-        await bot.send_message(
+        await send_message(
             user.telegram_id,
             msg1.format(match=match),
             parse_mode="HTML",
             reply_markup=mk1,
         )
-        await bot.send_message(
+    except (TelegramBadRequest, TelegramForbiddenError):
+        pass
+
+    try:
+        await send_message(
             match.telegram_id,
             msg2.format(match=user),
             parse_mode="HTML",
@@ -191,15 +191,9 @@ async def notify_mutual(user: User, match: User):
         )
     except (TelegramBadRequest, TelegramForbiddenError):
         pass
-    finally:
-        await bot.session.close()
 
 
 async def notify_match(match: User):
-    bot = Bot(token=settings.BOT_TOKEN)
-    if settings.ENVIRONMENT == EnvironmentTypes.testing:
-        session = AiohttpSession(api=TEST)
-        bot = Bot(token=settings.BOT_TOKEN, session=session)
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -214,11 +208,9 @@ async def notify_match(match: User):
         locale=match.ui_language.name,
     )
     try:
-        await bot.send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
+        await send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
     except (TelegramBadRequest, TelegramForbiddenError):
         pass
-    finally:
-        await bot.session.close()
 
 
 @router.callback_query(F.data == "delete_message")

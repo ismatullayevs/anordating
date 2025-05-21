@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-12 17:06+0500\n"
+"POT-Creation-Date: 2025-05-21 17:47+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uz\n"
@@ -16,6 +16,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
+
+#: api/websocket.py:84
+msgid "Open chat"
+msgstr "Chatga kirish"
+
+#: api/websocket.py:92
+msgid "You have a new message from {name}"
+msgstr "Sizga {name}dan yangi xabar keldi"
 
 #: bot/keyboards.py:10
 msgid "❌ Clear"
@@ -37,7 +45,7 @@ msgstr "Erkak kishi qidiryapman 👨‍🦱"
 msgid "I'm looking for a woman 👩‍🦱"
 msgstr "Ayol kishi qidiryapman 👩‍🦱"
 
-#: bot/handlers/search.py:31 bot/keyboards.py:45
+#: bot/handlers/search.py:35 bot/keyboards.py:45
 msgid "🔎 Watch profiles"
 msgstr "🔎 Profillarni ko'rish"
 
@@ -63,11 +71,11 @@ msgstr "✍️ Shikoyat qilish"
 msgid "⬅️ Menu"
 msgstr "⬅️ Menyu"
 
-#: bot/handlers/profile.py:47 bot/keyboards.py:67
+#: bot/handlers/profile.py:37 bot/keyboards.py:67
 msgid "👤 My profile"
 msgstr "👤 Mening profilim"
 
-#: bot/handlers/profile.py:62 bot/keyboards.py:67
+#: bot/handlers/profile.py:52 bot/keyboards.py:67
 msgid "🔎 Search settings"
 msgstr "🔎 Qidiruv sozlamalari"
 
@@ -83,64 +91,56 @@ msgstr "⛔️ To'xtatish"
 msgid "❌ Delete account"
 msgstr "❌ Akkountni o'chirish"
 
-#: bot/handlers/search.py:54 bot/keyboards.py:79
+#: bot/handlers/search.py:58 bot/keyboards.py:79
 msgid "⏪ Rewind"
 msgstr "⏪ Orqaga"
 
 #: bot/keyboards.py:97
-msgid "📞 Share phone number"
-msgstr "📞 Telefon raqamni jo'natish"
-
-#: bot/keyboards.py:104
 msgid "📍 Send location"
 msgstr "📍 Lokatsiya jo'natish"
 
-#: bot/keyboards.py:107
+#: bot/keyboards.py:100
 msgid "City name"
 msgstr "Shahar nomi"
 
-#: bot/handlers/profile.py:80 bot/keyboards.py:113
+#: bot/handlers/profile.py:70 bot/keyboards.py:106
 msgid "✏️ Name"
 msgstr "✏️ Ism"
 
-#: bot/handlers/profile.py:111 bot/keyboards.py:113
+#: bot/handlers/profile.py:101 bot/keyboards.py:106
 msgid "🔢 Birth date"
 msgstr "🔢 Tug'ilgan sana"
 
-#: bot/handlers/profile.py:150 bot/keyboards.py:113
+#: bot/handlers/profile.py:140 bot/keyboards.py:106
 msgid "👫 Gender"
 msgstr "👫 Jins"
 
-#: bot/handlers/profile.py:180 bot/keyboards.py:114
+#: bot/handlers/profile.py:170 bot/keyboards.py:107
 msgid "📝 Bio"
 msgstr "📝 Bio"
 
-#: bot/handlers/profile.py:289 bot/keyboards.py:114
+#: bot/handlers/profile.py:279 bot/keyboards.py:107
 msgid "📍 Location"
 msgstr "📍 Joylashuv"
 
-#: bot/handlers/profile.py:399 bot/keyboards.py:114
+#: bot/handlers/profile.py:389 bot/keyboards.py:107
 msgid "📷 Media"
 msgstr "📷 Media"
 
-#: bot/handlers/profile.py:505 bot/keyboards.py:115
-msgid "📞 Phone number"
-msgstr "📞 Telefon raqam"
-
-#: bot/handlers/profile.py:74 bot/handlers/profile.py:75 bot/keyboards.py:115
-#: bot/keyboards.py:121
+#: bot/handlers/profile.py:64 bot/handlers/profile.py:65 bot/keyboards.py:108
+#: bot/keyboards.py:114
 msgid "⬅️ Back"
 msgstr "⬅️ Orqaga"
 
-#: bot/handlers/profile.py:216 bot/keyboards.py:121
+#: bot/handlers/profile.py:206 bot/keyboards.py:114
 msgid "👩‍❤️‍👨 Gender preferences"
 msgstr "👩‍❤️‍👨 Yoqtirilgan jins"
 
-#: bot/handlers/profile.py:252 bot/keyboards.py:121
+#: bot/handlers/profile.py:242 bot/keyboards.py:114
 msgid "🔢 Age preferences"
 msgstr "🔢 Yosh chegarasi"
 
-#: bot/utils.py:39
+#: bot/utils.py:44
 msgid "📍 {dist} km"
 msgstr "📍 {dist} km"
 
@@ -148,7 +148,7 @@ msgstr "📍 {dist} km"
 msgid "Only superusers can use this command"
 msgstr ""
 
-#: bot/handlers/default.py:27 bot/handlers/registration.py:89
+#: bot/handlers/default.py:27 bot/handlers/registration.py:76
 msgid "Hi! Please select a language"
 msgstr "Salom! Iltimos, tilni tanlang"
 
@@ -164,22 +164,24 @@ msgstr "Yoqtirishlar topilmadi"
 msgid "Likes"
 msgstr "Yoqtirishlar"
 
-#: bot/handlers/matches.py:35 bot/handlers/search.py:41
+#: bot/handlers/matches.py:35 bot/handlers/search.py:45
 msgid "No matches found"
 msgstr "Hech kim topilmadi"
 
-#: bot/handlers/matches.py:54
+#: bot/handlers/matches.py:46
 msgid ""
 "You both liked each other. Start a chat with them by clicking the button "
 "below 👇"
-msgstr "Siz bir-biringizni yoqtirdingiz. Pastdagi tugmani bosib, suhbatni boshlang 👇"
+msgstr ""
+"Siz bir-biringizni yoqtirdingiz. Pastdagi tugmani bosib, suhbatni "
+"boshlang 👇"
 
-#: bot/handlers/matches.py:61 bot/handlers/search.py:144
-#: bot/handlers/search.py:156
+#: bot/handlers/matches.py:53 bot/handlers/search.py:145
+#: bot/handlers/search.py:157
 msgid "Start a chat"
 msgstr "Suhbatni boshlash"
 
-#: bot/handlers/matches.py:72
+#: bot/handlers/matches.py:64
 msgid "Matches"
 msgstr "Mosliklar"
 
@@ -208,12 +210,12 @@ msgstr ""
 "siz yoqtirgan foydalanuvchilar ham"
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:84 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:157 bot/handlers/search.py:202
+#: bot/handlers/menu.py:157 bot/handlers/search.py:201
 msgid "Yes"
 msgstr "Ha"
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:79 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:152 bot/handlers/search.py:205
+#: bot/handlers/menu.py:152 bot/handlers/search.py:204
 msgid "No"
 msgstr "Yo'q"
 
@@ -243,30 +245,30 @@ msgstr "Ishonchingiz komilmi? Barcha ma'lumotlaringiz o'chiriladi"
 msgid "Your account has been deleted. To start again, press the button below"
 msgstr "Akkountingiz o'chirildi. Qaytadan boshlash uchun, pastdagi tugmani bosing"
 
-#: bot/handlers/menu.py:168 bot/handlers/registration.py:66
+#: bot/handlers/menu.py:168 bot/handlers/registration.py:53
 msgid "Start registration"
 msgstr "Registratsiyani boshlash"
 
-#: bot/handlers/profile.py:55
+#: bot/handlers/profile.py:45
 msgid "Press the buttons below to update your profile"
 msgstr "Profilingizni o'zgartirish uchun pastdagi tugmalardan birini bosing"
 
-#: bot/handlers/profile.py:68
+#: bot/handlers/profile.py:58
 msgid "Search settings"
 msgstr "Qidiruv sozlamari"
 
-#: bot/handlers/profile.py:82
+#: bot/handlers/profile.py:72
 msgid "Enter your name"
 msgstr "Ismingizni yozing"
 
-#: bot/handlers/profile.py:107 bot/handlers/profile.py:146
-#: bot/handlers/profile.py:176 bot/handlers/profile.py:212
-#: bot/handlers/profile.py:357 bot/handlers/profile.py:395
-#: bot/handlers/profile.py:501 bot/handlers/profile.py:536
+#: bot/handlers/profile.py:97 bot/handlers/profile.py:136
+#: bot/handlers/profile.py:166 bot/handlers/profile.py:202
+#: bot/handlers/profile.py:347 bot/handlers/profile.py:385
+#: bot/handlers/profile.py:491
 msgid "Your profile has been updated"
 msgstr "Profilingiz yangilandi"
 
-#: bot/handlers/profile.py:113 bot/handlers/registration.py:134
+#: bot/handlers/profile.py:103 bot/handlers/registration.py:121
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
@@ -280,58 +282,58 @@ msgstr ""
 "<b>KK.OO.YYYY</b> (Masalan, 31.12.2000)\n"
 "<b>OO/KK/YYYY</b> (Masalan, 12/31/2000)"
 
-#: bot/handlers/profile.py:152
+#: bot/handlers/profile.py:142
 msgid "Select your gender"
 msgstr "Jinsni tanlang"
 
-#: bot/handlers/profile.py:183 bot/handlers/registration.py:182
+#: bot/handlers/profile.py:173 bot/handlers/registration.py:169
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr "O'zingiz haqingizda aytib bering (qiziqishlaringiz, hobbilaringiz, ...)"
 
-#: bot/handlers/profile.py:219 bot/handlers/registration.py:206
+#: bot/handlers/profile.py:209 bot/handlers/registration.py:193
 msgid "Who are you looking for?"
 msgstr "Qanaqa inson qidiryapsiz?"
 
-#: bot/handlers/profile.py:246 bot/handlers/profile.py:283
+#: bot/handlers/profile.py:236 bot/handlers/profile.py:273
 msgid "Search settings have been updated"
 msgstr "Qidiruv sozlamalari yangilandi"
 
-#: bot/handlers/profile.py:255 bot/handlers/registration.py:236
+#: bot/handlers/profile.py:245 bot/handlers/registration.py:223
 msgid "What is your preferred age range? (e.g. 18-25)"
 msgstr "Yosh chegarasini belgilang. Masalan: 18-25"
 
-#: bot/handlers/profile.py:292
+#: bot/handlers/profile.py:282
 msgid "Send your location or type the name of your city"
 msgstr "Yashash manzilingizni jo'nating yoki shahar nomini yozing"
 
-#: bot/handlers/profile.py:306 bot/handlers/registration.py:279
+#: bot/handlers/profile.py:296 bot/handlers/registration.py:266
 msgid "City not found"
 msgstr "Shahar topilmadi"
 
-#: bot/handlers/profile.py:308 bot/handlers/registration.py:281
+#: bot/handlers/profile.py:298 bot/handlers/registration.py:268
 msgid "Please select your city"
 msgstr "Iltimos, shahringizni tanlang"
 
-#: bot/handlers/profile.py:402 bot/handlers/registration.py:332
+#: bot/handlers/profile.py:392 bot/handlers/registration.py:319
 msgid ""
 "Please upload photos or videos of yourself "
 "({min_media_count}-{max_media_count})"
 msgstr "Rasm va videolaringizni jo'nating (1-5)"
 
-#: bot/handlers/profile.py:413 bot/handlers/profile.py:484
-#: bot/handlers/registration.py:343 bot/handlers/registration.py:414
+#: bot/handlers/profile.py:403 bot/handlers/profile.py:474
+#: bot/handlers/registration.py:330 bot/handlers/registration.py:401
 msgid "Continue"
 msgstr "Davom ettirish"
 
-#: bot/handlers/profile.py:417
+#: bot/handlers/profile.py:407
 msgid "Please upload at least one photo"
 msgstr "Iltimos, kamida 1 ta rasm joylashtiring"
 
-#: bot/handlers/profile.py:478 bot/handlers/registration.py:408
+#: bot/handlers/profile.py:468 bot/handlers/registration.py:395
 msgid "File has been uploaded"
 msgstr "Fayl joylashtirildi"
 
-#: bot/handlers/profile.py:481 bot/handlers/registration.py:411
+#: bot/handlers/profile.py:471 bot/handlers/registration.py:398
 msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
@@ -339,15 +341,7 @@ msgstr ""
 "Fayl joylashtirildi. Ko'proq fayl jo'nating yoki \"Davom ettirish\" "
 "tugmasini bosing"
 
-#: bot/handlers/profile.py:508 bot/handlers/registration.py:419
-msgid "Please share your phone number"
-msgstr "Iltimos, telefon raqamingizni jo'nating"
-
-#: bot/handlers/profile.py:519 bot/handlers/registration.py:430
-msgid "Please share your own phone number"
-msgstr "Iltimos, o'z telefon raqamingizni jo'nating"
-
-#: bot/handlers/registration.py:53
+#: bot/handlers/registration.py:40
 msgid ""
 "Hi there! I'm a bot to help you find your soulmate.\n"
 "\n"
@@ -370,67 +364,64 @@ msgstr ""
 "Agar savollaringiz bo'lsa, bizning <a href='{support_link}'>qo'llab-"
 "quvvatlash bo'limimizga</a> yozing."
 
-#: bot/handlers/registration.py:108
+#: bot/handlers/registration.py:95
 msgid "Please select one of the given languages"
 msgstr "Iltimos, berilgan tillardan birini tanlang"
 
-#: bot/handlers/registration.py:115
+#: bot/handlers/registration.py:102
 msgid "What is your name?"
 msgstr "Ismingiz nima?"
 
-#: bot/handlers/registration.py:159
+#: bot/handlers/registration.py:146
 msgid "What is your gender?"
 msgstr "Jinsingiz?"
 
-#: bot/handlers/registration.py:178 bot/handlers/registration.py:229
+#: bot/handlers/registration.py:165 bot/handlers/registration.py:216
 msgid "Please select one of the given options"
 msgstr "Iltimos, berilgan variantlardan birini tanlang"
 
-#: bot/handlers/registration.py:183 bot/handlers/registration.py:187
-#: bot/handlers/registration.py:237 bot/handlers/registration.py:242
+#: bot/handlers/registration.py:170 bot/handlers/registration.py:174
+#: bot/handlers/registration.py:224 bot/handlers/registration.py:229
 msgid "Skip"
 msgstr "O'tkazib yuborish"
 
-#: bot/handlers/registration.py:265
+#: bot/handlers/registration.py:252
 msgid "Please share your location or type the name of your city"
 msgstr "Iltimos, lokatsiya jo'nating yoki shahar nomini yozing"
 
-#: bot/handlers/registration.py:325
+#: bot/handlers/registration.py:312
 msgid "Please share your location by clicking the button below"
 msgstr "Iltimos, pastdagi tugmani bosish orqali lokatsiyangizni jo'nating"
 
-#: bot/handlers/registration.py:442
-msgid "Please share your phone number by clicking the button below"
-msgstr "Iltimos, pastdagi tugmani bosish orqali telefon raqamingizni jo'nating"
-
-#: bot/handlers/registration.py:501
+#: bot/handlers/registration.py:458
 msgid "Registration has been completed!"
 msgstr "Registratsiya yakunlandi!"
 
-#: bot/handlers/search.py:69
+#: bot/handlers/search.py:73
 msgid "You can't rewind more than {rewind_limit} times"
 msgstr "{rewind_limit} martadan ko'p ortga qaytarish mumkin emas"
 
-#: bot/handlers/search.py:77
+#: bot/handlers/search.py:81
 msgid "No more matches to rewind"
 msgstr "Boshqa ortga qaytarib bo'lmaydi"
 
-#: bot/handlers/search.py:82
+#: bot/handlers/search.py:86
 msgid "⏪ Rewinding"
 msgstr "⏪ Orqaga"
 
-#: bot/handlers/search.py:107
+#: bot/handlers/search.py:111
 msgid "User not found"
 msgstr "Foydalanuvchi topilmadi"
 
-#: bot/handlers/search.py:164 bot/handlers/search.py:169
+#: bot/handlers/search.py:165 bot/handlers/search.py:170
 msgid ""
 "Congratulations 🎉. You have matched with {match.name}.\n"
 "Start a chat with them by clicking the button below 👇"
-msgstr "Tabriklaymiz 🎉. Siz {match.name} bilan mos keldingiz.\n"
+msgstr ""
+"Tabriklaymiz 🎉. Siz {match.name} bilan mos keldingiz.\n"
 "Pastdagi tugmani bosib, suhbatni boshlang 👇"
 
-#: bot/handlers/search.py:208
+#: bot/handlers/search.py:207
 msgid "Someone liked your profile. Do you want to see who liked you?"
 msgstr ""
 "Kimdir sizning profilingizni yoqtirdi. Kimlar sizni yoqtirganini "

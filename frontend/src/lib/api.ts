@@ -16,7 +16,7 @@ export const getMe = async (init_data: string): Promise<IUser> => {
     return data;
 }
 
-export const getChatByMatchId = async (match_id: string, init_data: string): Promise<IChat> => {
+export const getChatByMatchId = async (match_id: string, init_data: string): Promise<IChat | null> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${match_id}/chat`, {
         headers: {
             'Content-Type': 'application/json',
@@ -24,6 +24,9 @@ export const getChatByMatchId = async (match_id: string, init_data: string): Pro
         },
     });
     if (!res.ok) {
+        if (res.status === 404) {
+            return null;
+        }
         throw new Error(`Error: ${res.status} ${res.statusText}`);
     }
     const data = await res.json();

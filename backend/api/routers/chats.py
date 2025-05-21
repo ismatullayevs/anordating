@@ -2,7 +2,7 @@ import json
 from typing import Annotated
 
 from aiogram.utils.web_app import WebAppInitData
-from fastapi import APIRouter, Depends, HTTPException, WebSocket
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, WebSocket
 from sqlalchemy import select
 
 from api.dependencies import validate_init_data, validate_websocket_init_data
@@ -137,5 +137,6 @@ async def get_chat_members(
 async def websocket_chats(
     websocket: WebSocket,
     init_data: Annotated[WebAppInitData, Depends(validate_websocket_init_data)],
+    background_tasks: BackgroundTasks,
 ):
-    await handle_websocket(websocket, init_data)
+    await handle_websocket(websocket, init_data, background_tasks)
