@@ -5,25 +5,32 @@
 	import type { IUser } from '@/types/User';
 	import { getContext } from 'svelte';
 	import { page } from '$app/state';
+	import type { IMessage } from '@/types/Message';
+	import { error } from '@sveltejs/kit';
 
 	const websocket = (getContext('websocket') as () => {value: WebSocket | null})();
 	const init_data = (getContext('init_data') as () => {value: string | undefined})();
 	const user = (getContext('user') as () => {value: IUser | null})();
-	const match: {value: IUser | null} = $state({ value: null });
-	const isBlank = $state(true);
+	let match: IUser | null = $state(null);
+	let messages: null | IMessage[] = $state(null);
 
 	if (init_data.value) {
 		getChatByMatchId(page.params.id, init_data.value).then((chat) => {
 			if (chat) {
 				let matchData;
-				if (match.value) {
-					matchData = encodeURIComponent(JSON.stringify(match.value));
+				if (match) {
+					matchData = encodeURIComponent(JSON.stringify(match));
 				}
 				goto(`/chats/${chat.id}?match=${matchData}`);
+			} else {
+				messages = [];
 			}
 		})
 		getUserById(page.params.id, init_data.value).then((data) => {
-			match.value = data;
+			if (!data) {
+				error(404, `User with id ${page.params.id} not found`);
+			}
+			match = data;
 		}).catch((reason) => {
 			console.log(JSON.stringify(reason));
 		})
@@ -31,7 +38,7 @@
 
 	async function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
-		if (messageData.type === 'new_chat' && init_data.value && match.value) {
+		if (messageData.type === 'new_chat' && init_data.value && match) {
 			goto(`/chats/${messageData.payload.id}`);
 		}
 	}
@@ -45,8 +52,8 @@
 	});
 
 	async function onSendMessage(message: string) {
-		if (!websocket.value || !init_data.value || !match.value) return;
-		const chatData = await createChat(match.value.id, init_data.value);
+		if (!websocket.value || !init_data.value || !match) return;
+		const chatData = await createChat(match.id, init_data.value);
 		if (!chatData) return;
 		websocket.value.send(
 			JSON.stringify({
@@ -61,4 +68,4 @@
 	}
 </script>
 
-<Chat user={user.value} match={match.value} messages={[]} {isBlank} {onSendMessage} />
+<Chat user={user.value} {match} {messages} {onSendMessage} />

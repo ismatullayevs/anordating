@@ -28,10 +28,11 @@ async def read_user(
     user_id: str,
 ):
     assert init_data.user
-    user = await get_user(id=user_id)
-    if not user.is_active:
+    try:
+        user = await get_user(id=user_id, is_active=True)
+        return user
+    except exc.NoResultFound:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
 
 
 @router.get("/users/{match_id}/chat")
@@ -41,6 +42,10 @@ async def get_user_chat(
 ):
     assert init_data.user
     user = await get_user(telegram_id=init_data.user.id, is_active=True)
+    try:
+        match = await get_user(id=match_id, is_active=True)
+    except exc.NoResultFound:
+        raise HTTPException(status_code=404, detail="Match not found")
 
     async with session_factory() as session:
         query = select(Chat).where(

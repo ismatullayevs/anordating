@@ -12,6 +12,7 @@ from shared.core.db import session_factory
 from shared.dto.chat import MessageAddDTO
 from shared.models.chat import Chat, ChatMember
 from shared.queries import can_write, get_chat_by_users, get_user, select_chat_members
+from sqlalchemy import exc
 from api.i18n import get_translator
 
 
@@ -42,8 +43,9 @@ manager = ConnectionManager()
 
 async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData, background_tasks: BackgroundTasks):
     assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id)
-    if not user or not user.is_active:
+    try:
+        user = await get_user(telegram_id=init_data.user.id, is_active=True)
+    except exc.NoResultFound:
         await websocket.close()
         return
     await manager.connect(str(user.id), websocket)
@@ -76,6 +78,7 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData, back
                     },
                 }
                 for member in members:
+                    if not member.user.is_active: continue
                     if not manager.is_connected(str(member.user_id)) and member.user_id != user.id:
                         _ = get_translator(member.user.ui_language.name)
                         mk = types.InlineKeyboardMarkup(
@@ -97,39 +100,6 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData, back
                     await manager.send_message(
                         str(member.user_id), json.dumps(ws_message, default=str)
                     )
-
-            elif data.get("type") == "new_chat":
-                payload = data.get("payload")
-                async with session_factory() as session:
-                    match_id = payload["match_id"]
-                    if not await can_write(session, user.id, match_id):
-                        await manager.disconnect(str(user.id), websocket)
-                        return
-
-                    chat_db = await get_chat_by_users(session, user.id, match_id)
-                    if chat_db:
-                        await manager.disconnect(str(user.id), websocket)
-                        return
-
-                    chat_db = Chat()
-                    chat_member1 = ChatMember(chat=chat_db, user=user)
-                    chat_member2 = ChatMember(chat=chat_db, user_id=match_id)
-
-                    session.add(chat_db)
-                    await session.commit()
-
-                ws_message = {
-                    "type": "new_chat",
-                    "payload": chat_db.__dict__,
-                }
-
-                await manager.send_message(
-                    str(match_id), json.dumps(ws_message, default=str)
-                )
-                await manager.send_message(
-                    str(user.id), json.dumps(ws_message, default=str)
-                )
-
     except WebSocketDisconnect:
         print("WebSocket disconnected")
     finally:

@@ -1,14 +1,8 @@
 # Tasks
 
-use npm build instead of run dev
-use pnpm instead of npm
-remove password hash from traefik config
-remove .env from git history
-use db as dependancy in api
-add types to frontend
+when user is deleted, their chats should also be deleted
 in queries, pass session as argument
 check if the user is active when using twa
-notify when new message is sent
 setup wss
 show chat data like is_sent, is_read, last_online etc...
 add limit to message size
@@ -25,6 +19,7 @@ delete files that are not attached to users
 add emojis to messages
 show city on profile page
 create ci/cd
+use db as dependancy in api
 configure logging
 Set up sentry
 add testing

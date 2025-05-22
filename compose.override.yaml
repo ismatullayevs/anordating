@@ -41,7 +41,6 @@ services:
     command: npm run dev -- --host
     labels:
       - traefik.http.services.frontend.loadbalancer.server.port=5173
-      - traefik.http.routers.frontend.rule=Host(`${DOMAIN_IP}`)
 
   db:
     ports:

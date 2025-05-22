@@ -95,7 +95,7 @@ export const createChat = async (match_id: string, init_data: string): Promise<I
     return data;
 }
 
-export const getUserById = async (id: string, init_data: string): Promise<IUser> => {
+export const getUserById = async (id: string, init_data: string): Promise<IUser | null> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
         headers: {
             'Content-Type': 'application/json',
@@ -103,6 +103,9 @@ export const getUserById = async (id: string, init_data: string): Promise<IUser>
         },
     });
     if (!res.ok) {
+        if (res.status === 404) {
+            return null;
+        }
         throw new Error(`Error: ${res.status} ${res.statusText}`);
     }
     const data = await res.json();

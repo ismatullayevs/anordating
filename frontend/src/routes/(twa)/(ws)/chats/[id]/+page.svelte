@@ -11,8 +11,8 @@
 	const websocket = (getContext('websocket') as () => {value: WebSocket | null})();
 	const init_data = (getContext('init_data') as () => {value: string | undefined})();
 	const user = (getContext('user') as () => {value: IUser | null})();
-	const match: {value: IUser | null} = $state({ value: getMatchFromURI() });
-	const messages: {value: IMessage[]} = $state({ value: [] });
+	let match: IUser | null = $state(getMatchFromURI());
+	let messages: IMessage[] | null = $state(null);
 
 	function getMatchFromURI(): IUser | null {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -31,24 +31,24 @@
 		getChatMembers(Number(page.params.id), init_data.value).then((members) => {
 			const match_id = members.find((m) => m.user_id !== user.value?.id)?.user_id;
 			if (!match_id) error(404, 'No match found');
-			if (!match.value) {
+			if (!match) {
 				getUserById(match_id, init_data.value || '').then((data) => {
-					match.value = data;
+					match = data;
 				});
 			}
 			getChatMessages(Number(page.params.id), init_data.value || '').then((data) => {
-				messages.value = data;
+				messages = data;
 			});
 		});
 	}
 
 	function handleWSMessage(event: MessageEvent) {
 		const messageData = JSON.parse(event.data);
-		if (messageData.type === 'new_message') {
+		if (messageData.type === 'new_message' && messages) {
 			const newMessage: IMessage = messageData.payload;
 			if (newMessage.chat_id !== Number(page.params.id)) return;
-			if (messages.value.map((m: IMessage) => m.id).includes(newMessage.id)) return;
-			messages.value.push(newMessage);
+			if (messages.map((m: IMessage) => m.id).includes(newMessage.id)) return;
+			messages.push(newMessage);
 		}
 	}
 
@@ -74,4 +74,4 @@
 	}
 </script>
 
-<Chat user={user.value} match={match.value} messages={messages.value} {onSendMessage} />
+<Chat user={user.value} match={match} {messages} {onSendMessage} />
