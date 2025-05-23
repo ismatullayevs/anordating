@@ -3,9 +3,8 @@ import type { PageLoad } from './$types';
 import type { IUser } from '@/types/User';
 import { error } from '@sveltejs/kit';
 
-function getMatchFromURI(): IUser | null {
-	const urlParams = new URLSearchParams(window.location.search);
-	const matchParam = urlParams.get('match');
+function getMatchFromURI(url: URL): IUser | null {
+	const matchParam = url.searchParams.get('match')
 	if (matchParam) {
 		try {
 			return JSON.parse(decodeURIComponent(matchParam));
@@ -16,11 +15,11 @@ function getMatchFromURI(): IUser | null {
 	return null;
 }
 
-export const load: PageLoad = async ({ fetch, params, parent }) => {
+export const load: PageLoad = async ({ fetch, params, parent, url }) => {
 	const { init_data, user } = await parent();
 	let userData = await user;
 	const match = (async () => {
-        const match = getMatchFromURI();
+        const match = getMatchFromURI(url);
         if (match) {
             return match;
         }

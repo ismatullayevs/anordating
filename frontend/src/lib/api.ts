@@ -98,6 +98,7 @@ export const createChat = async (match_id: string, init_data: string): Promise<I
 }
 
 export const getUserById = async (id: string, init_data: string, fetch: Fetch): Promise<IUser | null> => {
+    console.log('getUserById', id, init_data);
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
         headers: {
             'Content-Type': 'application/json',
