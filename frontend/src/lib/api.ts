@@ -2,7 +2,9 @@ import type { IChat, IChatMember } from "./types/Chat";
 import type { IMessage } from "./types/Message";
 import type { IUser } from "./types/User";
 
-export const getMe = async (init_data: string): Promise<IUser> => {
+type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
+
+export const getMe = async (init_data: string, fetch: Fetch): Promise<IUser> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
         headers: {
             'Content-Type': 'application/json',
@@ -16,7 +18,7 @@ export const getMe = async (init_data: string): Promise<IUser> => {
     return data;
 }
 
-export const getChatByMatchId = async (match_id: string, init_data: string): Promise<IChat | null> => {
+export const getChatByMatchId = async (match_id: string, init_data: string, fetch: Fetch): Promise<IChat | null> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${match_id}/chat`, {
         headers: {
             'Content-Type': 'application/json',
@@ -48,7 +50,7 @@ export const getChat = async (id: number, init_data: string): Promise<IChat> => 
 }
 
 
-export const getChatMessages = async (id: number, init_data: string): Promise<IMessage[]> => {
+export const getChatMessages = async (id: number, init_data: string, fetch: Fetch): Promise<IMessage[]> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/chats/${id}/messages`, {
         headers: {
             'Content-Type': 'application/json',
@@ -95,7 +97,7 @@ export const createChat = async (match_id: string, init_data: string): Promise<I
     return data;
 }
 
-export const getUserById = async (id: string, init_data: string): Promise<IUser | null> => {
+export const getUserById = async (id: string, init_data: string, fetch: Fetch): Promise<IUser | null> => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${id}`, {
         headers: {
             'Content-Type': 'application/json',

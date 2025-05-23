@@ -5,8 +5,8 @@
 	import type { IUser } from "@/types/User";
 
     interface IProps {
-        user: IUser | null;
-        match: IUser | null;
+        user: Promise<IUser>;
+        match: Promise<IUser>;
         messages: IMessage[] | null;
         onSendMessage: (message: string) => void;
     }
@@ -68,27 +68,33 @@
 
 <div class="border-b-slate-200 bg-white fixed border-b-1 py-2 w-full">
     <div class="px-3 max-w-3xl mx-auto">
-        {#if match}
-            <p class="text-lg font-semibold">{ match.name }</p>
-        {:else}
+        {#await match}
             <div class="w-24 h-8 bg-gray-300 rounded-lg shimmer"></div>
-        {/if}
+        {:then match}
+            <p class="text-lg font-semibold">{ match.name }</p>
+        {/await}
     </div>
 </div>
 
 <div class="p-3 pt-12 pb-16 flex flex-col items-start max-w-3xl mx-auto">
-    {#if user && messages}
-        {#each messages as message, i}
-            {#if isNewDay(message, messages[i - 1])}
-                <DateBadge date={new Date(message.created_at)} />
-            {/if}
-            <Message message={message} userId={user.id} />
-        {/each}
-    {:else}
+    {#await user}
         <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
         <div class="w-full max-w-2/3 h-10 mt-3 self-end bg-gray-300 rounded-lg shimmer"></div>
         <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
-    {/if}
+    {:then user}
+        {#if messages}
+            {#each messages as message, i}
+                {#if isNewDay(message, messages[i - 1])}
+                    <DateBadge date={new Date(message.created_at)} />
+                {/if}
+                <Message message={message} userId={user.id} />
+            {/each}
+        {:else}
+            <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
+            <div class="w-full max-w-2/3 h-10 mt-3 self-end bg-gray-300 rounded-lg shimmer"></div>
+            <div class="w-full max-w-2/3 h-10 mt-3 bg-gray-300 rounded-lg shimmer"></div>
+        {/if}
+    {/await}
 </div>
 
 <form onsubmit={onSubmit} class="bg-white fixed bottom-0 left-0 right-0 px-3 py-1 max-w-3xl mx-auto flex justify-between items-center gap-2 border-1 border-slate-200">
