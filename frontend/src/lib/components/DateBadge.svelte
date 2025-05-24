@@ -10,4 +10,4 @@
   }
 </script>
 
-<span class="text-sm self-center font-semibold my-3">{formatDate(date)}</span>
+<span class="text-sm self-center font-semibold mt-3">{formatDate(date)}</span>
