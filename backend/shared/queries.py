@@ -138,6 +138,7 @@ async def create_or_update_reaction(
     user: User, match: User, reaction_type: ReactionType
 ):
     assert user.is_active and match.is_active
+    is_created = False
     async with session_factory() as session:
         res = await session.scalars(
             select(Reaction).where(
@@ -147,7 +148,7 @@ async def create_or_update_reaction(
         try:
             reaction = res.one()
             if reaction.reaction_type == reaction_type:
-                return reaction
+                return is_created, reaction
 
             previous_rating = match.rating - reaction.added_rating
             match.rating = get_new_rating(previous_rating, user.rating, reaction_type)
@@ -163,10 +164,10 @@ async def create_or_update_reaction(
                 reaction_type=reaction_type,
                 added_rating=match.rating - previous_rating,
             )
-
+            is_created = True
         session.add_all((reaction, match))
         await session.commit()
-    return reaction
+    return is_created, reaction
 
 
 async def get_nth_last_reacted_match(user: User, n: int):
@@ -283,3 +284,13 @@ async def get_city_name(user: User, language: UILanguages):
             session.add(place)
             await session.commit()
             return place_name
+
+
+async def delete_chat_between_users(user_id: UUID, match_id: UUID):
+    async with session_factory() as session:
+        chat = await get_chat_by_users(session, user_id, match_id)
+        if not chat:
+            return
+
+        await session.delete(chat)
+        await session.commit()

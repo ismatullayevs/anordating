@@ -26,6 +26,7 @@ from shared.queries import (
     get_nth_last_reacted_match,
     get_user,
     is_mutual,
+    delete_chat_between_users
 )
 
 router = Router()
@@ -115,7 +116,7 @@ async def react(message: types.Message, state: FSMContext, user: User):
             return await show_matches(message, state, user)
         return await search(message, state, user, with_keyboard=False)
 
-    reaction = await create_or_update_reaction(user, match, reactions[message.text])
+    is_created, reaction = await create_or_update_reaction(user, match, reactions[message.text])
 
     if message.text == "👍" and not reaction.is_match_notified:
         mutual = await is_mutual(reaction)
@@ -127,7 +128,12 @@ async def react(message: types.Message, state: FSMContext, user: User):
             reaction.is_match_notified = True
             session.add(reaction)
             await session.commit()
-
+    if not is_created and message.text == "👎":
+        try:
+            await delete_chat_between_users(user.id, match.id)
+        except exc.NoResultFound:
+            pass
+        
     if current_state == AppStates.likes.state:
         return await show_likes(message, state, user, with_keyboard=False)
     if current_state == AppStates.matches.state:

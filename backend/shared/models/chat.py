@@ -10,7 +10,7 @@ from shared.models.user import User
 class Chat(Base):
     __tablename__ = "chat"
 
-    members: Mapped["ChatMember"] = relationship(back_populates="chat")
+    members: Mapped["ChatMember"] = relationship(back_populates="chat", cascade="all, delete-orphan")
 
     id: Mapped[intpk]
     created_at: Mapped[created_at]

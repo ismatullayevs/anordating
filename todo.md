@@ -1,7 +1,8 @@
 # Tasks
 
+add an option to block users
+handle user notifications
 show chat data like is_sent, is_read, last_online etc...
-add limit to message size
 use lazy loading when loading messages
 create updates for each update in chat
 when user is deleted, their chats should also be deleted
