@@ -42,7 +42,7 @@ async def search(
     match = await get_best_match(user)
     if not match:
         await message.answer(
-            _("No matches found"), reply_markup=get_empty_search_keyboard()
+            _("No one left to match with right now."), reply_markup=get_empty_search_keyboard()
         )
         return await state.set_state(AppStates.search)
 

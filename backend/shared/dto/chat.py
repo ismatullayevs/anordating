@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import AfterValidator, BaseModel
 
+from shared.validators import validate_message_text
 from shared.dto.base import BaseModelWithOrm
 from shared.models.chat import Chat, Message
 
@@ -18,7 +20,7 @@ class ChatDTO(BaseModelWithOrm[Chat]):
 
 
 class MessageBaseDTO(BaseModelWithOrm[Message]):
-    text: str
+    text: Annotated[str, AfterValidator(validate_message_text)]
 
     @property
     def orm_model(self):

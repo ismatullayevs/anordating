@@ -4,7 +4,7 @@ from collections import defaultdict
 from aiogram import types
 
 from aiogram.utils.web_app import WebAppInitData
-from fastapi import BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect
 
 from bot.utils import send_message
 from shared.core.config import settings
@@ -41,7 +41,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData, background_tasks: BackgroundTasks):
+async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData):
     assert init_data.user
     try:
         user = await get_user(telegram_id=init_data.user.id, is_active=True)

@@ -73,7 +73,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 
 async def set_language_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Hi! Please select a language"), reply_markup=get_languages_keyboard()
+        _("Hi! Select a language"), reply_markup=get_languages_keyboard()
     )
     await state.set_state(AppStates.set_ui_language)
 
@@ -92,7 +92,7 @@ async def set_language(message: types.Message, state: FSMContext):
 @router.message(AppStates.set_ui_language)
 async def set_language_invalid(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Please select one of the given languages"),
+        _("Select one of the given languages"),
         reply_markup=get_languages_keyboard(),
     )
 
@@ -121,9 +121,9 @@ async def set_birth_date_start(message: types.Message, state: FSMContext):
     msg = _(
         "What's your birth date? Use one these formats:"
         "\n"
-        "\n<b>YYYY-MM-DD</b> (For example, 2000-12-31)"
-        "\n<b>DD.MM.YYYY</b> (For example, 31.12.2000)"
-        "\n<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+        "\n👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)"
+        "\n👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)"
+        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
     )
     await message.answer(msg, parse_mode="HTML")
     await state.set_state(AppStates.set_birth_date)
@@ -162,7 +162,7 @@ async def set_gender(message: types.Message, state: FSMContext):
 
 @router.message(AppStates.set_gender)
 async def set_gender_invalid(message: types.Message):
-    await message.answer(_("Please select one of the given options"))
+    await message.answer(_("Select one of the given options"))
 
 
 async def set_bio_start(message: types.Message, state: FSMContext):
@@ -190,7 +190,7 @@ async def set_bio(message: types.Message, state: FSMContext):
 
 async def set_preferred_gender_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Who are you looking for?"), reply_markup=get_preferred_genders_keyboard()
+        _("Who are you interested in?"), reply_markup=get_preferred_genders_keyboard()
     )
     await state.set_state(AppStates.set_gender_preferences)
 
@@ -213,7 +213,7 @@ async def set_preferred_gender(message: types.Message, state: FSMContext):
 @router.message(AppStates.set_gender_preferences, F.text)
 async def set_gender_preferences_invalid(message: types.Message):
     await message.answer(
-        _("Please select one of the given options"),
+        _("Select one of the given options"),
         reply_markup=get_preferred_genders_keyboard(),
     )
 
@@ -249,7 +249,7 @@ async def set_age_preferences(message: types.Message, state: FSMContext):
 
 async def set_location_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Please share your location or type the name of your city"),
+        _("Share your location or type the name of your city"),
         reply_markup=get_ask_location_keyboard(),
     )
     await state.set_state(AppStates.set_location)
@@ -265,7 +265,7 @@ async def set_location_by_name(message: types.Message, state: FSMContext):
     if not cities:
         return await message.answer(_("City not found"))
 
-    msg = _("Please select your city")
+    msg = _("Select your city")
     builder = InlineKeyboardBuilder()
     for city, place_id in cities:
         builder.row(
@@ -309,7 +309,7 @@ async def set_location(message: types.Message, state: FSMContext):
 @router.message(AppStates.set_location)
 async def set_location_invalid(message: types.Message):
     await message.answer(
-        _("Please share your location by clicking the button below"),
+        _("Share your location by clicking the button below"),
         reply_markup=get_ask_location_keyboard(),
     )
 
@@ -317,7 +317,7 @@ async def set_location_invalid(message: types.Message):
 async def set_media_start(message: types.Message, state: FSMContext):
     await message.answer(
         _(
-            "Please upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
         ).format(
             min_media_count=Params.media_min_count,
             max_media_count=Params.media_max_count,

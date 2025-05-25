@@ -16,6 +16,8 @@ class Params:
     media_max_count = 5
     media_max_duration = 60
 
+    message_max_length = 1000
+
 
 def validate_name(value: str) -> str:
     if not (value and all(x.isalpha() or x.isspace() for x in value)):
@@ -71,10 +73,10 @@ def validate_birth_date(value: str) -> datetime:
 
     if parsed_date is None:
         raise ValueError(
-            "Invalid date format. Supported formats are: "
-            "YYYY-MM-DD (1970-10-20), "
-            "DD.MM.YYYY (20.10.1970), "
-            "MM/DD/YYYY (10/20/1970)"
+            _("Invalid date format. Supported formats are: \n"
+            "\n- YYYY-MM-DD (1970-10-20), "
+            "\n- DD.MM.YYYY (20.10.1970), "
+            "\n- MM/DD/YYYY (10/20/1970)")
         )
 
     today = date.today()
@@ -86,13 +88,13 @@ def validate_birth_date(value: str) -> datetime:
 
     if age < Params.min_age:
         raise ValueError(
-            "You must be at least {min_age} years old to use this bot".format(
+            _("You must be at least {min_age} years old to use this bot").format(
                 min_age=Params.min_age
             )
         )
     if age > Params.max_age:
         raise ValueError(
-            "You must be less than {max_age} years old to use this bot".format(
+            _("You must be less than {max_age} years old to use this bot").format(
                 max_age=Params.max_age
             )
         )
@@ -167,3 +169,15 @@ def validate_video_duration(value: int | None):
             )
         )
     return value
+
+
+def validate_message_text(value: str):
+    if not value.strip():
+        raise ValueError(_("Message text cannot be empty"))
+    if len(value) > Params.message_max_length:
+        raise ValueError(
+            _("Message text must be less than {max_length} characters long").format(
+                max_length=Params.message_max_length
+            )
+        )
+    return value.strip()

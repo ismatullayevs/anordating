@@ -24,7 +24,7 @@ async def cmd_new_user(message: types.Message, state: FSMContext):
     await state.set_data({"locale": locale, "testing": True})
 
     await message.answer(
-        _("Hi! Please select a language"),
+        _("Hi! Select a language"),
         reply_markup=make_keyboard([list(LANGUAGES.keys())]),
     )
     await state.set_state(AppStates.set_ui_language)

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-21 17:47+0500\n"
+"POT-Creation-Date: 2025-05-25 12:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: api/websocket.py:84
+#: api/websocket.py:88
 msgid "Open chat"
 msgstr ""
 
-#: api/websocket.py:92
+#: api/websocket.py:96
 msgid "You have a new message from {name}"
 msgstr ""
 
@@ -30,19 +30,19 @@ msgid "❌ Clear"
 msgstr ""
 
 #: bot/keyboards.py:19
-msgid "Male 👨‍🦱"
+msgid "Male 👨"
 msgstr ""
 
 #: bot/keyboards.py:20
-msgid "Female 👩‍🦱"
+msgid "Female 👩"
 msgstr ""
 
 #: bot/keyboards.py:24
-msgid "I'm looking for a man 👨‍🦱"
+msgid "Women 👩"
 msgstr ""
 
 #: bot/keyboards.py:25
-msgid "I'm looking for a woman 👩‍🦱"
+msgid "Men 👨"
 msgstr ""
 
 #: bot/handlers/search.py:35 bot/keyboards.py:45
@@ -149,7 +149,7 @@ msgid "Only superusers can use this command"
 msgstr ""
 
 #: bot/handlers/default.py:27 bot/handlers/registration.py:76
-msgid "Hi! Please select a language"
+msgid "Hi! Select a language"
 msgstr ""
 
 #: bot/handlers/default.py:49
@@ -164,7 +164,7 @@ msgstr ""
 msgid "Likes"
 msgstr ""
 
-#: bot/handlers/matches.py:35 bot/handlers/search.py:45
+#: bot/handlers/matches.py:35
 msgid "No matches found"
 msgstr ""
 
@@ -174,8 +174,8 @@ msgid ""
 "below 👇"
 msgstr ""
 
-#: bot/handlers/matches.py:53 bot/handlers/search.py:145
-#: bot/handlers/search.py:157
+#: bot/handlers/matches.py:53 bot/handlers/search.py:144
+#: bot/handlers/search.py:156
 msgid "Start a chat"
 msgstr ""
 
@@ -206,12 +206,12 @@ msgid ""
 msgstr ""
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:84 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:157 bot/handlers/search.py:201
+#: bot/handlers/menu.py:157 bot/handlers/search.py:200
 msgid "Yes"
 msgstr ""
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:79 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:152 bot/handlers/search.py:204
+#: bot/handlers/menu.py:152 bot/handlers/search.py:203
 msgid "No"
 msgstr ""
 
@@ -266,9 +266,9 @@ msgstr ""
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
-"<b>YYYY-MM-DD</b> (For example, 2000-12-31)\n"
-"<b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
-"<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+"👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)\n"
+"👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
+"👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
 msgstr ""
 
 #: bot/handlers/profile.py:142
@@ -280,7 +280,7 @@ msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
 msgstr ""
 
 #: bot/handlers/profile.py:209 bot/handlers/registration.py:193
-msgid "Who are you looking for?"
+msgid "Who are you interested in?"
 msgstr ""
 
 #: bot/handlers/profile.py:236 bot/handlers/profile.py:273
@@ -291,8 +291,8 @@ msgstr ""
 msgid "What is your preferred age range? (e.g. 18-25)"
 msgstr ""
 
-#: bot/handlers/profile.py:282
-msgid "Send your location or type the name of your city"
+#: bot/handlers/profile.py:282 bot/handlers/registration.py:252
+msgid "Share your location or type the name of your city"
 msgstr ""
 
 #: bot/handlers/profile.py:296 bot/handlers/registration.py:266
@@ -300,13 +300,11 @@ msgid "City not found"
 msgstr ""
 
 #: bot/handlers/profile.py:298 bot/handlers/registration.py:268
-msgid "Please select your city"
+msgid "Select your city"
 msgstr ""
 
 #: bot/handlers/profile.py:392 bot/handlers/registration.py:319
-msgid ""
-"Please upload photos or videos of yourself "
-"({min_media_count}-{max_media_count})"
+msgid "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
 msgstr ""
 
 #: bot/handlers/profile.py:403 bot/handlers/profile.py:474
@@ -342,7 +340,7 @@ msgid ""
 msgstr ""
 
 #: bot/handlers/registration.py:95
-msgid "Please select one of the given languages"
+msgid "Select one of the given languages"
 msgstr ""
 
 #: bot/handlers/registration.py:102
@@ -354,7 +352,7 @@ msgid "What is your gender?"
 msgstr ""
 
 #: bot/handlers/registration.py:165 bot/handlers/registration.py:216
-msgid "Please select one of the given options"
+msgid "Select one of the given options"
 msgstr ""
 
 #: bot/handlers/registration.py:170 bot/handlers/registration.py:174
@@ -362,16 +360,16 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: bot/handlers/registration.py:252
-msgid "Please share your location or type the name of your city"
-msgstr ""
-
 #: bot/handlers/registration.py:312
-msgid "Please share your location by clicking the button below"
+msgid "Share your location by clicking the button below"
 msgstr ""
 
 #: bot/handlers/registration.py:458
 msgid "Registration has been completed!"
+msgstr ""
+
+#: bot/handlers/search.py:45
+msgid "No one left to match with right now."
 msgstr ""
 
 #: bot/handlers/search.py:73
@@ -390,13 +388,13 @@ msgstr ""
 msgid "User not found"
 msgstr ""
 
-#: bot/handlers/search.py:165 bot/handlers/search.py:170
+#: bot/handlers/search.py:164 bot/handlers/search.py:169
 msgid ""
 "Congratulations 🎉. You have matched with {match.name}.\n"
 "Start a chat with them by clicking the button below 👇"
 msgstr ""
 
-#: bot/handlers/search.py:207
+#: bot/handlers/search.py:206
 msgid "Someone liked your profile. Do you want to see who liked you?"
 msgstr ""
 
@@ -410,6 +408,23 @@ msgstr ""
 
 #: shared/validators.py:32
 msgid "Name must be less than {max_length} characters long"
+msgstr ""
+
+#: shared/validators.py:74
+msgid ""
+"Invalid date format. Supported formats are: \n"
+"\n"
+"- YYYY-MM-DD (1970-10-20), \n"
+"- DD.MM.YYYY (20.10.1970), \n"
+"- MM/DD/YYYY (10/20/1970)"
+msgstr ""
+
+#: shared/validators.py:89
+msgid "You must be at least {min_age} years old to use this bot"
+msgstr ""
+
+#: shared/validators.py:95
+msgid "You must be less than {max_age} years old to use this bot"
 msgstr ""
 
 #: shared/validators.py:106

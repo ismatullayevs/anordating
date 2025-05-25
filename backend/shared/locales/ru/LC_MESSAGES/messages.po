@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-21 17:47+0500\n"
+"POT-Creation-Date: 2025-05-25 12:59+0500\n"
 "PO-Revision-Date: 2025-01-08 14:22+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -19,33 +19,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: api/websocket.py:84
+#: api/websocket.py:88
 msgid "Open chat"
 msgstr "Открыть чат"
 
-#: api/websocket.py:92
+#: api/websocket.py:96
 msgid "You have a new message from {name}"
-msgstr "У вас новое сообщение от {name}"
+msgstr "У тебя новое сообщение от {name}"
 
 #: bot/keyboards.py:10
 msgid "❌ Clear"
 msgstr "❌ Очистить"
 
 #: bot/keyboards.py:19
-msgid "Male 👨‍🦱"
-msgstr "Мужчина 👨‍🦱"
+msgid "Male 👨"
+msgstr "Мужчина 👨"
 
 #: bot/keyboards.py:20
-msgid "Female 👩‍🦱"
-msgstr "Женщина 👩‍🦱"
+msgid "Female 👩"
+msgstr "Женщина 👩"
 
 #: bot/keyboards.py:24
-msgid "I'm looking for a man 👨‍🦱"
-msgstr "Я ищу мужчину 👨‍🦱"
+msgid "Women 👩"
+msgstr "Девушки 👩"
 
 #: bot/keyboards.py:25
-msgid "I'm looking for a woman 👩‍🦱"
-msgstr "Я ищу женщину 👩‍🦱"
+msgid "Men 👨"
+msgstr "Парни 👨"
 
 #: bot/handlers/search.py:35 bot/keyboards.py:45
 msgid "🔎 Watch profiles"
@@ -53,7 +53,7 @@ msgstr "🔎 Смотреть профили"
 
 #: bot/handlers/likes.py:18 bot/keyboards.py:45
 msgid "👍 Likes"
-msgstr "👍 Вы понравились"
+msgstr "👍 Лайки"
 
 #: bot/handlers/matches.py:20 bot/handlers/matches.py:22 bot/keyboards.py:45
 msgid "❤️ Matches"
@@ -151,33 +151,33 @@ msgid "Only superusers can use this command"
 msgstr ""
 
 #: bot/handlers/default.py:27 bot/handlers/registration.py:76
-msgid "Hi! Please select a language"
-msgstr "Привет! Пожалуйста, выберите язык"
+msgid "Hi! Select a language"
+msgstr "Привет! Выбери язык"
 
 #: bot/handlers/default.py:49
 msgid "Unknown command. Please use /start to start the bot."
-msgstr "Неизвестная команда. Нажмите /start, чтобы начать бота."
+msgstr "Неизвестная команда. Нажми /start, чтобы начать бота."
 
 #: bot/handlers/likes.py:30
 msgid "No likes found"
-msgstr "Лайков не обнаружено"
+msgstr "Лайков пока нет"
 
 #: bot/handlers/likes.py:34
 msgid "Likes"
 msgstr "Лайки"
 
-#: bot/handlers/matches.py:35 bot/handlers/search.py:45
+#: bot/handlers/matches.py:35
 msgid "No matches found"
-msgstr "Пользователи не найдены"
+msgstr "Совпадений пока нет"
 
 #: bot/handlers/matches.py:46
 msgid ""
 "You both liked each other. Start a chat with them by clicking the button "
 "below 👇"
-msgstr "Вы понравились друг другу. Начните с ними чат, нажав кнопку ниже 👇"
+msgstr "Вы понравились друг другу! Начни переписку, нажав кнопку ниже 👇"
 
-#: bot/handlers/matches.py:53 bot/handlers/search.py:145
-#: bot/handlers/search.py:157
+#: bot/handlers/matches.py:53 bot/handlers/search.py:144
+#: bot/handlers/search.py:156
 msgid "Start a chat"
 msgstr "Начать чат"
 
@@ -195,7 +195,7 @@ msgstr "Какова причина жалобы на этого пользов�
 
 #: bot/handlers/menu.py:59
 msgid "User has been reported"
-msgstr "На пользователя поступило сообщение"
+msgstr "Жалоба на пользователя отправлена"
 
 #: bot/handlers/menu.py:65
 msgid "Settings"
@@ -206,46 +206,42 @@ msgid ""
 "Are you sure you want to deactivate your account? No one will see your "
 "account, even the users that you liked"
 msgstr ""
-"Вы уверены, что хотите деактивировать свой аккаунт? Никто не увидит ваш "
-"аккаунт, даже те пользователи, которые вам понравились"
+"Ты уверен(а), что хочешь деактивировать аккаунт? Никто тебя больше не "
+"увидит, даже те, кому ты ставил(а) лайк."
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:84 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:157 bot/handlers/search.py:201
+#: bot/handlers/menu.py:157 bot/handlers/search.py:200
 msgid "Yes"
 msgstr "Да"
 
 #: bot/handlers/menu.py:75 bot/handlers/menu.py:79 bot/handlers/menu.py:147
-#: bot/handlers/menu.py:152 bot/handlers/search.py:204
+#: bot/handlers/menu.py:152 bot/handlers/search.py:203
 msgid "No"
 msgstr "Нет"
 
 #: bot/handlers/menu.py:96 bot/handlers/menu.py:111
 msgid "Activate my account"
-msgstr "Активировать мою учетную запись"
+msgstr "Активировать мой аккаунт"
 
 #: bot/handlers/menu.py:104
 msgid "Your account has been activated"
-msgstr "Ваша учетная запись активирована"
+msgstr "Твоя учетная запись была активирована"
 
 #: bot/handlers/menu.py:110
 msgid "Your account has been deactivated. To activate it, press the button below"
-msgstr ""
-"Ваша учетная запись была деактивирована. Чтобы активировать его, нажмите "
-"кнопку ниже"
+msgstr "Твой аккаунт деактивирован. Чтобы активировать снова, нажми кнопку ниже."
 
 #: bot/handlers/menu.py:119
 msgid "Choose your language"
-msgstr "Выберите свой язык"
+msgstr "Выбери язык"
 
 #: bot/handlers/menu.py:146
 msgid "Are you sure you want to delete your account? All your data will be lost"
-msgstr ""
-"Вы уверены, что хотите удалить свою учетную запись? Все ваши данные будут"
-" потеряны"
+msgstr "Ты точно хочешь удалить аккаунт? Все твои данные будут удалены."
 
 #: bot/handlers/menu.py:167
 msgid "Your account has been deleted. To start again, press the button below"
-msgstr "Ваш аккаунт был удален. Чтобы начать заново, нажмите кнопку ниже"
+msgstr "Твой аккаунт удалён. Чтобы начать заново, нажми кнопку ниже."
 
 #: bot/handlers/menu.py:168 bot/handlers/registration.py:53
 msgid "Start registration"
@@ -253,7 +249,7 @@ msgstr "Начать регистрацию"
 
 #: bot/handlers/profile.py:45
 msgid "Press the buttons below to update your profile"
-msgstr "Нажмите кнопки ниже, чтобы обновить свой профиль"
+msgstr "Нажми кнопки ниже, чтобы обновить свой профиль"
 
 #: bot/handlers/profile.py:58
 msgid "Search settings"
@@ -261,40 +257,40 @@ msgstr "Настройки поиска"
 
 #: bot/handlers/profile.py:72
 msgid "Enter your name"
-msgstr "Введите свое имя"
+msgstr "Введи своё имя"
 
 #: bot/handlers/profile.py:97 bot/handlers/profile.py:136
 #: bot/handlers/profile.py:166 bot/handlers/profile.py:202
 #: bot/handlers/profile.py:347 bot/handlers/profile.py:385
 #: bot/handlers/profile.py:491
 msgid "Your profile has been updated"
-msgstr "Ваш профиль обновлен"
+msgstr "Твой профиль успешно обновлён"
 
 #: bot/handlers/profile.py:103 bot/handlers/registration.py:121
 msgid ""
 "What's your birth date? Use one these formats:\n"
 "\n"
-"<b>YYYY-MM-DD</b> (For example, 2000-12-31)\n"
-"<b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
-"<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+"👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)\n"
+"👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)\n"
+"👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
 msgstr ""
-"Какая у вас дата рождения? Используйте один из этих форматов:\n"
+"Какая у тебя дата рождения? Используй один из этих форматов:\n"
 "\n"
-"<b>ГГГГ-ММ-ДД</b> (например, 2000-12-31)\n"
-"<b>ДД.ММ.ГГГГ</b> (например, 31.12.2000)\n"
-"<b>ММ/ДД/ГГГГ</b> (например, 12/31/2000)"
+"👉 <b>ГГГГ-ММ-ДД</b> (например, 2000-12-31)\n"
+"👉 <b>ДД.ММ.ГГГГ</b> (например, 31.12.2000)\n"
+"👉 <b>ММ/ДД/ГГГГ</b> (например, 12/31/2000)"
 
 #: bot/handlers/profile.py:142
 msgid "Select your gender"
-msgstr "Выберите свой пол"
+msgstr "Выбери свой пол"
 
 #: bot/handlers/profile.py:173 bot/handlers/registration.py:169
 msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
-msgstr "Расскажите нам больше о себе. Какие у вас хобби, интересы и т. д.?"
+msgstr "Расскажи о себе. Чем увлекаешься, что тебе интересно?"
 
 #: bot/handlers/profile.py:209 bot/handlers/registration.py:193
-msgid "Who are you looking for?"
-msgstr "Какого человека вы ищете?"
+msgid "Who are you interested in?"
+msgstr "Кто тебе интересен?"
 
 #: bot/handlers/profile.py:236 bot/handlers/profile.py:273
 msgid "Search settings have been updated"
@@ -302,27 +298,23 @@ msgstr "Настройки поиска обновлены"
 
 #: bot/handlers/profile.py:245 bot/handlers/registration.py:223
 msgid "What is your preferred age range? (e.g. 18-25)"
-msgstr "Каков ваш предпочтительный возрастной диапазон? (например, 18–25)"
+msgstr "Какой возраст тебе интересен? (например, 18–25)"
 
-#: bot/handlers/profile.py:282
-msgid "Send your location or type the name of your city"
-msgstr "Отправьте свое местоположение или введите название своего города"
+#: bot/handlers/profile.py:282 bot/handlers/registration.py:252
+msgid "Share your location or type the name of your city"
+msgstr "Поделись своей геолокацией или напиши название города"
 
 #: bot/handlers/profile.py:296 bot/handlers/registration.py:266
 msgid "City not found"
 msgstr "Город не найден"
 
 #: bot/handlers/profile.py:298 bot/handlers/registration.py:268
-msgid "Please select your city"
-msgstr "Пожалуйста, выберите свой город"
+msgid "Select your city"
+msgstr "Выбери свой город"
 
 #: bot/handlers/profile.py:392 bot/handlers/registration.py:319
-msgid ""
-"Please upload photos or videos of yourself "
-"({min_media_count}-{max_media_count})"
-msgstr ""
-"Пожалуйста, загрузите свои фотографии или видео "
-"({min_media_count}-{max_media_count})"
+msgid "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+msgstr "Добавь свои фотки или видео ({min_media_count}-{max_media_count})"
 
 #: bot/handlers/profile.py:403 bot/handlers/profile.py:474
 #: bot/handlers/registration.py:330 bot/handlers/registration.py:401
@@ -331,7 +323,7 @@ msgstr "Продолжить"
 
 #: bot/handlers/profile.py:407
 msgid "Please upload at least one photo"
-msgstr "Пожалуйста, загрузите хотя бы одну фотографию"
+msgstr "Пожалуйста, добавь минимум одно фото"
 
 #: bot/handlers/profile.py:468 bot/handlers/registration.py:395
 msgid "File has been uploaded"
@@ -342,8 +334,8 @@ msgid ""
 "File has been uploaded. Upload more media files if you want or press "
 "\"Continue\""
 msgstr ""
-"Файл загружен. Если хотите, загрузите еще медиафайлы или нажмите "
-"\"Продолжать\""
+"Файл загружен. Можешь добавить ещё фото или видео, а можешь просто нажать"
+" \"Продолжить\""
 
 #: bot/handlers/registration.py:40
 msgid ""
@@ -357,54 +349,52 @@ msgid ""
 "If you have any questions, contact our <a href='{support_link}'>support "
 "team</a>."
 msgstr ""
-"Привет! Я бот, который поможет вам найти свою вторую половинку.\n"
+"Привет! Я бот, который поможет тебя найти свою вторую половинку.\n"
 "\n"
-"Вот как это работает: вам будут показаны профили других пользователей, и "
-"вы сможете залайкать или дизлайкнуть их. Когда вы лайкнете профиль, мы "
-"уведомим пользователя об этом. Если пользователь вас тоже лайкнет, вы "
-"будете совпадать и сможете начать общение.\n"
+"Вот как это работает: тебе будут показывать профили других пользователей,"
+" и ты сможешь ставить лайки или дизлайки. Когда ты лайкаешь чей-то "
+"профиль, мы сообщаем этому человеку. Если он лайкнет тебя в ответ — вы "
+"совпадёте и сможете начать переписку.\n"
 "\n"
-"Если у вас есть вопросы, свяжитесь с нашей <a "
-"href='{support_link}'>службой поддержки</a>."
+"Если будут вопросы — пиши нашей <a href='{support_link}'>службе "
+"поддержки</a>."
 
 #: bot/handlers/registration.py:95
-msgid "Please select one of the given languages"
-msgstr "Пожалуйста, выберите один из указанных языков"
+msgid "Select one of the given languages"
+msgstr "Выбери один из указанных языков"
 
 #: bot/handlers/registration.py:102
 msgid "What is your name?"
-msgstr "Как вас зовут?"
+msgstr "Как тебя зовут?"
 
 #: bot/handlers/registration.py:146
 msgid "What is your gender?"
-msgstr "Какой у вас пол?"
+msgstr "Какой у тебя пол?"
 
 #: bot/handlers/registration.py:165 bot/handlers/registration.py:216
-msgid "Please select one of the given options"
-msgstr "Пожалуйста, выберите один из предложенных вариантов"
+msgid "Select one of the given options"
+msgstr "Выбери один из предложенных вариантов"
 
 #: bot/handlers/registration.py:170 bot/handlers/registration.py:174
 #: bot/handlers/registration.py:224 bot/handlers/registration.py:229
 msgid "Skip"
 msgstr "Пропустить"
 
-#: bot/handlers/registration.py:252
-msgid "Please share your location or type the name of your city"
-msgstr ""
-"Пожалуйста, поделитесь своим местоположением или введите название своего "
-"города"
-
 #: bot/handlers/registration.py:312
-msgid "Please share your location by clicking the button below"
-msgstr "Пожалуйста, поделитесь своим местоположением, нажав кнопку ниже."
+msgid "Share your location by clicking the button below"
+msgstr "Поделись своим местоположением, нажав кнопку ниже."
 
 #: bot/handlers/registration.py:458
 msgid "Registration has been completed!"
 msgstr "Регистрация завершена!"
 
+#: bot/handlers/search.py:45
+msgid "No one left to match with right now."
+msgstr "Больше нет подходящих людей."
+
 #: bot/handlers/search.py:73
 msgid "You can't rewind more than {rewind_limit} times"
-msgstr "Вы не можете перематывать назад более {rewind_limit} раз."
+msgstr "Ты не можешь перематывать назад более {rewind_limit} раз."
 
 #: bot/handlers/search.py:81
 msgid "No more matches to rewind"
@@ -418,17 +408,17 @@ msgstr "⏪ Перематываем"
 msgid "User not found"
 msgstr "Пользователь не найден"
 
-#: bot/handlers/search.py:165 bot/handlers/search.py:170
+#: bot/handlers/search.py:164 bot/handlers/search.py:169
 msgid ""
 "Congratulations 🎉. You have matched with {match.name}.\n"
 "Start a chat with them by clicking the button below 👇"
 msgstr ""
-"Поздравляем 🎉. Вы совпали с {match.name}.\n"
-"Начните с ними чат, нажав кнопку ниже 👇"
+"Поздравляем 🎉 Вы понравились друг другу с {match.name}!\n"
+"Начни переписку — просто нажми на кнопку ниже 👇"
 
-#: bot/handlers/search.py:207
+#: bot/handlers/search.py:206
 msgid "Someone liked your profile. Do you want to see who liked you?"
-msgstr "Кому-то понравился ваш профиль. Хотите узнать, кому вы понравились?"
+msgstr "Твой профиль кому-то понравился. Хочешь посмотреть, кто это?"
 
 #: shared/validators.py:22
 msgid "Name must only contain letters and spaces"
@@ -442,21 +432,38 @@ msgstr "Имя должно содержать не менее {min_length} си
 msgid "Name must be less than {max_length} characters long"
 msgstr "Имя должно содержать менее {max_length} символов."
 
+#: shared/validators.py:74
+msgid ""
+"Invalid date format. Supported formats are: \n"
+"\n"
+"- YYYY-MM-DD (1970-10-20), \n"
+"- DD.MM.YYYY (20.10.1970), \n"
+"- MM/DD/YYYY (10/20/1970)"
+msgstr ""
+
+#: shared/validators.py:89
+msgid "You must be at least {min_age} years old to use this bot"
+msgstr ""
+
+#: shared/validators.py:95
+msgid "You must be less than {max_age} years old to use this bot"
+msgstr ""
+
 #: shared/validators.py:106
 msgid "Bio must be less than {max_length} characters long"
 msgstr "Биография должна содержать менее {max_length} символов."
 
 #: shared/validators.py:116
 msgid "Please upload at least {min_length} media files"
-msgstr "Пожалуйста, загрузите медиафайл длиной не менее {min_length}."
+msgstr "Пожалуйста, загрузи медиафайл длиной не менее {min_length}."
 
 #: shared/validators.py:122
 msgid "You can upload up to {max_length} media files"
-msgstr "Вы можете загрузить до {max_length} медиафайлов."
+msgstr "Ты можешь загрузить до {max_length} медиафайлов."
 
 #: shared/validators.py:133
 msgid "Please enter a valid age range"
-msgstr "Пожалуйста, введите действительный возрастной диапазон"
+msgstr "Пожалуйста, введи действительный возрастной диапазон"
 
 #: shared/validators.py:145
 msgid "Age can't be lower than {min_age}"

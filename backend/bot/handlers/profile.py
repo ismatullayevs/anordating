@@ -103,9 +103,9 @@ async def update_birth_date_start(message: types.Message, state: FSMContext):
     msg = _(
         "What's your birth date? Use one these formats:"
         "\n"
-        "\n<b>YYYY-MM-DD</b> (For example, 2000-12-31)"
-        "\n<b>DD.MM.YYYY</b> (For example, 31.12.2000)"
-        "\n<b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+        "\n👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)"
+        "\n👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)"
+        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
     )
     await message.answer(
         msg, reply_markup=types.ReplyKeyboardRemove(), parse_mode="HTML"
@@ -206,7 +206,7 @@ async def update_bio(message: types.Message, state: FSMContext):
 @router.message(AppStates.preferences, F.text == __("👩‍❤️‍👨 Gender preferences"))
 async def update_gender_preferences_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Who are you looking for?"), reply_markup=get_preferred_genders_keyboard()
+        _("Who are you interested in?"), reply_markup=get_preferred_genders_keyboard()
     )
     await state.set_state(AppStates.update_gender_preferences)
 
@@ -279,7 +279,7 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
 @router.message(AppStates.profile, F.text == __("📍 Location"))
 async def update_location_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Send your location or type the name of your city"),
+        _("Share your location or type the name of your city"),
         reply_markup=get_ask_location_keyboard(),
     )
     await state.set_state(AppStates.update_location)
@@ -295,7 +295,7 @@ async def update_location_by_name(message: types.Message, state: FSMContext):
     if not cities:
         return await message.answer(_("City not found"))
 
-    msg = _("Please select your city")
+    msg = _("Select your city")
     builder = InlineKeyboardBuilder()
     for city, place_id in cities:
         builder.row(
@@ -390,7 +390,7 @@ async def update_location(message: types.Message, state: FSMContext):
 async def update_media_start(message: types.Message, state: FSMContext):
     await message.answer(
         _(
-            "Please upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
         ).format(
             min_media_count=Params.media_min_count,
             max_media_count=Params.media_max_count,

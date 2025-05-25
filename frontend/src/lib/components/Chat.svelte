@@ -45,8 +45,7 @@
 
     function onSubmit(e: SubmitEvent) {
         e.preventDefault();
-        if (newMessage.trim() === '') return;
-        if (!match || !user) return;
+        if (newMessage.trim() === '' || newMessage.trim().length >= 1000) return;
         onSendMessage(newMessage);
         newMessage = '';
     }
@@ -72,6 +71,8 @@
             <div class="w-24 h-8 bg-gray-300 rounded-lg shimmer"></div>
         {:then match}
             <p class="text-lg font-semibold">{ match.name }</p>
+        {:catch error}
+            <p class="text-lg font-semibold text-red-500">User is not found</p>
         {/await}
     </div>
 </div>

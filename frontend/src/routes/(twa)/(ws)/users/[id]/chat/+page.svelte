@@ -11,8 +11,9 @@
 	Promise.all([data.chat, data.match]).then(([chat, match]) => {
 		if (chat) {
 			goto(`/chats/${chat.id}?match=${encodeURIComponent(JSON.stringify(match))}`);
+		} else {
+			messages = [];
 		}
-		messages = [];
 	})
 
 	async function handleWSMessage(event: MessageEvent) {

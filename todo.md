@@ -1,13 +1,10 @@
 # Tasks
 
-when user is deleted, their chats should also be deleted
-in queries, pass session as argument
-check if the user is active when using twa
-setup wss
 show chat data like is_sent, is_read, last_online etc...
 add limit to message size
 use lazy loading when loading messages
 create updates for each update in chat
+when user is deleted, their chats should also be deleted
 show texts in user's locale in twa
 make geocoding more understandable
 Add an option to ban users

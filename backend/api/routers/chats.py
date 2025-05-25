@@ -137,6 +137,5 @@ async def get_chat_members(
 async def websocket_chats(
     websocket: WebSocket,
     init_data: Annotated[WebAppInitData, Depends(validate_websocket_init_data)],
-    background_tasks: BackgroundTasks,
 ):
-    await handle_websocket(websocket, init_data, background_tasks)
+    await handle_websocket(websocket, init_data)

@@ -16,13 +16,13 @@ LANGUAGES = {
 }
 
 GENDERS = (
-    (__("Male 👨‍🦱"), Genders.male),
-    (__("Female 👩‍🦱"), Genders.female),
+    (__("Male 👨"), Genders.male),
+    (__("Female 👩"), Genders.female),
 )
 
 GENDER_PREFERENCES = (
-    (__("I'm looking for a man 👨‍🦱"), PreferredGenders.male),
-    (__("I'm looking for a woman 👩‍🦱"), PreferredGenders.female),
+    (__("Women 👩"), PreferredGenders.female),
+    (__("Men 👨"), PreferredGenders.male),
 )
 
 
