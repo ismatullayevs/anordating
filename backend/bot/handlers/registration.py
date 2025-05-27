@@ -24,7 +24,7 @@ from shared.dto.user import PreferenceAddDTO, UserRelAddDTO
 from shared.enums import FileTypes, UILanguages
 from shared.geocoding import get_place, get_place_id, get_places
 from shared.models.user import Place, PlaceName
-from shared.queries import get_user
+from shared.queries import get_user, is_user_banned
 from shared.validators import (Params, validate_bio, validate_birth_date,
                                validate_media_size, validate_name,
                                validate_preference_age_string,
@@ -57,6 +57,13 @@ async def cmd_start(message: types.Message, state: FSMContext):
     await state.set_state(None)
     locale = await state.get_value("locale")
     await state.set_data({"locale": locale})
+
+    if await is_user_banned(message.from_user.id):
+        await message.answer(
+            _("Your account is banned. Please contact support."),
+            reply_markup=types.ReplyKeyboardRemove(),
+        )
+        return
 
     try:
         user = await get_user(telegram_id=message.from_user.id, with_media=True)

@@ -42,6 +42,16 @@ async def get_user(
 
         res = await session.scalars(query)
         return res.one()
+    
+
+async def is_user_banned(telegram_id: int):
+    async with session_factory() as session:
+        query = select(Ban).where(
+            Ban.user_telegram_id == telegram_id,
+            or_(Ban.expires_at == None, Ban.expires_at > func.now()),
+        )
+        res = await session.scalars(query)
+        return res.one_or_none() is not None
 
 
 async def get_likes(user: User, limit: int | None = None):
