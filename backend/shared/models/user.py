@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import BIGINT, ForeignKey, String, UniqueConstraint, func, text
+from sqlalchemy import BIGINT, TIMESTAMP, ForeignKey, String, UniqueConstraint, func, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -144,3 +144,14 @@ class Report(Base):
 
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
+
+
+class Ban(Base):
+    __tablename__ = "ban"
+
+    id: Mapped[intpk]
+    user_telegram_id: Mapped[int] = mapped_column(BIGINT, index=True)
+    reason: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[created_at]
+    updated_at: Mapped[updated_at]
+    expires_at: Mapped[datetime | None] = mapped_column(index=True, server_default=None, type_=TIMESTAMP(timezone=True),)

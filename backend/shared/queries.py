@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import and_, exc, exists, func, select
+from sqlalchemy import and_, exc, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, joinedload, selectinload
 
@@ -9,7 +9,7 @@ from shared.enums import ReactionType, UILanguages
 from shared.geocoding import get_place
 from shared.matching.rating import get_new_rating
 from shared.models.chat import Chat, ChatMember
-from shared.models.user import PlaceName, Reaction, Report, User
+from shared.models.user import Ban, PlaceName, Reaction, Report, User
 
 
 async def get_user(
@@ -20,7 +20,14 @@ async def get_user(
     with_preferences=False,
 ):
     async with session_factory() as session:
-        query = select(User)
+        query = select(User).where(
+            ~exists().where(
+                and_(
+                    Ban.user_telegram_id == User.telegram_id,
+                    or_(Ban.expires_at == None, Ban.expires_at > func.now()),
+                )
+            )
+        )
         if id:
             query = query.where(User.id == id)
         else:
@@ -72,6 +79,12 @@ async def get_likes(user: User, limit: int | None = None):
                         Report.to_user_id == user.id,
                     )
                 ),
+                ~exists().where(
+                    and_(
+                        Ban.user_telegram_id == User.telegram_id,
+                        or_(Ban.expires_at == None, Ban.expires_at > func.now()),
+                    )
+                )
             )
             .order_by(their_reaction.updated_at.desc())
         )
@@ -120,6 +133,12 @@ async def get_matches(user: User, limit: int | None = None, offset: int | None =
                         Report.to_user_id == user.id,
                     )
                 ),
+                ~exists().where(
+                    and_(
+                        Ban.user_telegram_id == User.telegram_id,
+                        or_(Ban.expires_at == None, Ban.expires_at > func.now()),
+                    )
+                )
             )
             .order_by(
                 func.greatest(my_reaction.updated_at, their_reaction.updated_at).desc()

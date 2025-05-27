@@ -1,13 +1,13 @@
 # Tasks
 
-add an option to block users
 handle user notifications
+when user is deleted, their chats should also be deleted
 show chat data like is_sent, is_read, last_online etc...
 use lazy loading when loading messages
 create updates for each update in chat
-when user is deleted, their chats should also be deleted
 show texts in user's locale in twa
 make geocoding more understandable
+add an option to block users
 Add an option to ban users
 make geocoding async
 index tables

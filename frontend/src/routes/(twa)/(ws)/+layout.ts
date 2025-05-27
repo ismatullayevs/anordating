@@ -8,10 +8,6 @@ export const load: LayoutLoad = async ({ parent }) => {
         `${import.meta.env.VITE_WEBSOCKET_URL}/ws?initData=${encodeURIComponent(init_data)}`
     );
 
-    websocket.onclose = (e) => {
-        invalidateAll();
-    }
-
     return {
         websocket
     }
