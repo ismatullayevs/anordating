@@ -1,5 +1,8 @@
 # Tasks
 
+when no user is found, ask them to change filters
+use cdn
+add warning messages against scammers
 handle user notifications
 when user is deleted, their chats should also be deleted
 show chat data like is_sent, is_read, last_online etc...
@@ -8,7 +11,6 @@ create updates for each update in chat
 show texts in user's locale in twa
 make geocoding more understandable
 add an option to block users
-Add an option to ban users
 make geocoding async
 index tables
 add explanation messages

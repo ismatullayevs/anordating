@@ -45,7 +45,7 @@ async def cmd_help(message: types.Message):
             "and can start chatting.\n\n"
             ""
             "If you have any questions, contact our <a href='{support_link}'>support team</a>."
-        ).format(support_link="https://t.me/anordatingsupportbot"),
+        ).format(support_link="https://t.me/anormatchsupportbot"),
         parse_mode="HTML",
     )
 

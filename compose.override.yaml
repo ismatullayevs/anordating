@@ -61,6 +61,8 @@ services:
       - traefik.http.routers.traefik-dashboard-https.rule=Host(`traefik.${DOMAIN}`)
       - traefik.http.routers.traefik-dashboard-http.service=api@internal
       - traefik.http.routers.traefik-dashboard-https.service=api@internal
+      - traefik.http.routers.traefik-dashboard-https.tls=true
+      - traefik.http.routers.traefik-dashboard-https.tls.certresolver=le
       - traefik.http.middlewares.https-redirect.contenttype.autodetect=false
       - traefik.http.middlewares.compress.compress=true
     command: 
