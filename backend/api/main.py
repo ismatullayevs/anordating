@@ -7,7 +7,7 @@ from api.routers.users import router as users_router
 from shared.core.config import settings
 from shared.core.db import engine
 from sqladmin import Admin
-from api.admin.views import UserAdmin, PreferencesAdmin, BanAdmin, ReactionAdmin, UserMediaAdmin, FileAdmin, ChatAdmin, ChatMemberAdmin, MessageAdmin
+from api.admin.views import UserAdmin, PreferencesAdmin, BanAdmin, ReactionAdmin, UserMediaAdmin, FileAdmin, ChatAdmin, ChatMemberAdmin, MessageAdmin, ReportAdmin
 
 app = FastAPI()
 app.include_router(users_router)
@@ -25,6 +25,7 @@ admin.add_view(FileAdmin)
 admin.add_view(ChatAdmin)
 admin.add_view(ChatMemberAdmin)
 admin.add_view(MessageAdmin)
+admin.add_view(ReportAdmin)
 
 origins = [
     settings.APP_URL,
