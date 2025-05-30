@@ -23,7 +23,8 @@ jobs:
         ssh -o StrictHostKeyChecking=no azureuser@20.40.48.177 << 'EOF'
           # Stop and remove existing container
           cd anordating
-          git pull
+          eval "$(ssh-agent)"
+          ssh-add ~/.ssh/anorkey
           sudo docker compose down || true
           sudo docker compose -f compose.yaml -f compose.azure.yaml up -d --build db bot api frontend traefik || true
         EOF
