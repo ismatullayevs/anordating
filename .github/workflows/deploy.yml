@@ -23,13 +23,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no azureuser@20.40.48.177 << 'EOF'
           # Stop and remove existing container
           cd anordating
-          sudo docker stop anorcontainer || true
-          sudo docker rm anorcontainer || true
-
-          # Build the new Docker image
-          sudo docker build -t anorimage .
-
-          # Run the container with the .env file
-          sudo docker run -d --env-file .env --name anorcontainer anorimage
+          sudo docker compose down || true
+          sudo docker compose -f compose.yaml -f compose.azure.yaml up -d --build db bot api frontend traefik || true
         EOF
 
