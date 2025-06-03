@@ -1,19 +1,15 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import BIGINT, TIMESTAMP, ForeignKey, String, UniqueConstraint, func, text
+from sqlalchemy import (BIGINT, TIMESTAMP, ForeignKey, String,
+                        UniqueConstraint, func, text)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from shared.core.config import settings
-from shared.enums import (
-    Genders,
-    PreferredGenders,
-    ReactionType,
-    ReportStatusTypes,
-    UILanguages,
-)
+from shared.enums import (Genders, PreferredGenders, ReactionType,
+                          ReportStatusTypes, UILanguages)
 from shared.models.base import Base, created_at, intpk, updated_at
 from shared.models.file import File
 
@@ -74,7 +70,8 @@ class User(Base):
     preferences: Mapped["Preferences"] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
-    chat_members: Mapped["ChatMember"] = relationship(back_populates="user", cascade="all")  # type: ignore
+    chat_members: Mapped[list["ChatMember"]] = relationship(back_populates="user", cascade="all")  # type: ignore
+    messages: Mapped[list["Message"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # type: ignore
 
     is_superuser: Mapped[bool] = mapped_column(server_default=text("false"))
 
@@ -154,4 +151,8 @@ class Ban(Base):
     reason: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
-    expires_at: Mapped[datetime | None] = mapped_column(index=True, server_default=None, type_=TIMESTAMP(timezone=True),)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        index=True,
+        server_default=None,
+        type_=TIMESTAMP(timezone=True),
+    )

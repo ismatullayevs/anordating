@@ -10,7 +10,12 @@ from shared.models.user import User
 class Chat(Base):
     __tablename__ = "chat"
 
-    members: Mapped["ChatMember"] = relationship(back_populates="chat", cascade="all, delete-orphan")
+    members: Mapped[list["ChatMember"]] = relationship(
+        back_populates="chat", cascade="all, delete-orphan"
+    )
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="chat", cascade="all, delete-orphan"
+    )
 
     id: Mapped[intpk]
     created_at: Mapped[created_at]
@@ -48,6 +53,8 @@ class Message(Base):
         ForeignKey("user_account.id", ondelete="CASCADE"), index=True
     )
 
+    chat: Mapped["Chat"] = relationship(back_populates="messages")
+    user: Mapped["User"] = relationship(back_populates="messages")
     text: Mapped[str]
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]

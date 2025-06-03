@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from sqlalchemy import and_, exists, or_, select
+from sqlalchemy import and_, exists, func, or_, select
 
+from bot.utils import haversine_distance
 from shared.core.db import session_factory
 from shared.enums import PreferredGenders, ReactionType
-from shared.models.user import Preferences, Reaction, Report, User
-from bot.utils import haversine_distance
+from shared.models.user import Ban, Preferences, Reaction, Report, User
 
 
 async def get_potential_matches(current_user: User):
@@ -50,6 +50,12 @@ async def get_potential_matches(current_user: User):
                         Report.to_user_id == current_user.id,
                     )
                 ),
+                ~exists().where(
+                    and_(
+                        Ban.user_telegram_id == User.telegram_id,
+                        or_(Ban.expires_at == None, Ban.expires_at > func.now()),
+                    )
+                )
             )
         )
 

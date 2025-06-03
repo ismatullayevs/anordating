@@ -6,7 +6,7 @@ from aiogram.utils.i18n import gettext as _
 from bot.keyboards import LANGUAGES, make_keyboard
 from bot.states import AppStates
 from bot.utils import get_profile_card
-from shared.queries import get_user
+from shared.queries import get_user, is_user_banned
 
 router = Router()
 
@@ -46,4 +46,8 @@ async def cmd_get_user(message: types.Message, state: FSMContext):
 
 @router.message()
 async def default_handler(message: types.Message, state: FSMContext):
+    assert message.from_user
+    if await is_user_banned(message.from_user.id):
+        await message.answer(_("Your account is banned. Please contact support."))
+        return
     await message.answer(_("Unknown command. Please use /start to start the bot."))
