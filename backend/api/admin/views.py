@@ -14,7 +14,7 @@ class UserAdmin(ModelView, model=User):
         User.is_active,
         User.created_at,
     ]
-    column_searchable_list = [User.name, User.telegram_id, User.bio]
+    column_searchable_list = [User.id, User.name, User.telegram_id, User.bio]
     column_sortable_list = [
         User.birth_date,
         User.rating,
@@ -22,7 +22,6 @@ class UserAdmin(ModelView, model=User):
         User.is_active,
         User.gender,
     ]
-    can_edit = False
     can_create = False
     can_delete = False
     column_default_sort = [(User.created_at, True)]
