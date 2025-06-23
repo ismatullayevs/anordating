@@ -115,7 +115,7 @@ async def get_messages(
                 status_code=403, detail="You are not a member of this chat"
             )
 
-        query = select(Message).where(Message.chat_id == chat_id)
+        query = select(Message).where(Message.chat_id == chat_id).order_by(Message.created_at)
         res = await session.scalars(query)
         messages = res.all()
         return messages
