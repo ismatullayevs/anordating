@@ -70,7 +70,7 @@ services:
       - traefik.http.routers.frontend.middlewares=https-redirect
 
   db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
