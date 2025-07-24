@@ -285,7 +285,7 @@ msgid "Select your gender"
 msgstr "Выбери свой пол"
 
 #: bot/handlers/profile.py:173 bot/handlers/registration.py:176
-msgid "Tell us more about yourself. What are your hobbies, interests, etc.?"
+msgid "Tell me more about yourself. What are your hobbies, interests, etc.?"
 msgstr "Расскажи о себе. Чем увлекаешься, что тебе интересно?"
 
 #: bot/handlers/profile.py:209 bot/handlers/registration.py:200

@@ -1,3 +1,4 @@
+import asyncio
 from random import randint
 
 from aiogram import F, Router, types
@@ -173,7 +174,7 @@ async def set_gender_invalid(message: types.Message):
 
 
 async def set_bio_start(message: types.Message, state: FSMContext):
-    msg = _("Tell us more about yourself. What are your hobbies, interests, etc.?")
+    msg = _("Tell me more about yourself. What are your hobbies, interests, etc.?")
     await message.answer(msg, reply_markup=make_keyboard([[_("Skip")]]))
     await state.set_state(AppStates.set_bio)
 
@@ -344,8 +345,18 @@ async def continue_registration(message: types.Message, state: FSMContext):
     await finish_registration(message, state)
 
 
+user_locks: dict[int, asyncio.Lock] = {}
+
+
+def get_user_lock(user_id: int) -> asyncio.Lock:
+    if user_id not in user_locks:
+        user_locks[user_id] = asyncio.Lock()
+    return user_locks[user_id]
+
+
 @router.message(AppStates.set_media, F.photo | F.video)
 async def set_media(message: types.Message, state: FSMContext):
+    assert message.from_user
     file = None
     if message.photo:
         p = message.photo[-1]
@@ -388,9 +399,11 @@ async def set_media(message: types.Message, state: FSMContext):
 
     assert file is not None
 
-    media = (await state.get_value("media")) or []
-    media.append(file)
-    await state.update_data(media=media)
+    lock = get_user_lock(message.from_user.id)
+    async with lock:
+        media = (await state.get_value("media")) or []
+        media.append(file)
+        await state.update_data(media=media)
 
     try:
         validate_media_size(media)

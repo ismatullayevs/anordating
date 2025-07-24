@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -30,6 +31,14 @@ from shared.validators import (Params, validate_bio, validate_birth_date,
 
 router = Router()
 router.message.filter(IsHuman())
+
+user_locks: dict[int, asyncio.Lock] = {}
+
+
+def get_user_lock(user_id: int) -> asyncio.Lock:
+    if user_id not in user_locks:
+        user_locks[user_id] = asyncio.Lock()
+    return user_locks[user_id]
 
 
 @router.message(
@@ -412,6 +421,8 @@ async def continue_media(message: types.Message, state: FSMContext):
 
 @router.message(AppStates.update_media, F.photo | F.video)
 async def update_media(message: types.Message, state: FSMContext):
+    assert message.from_user
+
     file = None
     if message.photo:
         p = message.photo[-1]
@@ -454,9 +465,11 @@ async def update_media(message: types.Message, state: FSMContext):
 
     assert file is not None
 
-    media = (await state.get_value("media")) or []
-    media.append(file)
-    await state.update_data(media=media)
+    lock = get_user_lock(message.from_user.id)
+    async with lock:
+        media = (await state.get_value("media")) or []
+        media.append(file)
+        await state.update_data(media=media)
 
     try:
         validate_media_size(media)
