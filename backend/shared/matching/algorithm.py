@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from functools import lru_cache
+import time
+import logging
 
 from sqlalchemy import and_, exists, func, or_, select
 
@@ -7,8 +10,29 @@ from shared.core.db import session_factory
 from shared.enums import PreferredGenders, ReactionType
 from shared.models.user import Ban, Preferences, Reaction, Report, User
 
+logger = logging.getLogger(__name__)
 
-async def get_potential_matches(current_user: User):
+
+@lru_cache(maxsize=1000)
+def calculate_location_similarity(lat1, lon1, lat2, lon2):
+    """Cached version of location similarity calculation"""
+    distance = haversine_distance(lat1, lon1, lat2, lon2)
+    max_distance = 50
+    location_score = max(0, 1 - (distance / max_distance))
+    return location_score
+
+
+@lru_cache(maxsize=500)
+def calculate_age_similarity(age1: int, age2: int):
+    """Cached version of age similarity calculation"""
+    max_age_diff = 10
+    age_diff = abs(age1 - age2)
+    age_score = max(0, 1 - (age_diff / max_age_diff))
+    return age_score
+
+
+async def get_potential_matches_batch(current_user: User, limit: int = 50, offset: int = 0):
+    """Get potential matches in batches for better performance"""
     assert current_user.is_active
 
     async with session_factory() as session:
@@ -57,6 +81,9 @@ async def get_potential_matches(current_user: User):
                     )
                 )
             )
+            .order_by(User.rating.desc())
+            .limit(limit)
+            .offset(offset)
         )
 
         min_age, max_age = (
@@ -76,27 +103,7 @@ async def get_potential_matches(current_user: User):
         return potential_matches
 
 
-def calculate_age_similarity(age1: int, age2: int):
-    max_age_diff = 10
-    age_diff = abs(age1 - age2)
-    age_score = max(0, 1 - (age_diff / max_age_diff))
-
-    return age_score
-
-
-def calculate_location_similarity(lat1, lon1, lat2, lon2):
-    distance = haversine_distance(lat1, lon1, lat2, lon2)
-    max_distance = 50
-    location_score = max(0, 1 - (distance / max_distance))
-
-    return location_score
-
-
 async def calculate_similarity(current_user: User, potential_match: User) -> float:
-    async with session_factory() as session:
-        session.add(current_user)
-        await current_user.awaitable_attrs.preferences
-
     @dataclass
     class SimilarityWeights:
         location = 0.6
@@ -163,16 +170,47 @@ async def calculate_total_score(user1: User, user2: User) -> float:
 
 
 async def get_best_match(current_user: User):
+    start_time = time.time()
+    
     async with session_factory() as session:
         session.add(current_user)
         await current_user.awaitable_attrs.preferences
 
-    potential_matches = await get_potential_matches(current_user)
+    batch_size = 50
+    offset = 0
     best_match, best_score = None, 0
-    for match in potential_matches:
-        score = await calculate_total_score(current_user, match)
-        if score > best_score:
-            best_match = match
-            best_score = score
+    total_checked = 0
+
+    while True:
+        batch_start = time.time()
+        potential_matches = await get_potential_matches_batch(current_user, limit=batch_size, offset=offset)
+        batch_time = time.time() - batch_start
+        
+        if not potential_matches:
+            break
+
+        score_start = time.time()
+        for match in potential_matches:
+            score = await calculate_total_score(current_user, match)
+            total_checked += 1
+            if score > best_score:
+                best_match = match
+                best_score = score
+        score_time = time.time() - score_start
+
+        logger.debug(f"Batch {offset//batch_size + 1}: {len(potential_matches)} matches, "
+                    f"query_time={batch_time:.3f}s, score_time={score_time:.3f}s")
+
+        if best_score > 0.7:
+            break
+            
+        offset += batch_size
+        
+        if offset >= 500:
+            break
+
+    total_time = time.time() - start_time
+    logger.info(f"Matching completed: checked {total_checked} users, "
+               f"best_score={best_score:.3f}, total_time={total_time:.3f}s")
 
     return best_match

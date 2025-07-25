@@ -49,10 +49,10 @@ class User(Base):
     rating: Mapped[int] = mapped_column(
         server_default=text(str(settings.DEFAULT_RATING))
     )
-    is_active: Mapped[bool] = mapped_column(server_default=text("true"))
+    is_active: Mapped[bool] = mapped_column(server_default=text("true"), index=True)
     bio: Mapped[str | None] = mapped_column(String(255))
     media: Mapped[list[File]] = relationship(secondary="user_media")
-    gender: Mapped[Genders]
+    gender: Mapped[Genders] = mapped_column(index=True)
 
     latitude: Mapped[float]
     longitude: Mapped[float]
