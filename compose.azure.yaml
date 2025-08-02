@@ -1,7 +1,0 @@
-services:
-  bot:
-    depends_on: !override {}
-  
-  api:
-    depends_on: !override {}
-
