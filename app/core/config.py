@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: EnvironmentTypes
     DEBUG: bool = False
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    INTERNAL_TOKEN: str
 
     BOT_TOKEN: str
 
@@ -28,6 +29,8 @@ class Settings(BaseSettings):
     MONGO_ADMIN: str
     MONGO_PASSWORD: str
     MONGO_REMOTE: bool = False
+
+    MAX_USER_MEDIA_FILES: int = 10
 
     MEDIA_PATH: Path = BASE_DIR / "media"
     DOMAIN: str

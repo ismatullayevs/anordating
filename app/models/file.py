@@ -23,7 +23,7 @@ class File(Base):
     duration: Mapped[int | None]
     uploaded_at: Mapped[created_at]
 
-    thumbnail: Mapped["File"] = relationship("File")
+    thumbnail: Mapped["File | None"] = relationship("File")
 
 
 class UserMedia(Base):

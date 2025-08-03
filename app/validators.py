@@ -73,10 +73,12 @@ def validate_birth_date(value: str) -> datetime:
 
     if parsed_date is None:
         raise ValueError(
-            _("Invalid date format. Supported formats are: \n"
-            "\n- YYYY-MM-DD (1970-10-20), "
-            "\n- DD.MM.YYYY (20.10.1970), "
-            "\n- MM/DD/YYYY (10/20/1970)")
+            _(
+                "Invalid date format. Supported formats are: \n"
+                "\n- YYYY-MM-DD (1970-10-20), "
+                "\n- DD.MM.YYYY (20.10.1970), "
+                "\n- MM/DD/YYYY (10/20/1970)"
+            )
         )
 
     today = date.today()
@@ -112,7 +114,7 @@ def validate_bio(value: str | None) -> str | None:
     return value
 
 
-def validate_media_size(value: list) -> list:
+def validate_media_size[T](value: list[T]) -> list[T]:
     if len(value) < Params.media_min_count:
         raise ValueError(
             _("Please upload at least {min_length} media files").format(
@@ -181,3 +183,4 @@ def validate_message_text(value: str):
             )
         )
     return value.strip()
+

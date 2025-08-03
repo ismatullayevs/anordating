@@ -61,6 +61,7 @@ class User(Base):
     rating: Mapped[int] = mapped_column(
         server_default=text(str(settings.DEFAULT_RATING))
     )
+    # TODO: make it a method
     is_active: Mapped[bool] = mapped_column(server_default=text("true"), index=True)
     bio: Mapped[str | None] = mapped_column(String(255))
     media: Mapped[list[File]] = relationship(secondary="user_media")

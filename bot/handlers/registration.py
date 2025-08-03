@@ -437,6 +437,7 @@ async def finish_registration(message: types.Message, state: FSMContext):
     assert message.from_user
     data = await state.get_data()
     media = [FileAddDTO.model_validate(m) for m in data["media"]]
+    # TODO: allow user to exist without preferences and media
 
     preferences = PreferenceAddDTO(
         min_age=data["preferred_min_age"],
