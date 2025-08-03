@@ -1,23 +1,15 @@
 # TODO: change the file name to user.py
 from operator import and_
 from typing import Annotated
-from uuid import UUID
 
 from aiogram.utils.web_app import WebAppInitData
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import exc, exists, select
 
-from app.api.dependencies import CurrentUserDep, DbDep, validate_init_data
+from app.api.dependencies import validate_init_data
 from app.core.db import session_factory
 from app.models.chat import Chat, ChatMember
 from app.queries import get_user
-from app.schemas.user import FileInSchema, FileOutSchema
-from app.services.user import (
-    add_user_media,
-    batch_add_user_media,
-    delete_user_media,
-    get_user_media,
-)
 
 router = APIRouter()
 
@@ -70,45 +62,3 @@ async def get_user_chat(
             return res.one()
         except exc.NoResultFound:
             raise HTTPException(status_code=404, detail="Chat not found")
-
-
-@router.get("/users/{user_id}/media", response_model=list[FileOutSchema])
-async def get_media(db: DbDep, user_id: UUID):
-    """Fetches media files associated with a user."""
-    media = await get_user_media(db, user_id)
-    return media
-
-
-@router.post("/users/me/media", response_model=FileOutSchema)
-async def add_media(db: DbDep, current_user: CurrentUserDep, file_data: FileInSchema):
-    """Adds media files to a user."""
-    try:
-        file = await add_user_media(db, current_user.id, file_data)
-        return file
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@router.post("/users/me/media-batch", response_model=list[FileOutSchema])
-async def batch_add_media(
-    db: DbDep, current_user: CurrentUserDep, files_data: list[FileInSchema]
-):
-    """Adds multiple media files to a user."""
-    if not files_data:
-        raise HTTPException(status_code=400, detail="No files provided")
-
-    try:
-        files = await batch_add_user_media(db, current_user.id, files_data)
-        return files
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@router.delete("/users/me/media/{file_id}")
-async def delete_media(db: DbDep, current_user: CurrentUserDep, file_id: int):
-    """Deletes a media file associated with a user."""
-    try:
-        await delete_user_media(db, current_user.id, file_id)
-        return {"detail": "Media file deleted successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))

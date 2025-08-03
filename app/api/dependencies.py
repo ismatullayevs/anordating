@@ -74,9 +74,10 @@ async def get_current_user(
     if not init_data.user:
         raise HTTPException(status_code=401, detail="User not authenticated")
 
-    user = await get_user_by_telegram_id(db, init_data.user.id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        user = await get_user_by_telegram_id(db, init_data.user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     return user
 

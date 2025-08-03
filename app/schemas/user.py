@@ -3,24 +3,8 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, BeforeValidator
 
-from app.enums import FileTypes, Genders, UILanguages
+from app.enums import Genders, UILanguages
 from app.validators import validate_bio, validate_birth_date, validate_name
-
-
-class FileInSchema(BaseModel):
-    telegram_id: str | None = None
-    telegram_unique_id: str | None = None
-    file_type: FileTypes
-    file_size: int | None = None
-    mime_type: str | None = None
-    thumbnail: "FileInSchema | None" = None
-    duration: int | None = None
-
-
-class FileOutSchema(FileInSchema):
-    id: int
-    uploaded_at: datetime
-    path: str | None
 
 
 class UserInSchema(BaseModel):
