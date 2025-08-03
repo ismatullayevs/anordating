@@ -294,22 +294,22 @@ async def get_chat_member(session: AsyncSession, user_id: UUID, chat_id: int):
     return res.one_or_none()
 
 
-async def get_city_name(user: User, language: UILanguages):
-    if not user.place_id:
+async def get_city_name(
+    place_id: str | None = None, language: UILanguages = UILanguages.en
+):
+    if not place_id:
         return None
 
     async with session_factory() as session:
         query = select(PlaceName).where(
-            PlaceName.place_id == user.place_id, PlaceName.language == language
+            PlaceName.place_id == place_id, PlaceName.language == language
         )
         res = await session.scalars(query)
         try:
             return res.one().name
         except exc.NoResultFound:
-            _, _, place_name = get_place(user.place_id, language)
-            place = PlaceName(
-                place_id=user.place_id, language=language, name=place_name
-            )
+            _, _, place_name = get_place(place_id, language)
+            place = PlaceName(place_id=place_id, language=language, name=place_name)
             session.add(place)
             await session.commit()
             return place_name

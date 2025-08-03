@@ -29,12 +29,13 @@ class IsHumanUser(Filter):
         self.with_preferences = with_preferences
 
     async def __call__(self, message: Message):
+        assert message.from_user
         if not await IsHuman().__call__(message):
             return False
 
         try:
             user = await get_user(
-                telegram_id=message.from_user.id,  # type: ignore
+                telegram_id=message.from_user.id,
                 with_media=self.with_media,
                 with_preferences=self.with_preferences,
             )

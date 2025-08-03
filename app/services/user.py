@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
-from app.schemas.user import UserInSchema
+from app.schemas.user import UserInSchema, UserUpdateSchema
 
 
 async def register_user(db: AsyncSession, user_data: UserInSchema) -> User:
@@ -37,4 +37,16 @@ async def get_user_by_telegram_id(db: AsyncSession, telegram_id: int) -> User:
     user = await db.scalar(select(User).where(User.telegram_id == telegram_id))
     if not user:
         raise ValueError("User not found")
+    return user
+
+
+async def update_user(
+    db: AsyncSession, user_id: UUID, user_data: UserUpdateSchema
+) -> User:
+    """Updates an existing user in the database."""
+    user = await get_user(db, user_id)
+    for key, value in user_data.model_dump(exclude_unset=True).items():
+        setattr(user, key, value)
+    db.add(user)
+    await db.commit()
     return user

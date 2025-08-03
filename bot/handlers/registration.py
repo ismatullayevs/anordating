@@ -1,6 +1,8 @@
 import asyncio
+import logging
 from random import randint
 
+import aiohttp
 from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -10,12 +12,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
+from app.core.config import settings
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes, UILanguages
 from app.geocoding import get_place, get_place_id, get_places
-from app.models.user import Place, PlaceName
+from app.models.user import Place, PlaceName, User
 from app.queries import get_user, is_user_banned
 from app.validators import (
     Params,
@@ -40,8 +43,13 @@ from bot.keyboards import (
     make_keyboard,
 )
 from bot.middlewares import i18n_middleware
+from bot.schemas.media import FileSchema
+from bot.schemas.user import UserSchema
 from bot.states import AppStates
 from bot.utils import get_profile_card
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -436,36 +444,44 @@ async def set_media(message: types.Message, state: FSMContext):
 async def finish_registration(message: types.Message, state: FSMContext):
     assert message.from_user
     data = await state.get_data()
-    media = [FileAddDTO.model_validate(m) for m in data["media"]]
+    telegram_id = message.from_user.id
+    if data["testing"]:
+        telegram_id = randint(1000000000, 9999999999)
+
+    media = [
+        {
+            "telegram_id": m["telegram_id"],
+            "telegram_unique_id": m.get("telegram_unique_id"),
+            "file_type": m["file_type"],
+            "file_size": m["file_size"],
+            "mime_type": m.get("mime_type"),
+            "thumbnail": m.get("thumbnail"),
+            "duration": m.get("duration"),
+        }
+        for m in data["media"]
+    ]
     # TODO: allow user to exist without preferences and media
 
-    preferences = PreferenceAddDTO(
-        min_age=data["preferred_min_age"],
-        max_age=data["preferred_max_age"],
-        preferred_gender=data["preferred_gender"],
-    )
+    preferences_data = {
+        "min_age": data["preferred_min_age"],
+        "max_age": data["preferred_max_age"],
+        "preferred_gender": data["preferred_gender"],
+    }
 
-    if "testing" in data and data["testing"]:
-        # TODO: remove after testing
-        telegram_id = randint(1000000000, 9999999999)
-    else:
-        telegram_id = message.from_user.id
-
-    user = UserRelAddDTO(
-        telegram_id=telegram_id,
-        name=data["name"],
-        birth_date=data["birth_date"],
-        bio=data["bio"],
-        gender=data["gender"],
-        ui_language=data["language"],
-        latitude=data["latitude"],
-        longitude=data["longitude"],
-        is_location_precise=data["is_location_precise"],
-        media=media,
-        preferences=preferences,
-    )
-
-    user_db = user.to_orm()
+    birth_date = validate_birth_date(data["birth_date"])
+    assert birth_date
+    user_data = {
+        "telegram_id": telegram_id,
+        "name": data["name"],
+        "birth_date": birth_date.isoformat(),
+        "bio": data.get("bio"),
+        "gender": data["gender"],
+        "ui_language": data["language"],
+        "latitude": data["latitude"],
+        "longitude": data["longitude"],
+        "is_location_precise": data["is_location_precise"],
+        "place_id": data.get("place_id"),
+    }
 
     async with session_factory() as session:
         if "place_id" in data and data["place_id"] is not None:
@@ -482,14 +498,45 @@ async def finish_registration(message: types.Message, state: FSMContext):
                 )
                 session.add(place)
                 session.add(place_name_db)
-            user_db.place = place
+                await session.commit()
 
-        session.add(user_db)
-        await session.commit()
+    headers = {
+        "X-Internal-Token": settings.INTERNAL_TOKEN,
+        "X-Telegram-User-Id": str(telegram_id),
+    }
+    async with aiohttp.ClientSession(raise_for_status=True) as session:
+        try:
+            response = await session.post(
+                f"{settings.API_URL}/api/v1/auth/register",
+                json=user_data,
+                headers=headers,
+            )
+            user = UserSchema.model_validate(await response.json())
+            response = await session.post(
+                f"{settings.API_URL}/api/v1/media/batch-add",
+                json=media,
+                headers=headers,
+            )
+            media = [FileSchema.model_validate(m) for m in await response.json()]
+            await session.post(
+                f"{settings.API_URL}/api/v1/preferences",
+                json=preferences_data,
+                headers=headers,
+                params={"user_id": str(user.id)},
+            )
+        except aiohttp.ClientError as e:
+            await message.answer(
+                _(
+                    "An error occurred while registering your account. "
+                    "Please try again later or contact support."
+                )
+            )
+            raise e
 
     await message.answer(
         _("Registration has been completed!"), reply_markup=get_menu_keyboard()
     )
-    profile = await get_profile_card(user_db)
+
+    profile = await get_profile_card(user, media)
     await message.answer_media_group(profile)
     await show_menu(message, state)

@@ -19,7 +19,10 @@ class Params:
     message_max_length = 1000
 
 
-def validate_name(value: str) -> str:
+def validate_name(value: str | None) -> str | None:
+    if value is None:
+        return value
+
     if not (value and all(x.isalpha() or x.isspace() for x in value)):
         raise ValueError(_("Name must only contain letters and spaces"))
 
@@ -38,7 +41,7 @@ def validate_name(value: str) -> str:
     return value
 
 
-def validate_birth_date(value: str) -> datetime:
+def validate_birth_date(value: str | None) -> datetime | None:
     """
     Parse a date string and validate that the person is between given age range.
 
@@ -57,6 +60,9 @@ def validate_birth_date(value: str) -> datetime:
         ValueError: If the string cannot be parsed into a valid date
                    or if the age is not between given age range
     """
+    if not value:
+        return None
+
     formats = [
         "%Y-%m-%d",
         "%d.%m.%Y",
@@ -173,7 +179,10 @@ def validate_video_duration(value: int | None):
     return value
 
 
-def validate_message_text(value: str):
+def validate_message_text(value: str | None):
+    if value is None:
+        return None
+
     if not value.strip():
         raise ValueError(_("Message text cannot be empty"))
     if len(value) > Params.message_max_length:
@@ -183,4 +192,3 @@ def validate_message_text(value: str):
             )
         )
     return value.strip()
-

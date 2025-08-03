@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     REWIND_LIMIT: int = 5
     DEFAULT_RATING: int = 1400
 
+    # Bot settings to be moved to a separate file
+    API_URL: str
+
     model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
 
 

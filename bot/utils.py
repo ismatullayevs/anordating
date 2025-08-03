@@ -13,6 +13,8 @@ from app.core.db import session_factory
 from app.enums import FileTypes
 from app.models.user import User
 from app.queries import get_city_name
+from bot.schemas.media import FileSchema
+from bot.schemas.user import UserSchema
 
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -28,12 +30,14 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return distance
 
 
-async def get_profile_card(user: User, from_user: User | None = None):
+async def get_profile_card(
+    user: UserSchema, media: list[FileSchema], from_user: UserSchema | None = None
+):
     assert user.is_active
     caption = f"{user.name}, {user.age}"
 
     language = from_user.ui_language if from_user else user.ui_language
-    city = await get_city_name(user, language)
+    city = await get_city_name(user.place_id, language)
     location_str = f"📍 {city}" if city else ""
     if from_user and from_user.is_location_precise and user.is_location_precise:
         dist = haversine_distance(
@@ -45,16 +49,12 @@ async def get_profile_card(user: User, from_user: User | None = None):
     caption += f", {location_str}" if location_str else ""
     caption += f"\n\n{user.bio}" if user.bio else ""
 
-    async with session_factory() as session:
-        session.add(user)
-        await user.awaitable_attrs.media
-
     album_builder = MediaGroupBuilder(caption=caption)
-    for media in user.media:
-        if media.file_type == FileTypes.image:
-            album_builder.add_photo(media.telegram_id or media.path or "")
-        elif media.file_type == FileTypes.video:
-            album_builder.add_video(media.telegram_id or media.path or "")
+    for file in media:
+        if file.file_type == FileTypes.image:
+            album_builder.add_photo(file.telegram_id or file.path or "")
+        elif file.file_type == FileTypes.video:
+            album_builder.add_video(file.telegram_id or file.path or "")
 
     return album_builder.build()
 
@@ -76,4 +76,3 @@ async def send_message(*args, **kwargs):
         await bot.send_message(*args, **kwargs)
     finally:
         await bot.session.close()
-

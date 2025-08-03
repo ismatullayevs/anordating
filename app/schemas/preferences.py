@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 from app.enums import PreferredGenders
@@ -12,4 +14,4 @@ class PreferencesInSchema(BaseModel):
 
 class PreferencesOutSchema(PreferencesInSchema):
     id: int
-    user_id: str
+    user_id: UUID
