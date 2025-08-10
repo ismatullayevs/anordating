@@ -21,6 +21,19 @@ class UserInSchema(BaseModel):
     place_id: str | None = None
 
 
+class UserUpdateSchema(BaseModel):
+    name: Annotated[str | None, AfterValidator(validate_name)] = None
+    birth_date: datetime | None = None
+    bio: Annotated[str | None, AfterValidator(validate_bio)] = None
+    gender: Genders | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    ui_language: UILanguages | None = None
+    is_location_precise: bool | None = None
+    place_id: str | None = None
+    is_active: bool | None = None
+
+
 class UserSchema(UserInSchema):
     id: UUID
     rating: int

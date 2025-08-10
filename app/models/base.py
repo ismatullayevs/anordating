@@ -1,9 +1,9 @@
-from sqlalchemy import TIMESTAMP, text, MetaData
-from sqlalchemy.orm import mapped_column, DeclarativeBase
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from typing import Annotated
 import datetime
+from typing import Annotated
 
+from sqlalchemy import TIMESTAMP, MetaData, text
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase, mapped_column
 
 intpk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 created_at = Annotated[
@@ -17,7 +17,7 @@ updated_at = Annotated[
     datetime.datetime,
     mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
-        onupdate=lambda: datetime.datetime.now(datetime.timezone.utc),
+        onupdate=lambda: datetime.datetime.now(datetime.UTC),
         type_=TIMESTAMP(timezone=True),
     ),
 ]
@@ -31,7 +31,7 @@ class Base(AsyncAttrs, DeclarativeBase):
             "ck": "ck_%(table_name)s_`%(constraint_name)s`",
             "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
             "pk": "pk_%(table_name)s",
-        }
+        },
     )
 
     repr_cols_num = 3

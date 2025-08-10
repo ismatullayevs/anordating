@@ -1,8 +1,8 @@
 import asyncio
 import logging
-from random import randint
+import secrets
 
-import aiohttp
+import httpx
 from aiogram import F, Router, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -14,11 +14,9 @@ from sqlalchemy.exc import NoResultFound
 
 from app.core.config import settings
 from app.core.db import session_factory
-from app.dto.file import FileAddDTO
-from app.dto.user import PreferenceAddDTO, UserRelAddDTO
 from app.enums import FileTypes, UILanguages
 from app.geocoding import get_place, get_place_id, get_places
-from app.models.user import Place, PlaceName, User
+from app.models.user import Place, PlaceName
 from app.queries import get_user, is_user_banned
 from app.validators import (
     Params,
@@ -56,16 +54,19 @@ router.message.filter(IsHuman())
 
 
 @router.message(Command("help"))
-async def cmd_help(message: types.Message):
+async def cmd_help(message: types.Message) -> None:
+    """Show help message."""
     await message.answer(
         _(
             "Hi there! I'm a bot to help you find your soulmate.\n\n"
             ""
-            "Here's how it works: you'll be shown profiles of other users, and you can like or dislike them. "
-            "When you like a profile, we will notify the user about it. If the user likes you back, you'll be matched "
-            "and can start chatting.\n\n"
+            "Here's how it works: you'll be shown profiles of other users, "
+            "and you can like or dislike them. When you like a profile, we "
+            "will notify the user about it. If the user likes you back, you'll "
+            "be matched and can start chatting.\n\n"
             ""
-            "If you have any questions, contact our <a href='{support_link}'>support team</a>."
+            "If you have any questions, contact our "
+            "<a href='{support_link}'>support team</a>.",
         ).format(support_link="https://t.me/anormatchsupportbot"),
         parse_mode="HTML",
     )
@@ -73,8 +74,10 @@ async def cmd_help(message: types.Message):
 
 @router.message(AppStates.deleted, F.text == __("Start registration"))
 @router.message(Command("start"))
-async def cmd_start(message: types.Message, state: FSMContext):
-    assert message.from_user
+async def cmd_start(message: types.Message, state: FSMContext) -> None:
+    """Handle the /start command and route users appropriately."""
+    if not message.from_user:
+        return
     await state.set_state(None)
     locale = await state.get_value("locale")
     await state.set_data({"locale": locale})
@@ -99,16 +102,20 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await set_language_start(message, state)
 
 
-async def set_language_start(message: types.Message, state: FSMContext):
+async def set_language_start(message: types.Message, state: FSMContext) -> None:
+    """Start the language selection process for new users."""
     await message.answer(
-        _("Hi! Select a language"), reply_markup=get_languages_keyboard()
+        _("Hi! Select a language"),
+        reply_markup=get_languages_keyboard(),
     )
     await state.set_state(AppStates.set_ui_language)
 
 
 @router.message(AppStates.set_ui_language, F.text.in_(LANGUAGES.keys()))
-async def set_language(message: types.Message, state: FSMContext):
-    assert message.text
+async def set_language(message: types.Message, state: FSMContext) -> None:
+    """Process the selected language and proceed to name setup."""
+    if not message.text:
+        return
     language = LANGUAGES[message.text]
 
     await i18n_middleware.set_locale(state, language.name)
@@ -118,66 +125,80 @@ async def set_language(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_ui_language)
-async def set_language_invalid(message: types.Message, state: FSMContext):
+async def set_language_invalid(message: types.Message) -> None:
+    """Handle invalid language selection."""
     await message.answer(
         _("Select one of the given languages"),
         reply_markup=get_languages_keyboard(),
     )
 
 
-async def set_name_start(message: types.Message, state: FSMContext):
+async def set_name_start(message: types.Message, state: FSMContext) -> None:
+    """Start the name input process."""
     await message.answer(
-        _("What is your name?"), reply_markup=types.ReplyKeyboardRemove()
+        _("What is your name?"),
+        reply_markup=types.ReplyKeyboardRemove(),
     )
     await state.set_state(AppStates.set_name)
 
 
 @router.message(AppStates.set_name, F.text)
-async def set_name(message: types.Message, state: FSMContext):
-    assert message.text
+async def set_name(message: types.Message, state: FSMContext) -> None:
+    """Process the user's name input and validate it."""
+    if not message.text:
+        return
 
     try:
         validate_name(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
     await state.update_data(name=message.text)
     await set_birth_date_start(message, state)
 
 
-async def set_birth_date_start(message: types.Message, state: FSMContext):
+async def set_birth_date_start(message: types.Message, state: FSMContext) -> None:
+    """Start the birth date input process."""
     msg = _(
         "What's your birth date? Use one these formats:"
         "\n"
         "\n👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)"
         "\n👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)"
-        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)",
     )
     await message.answer(msg, parse_mode="HTML")
     await state.set_state(AppStates.set_birth_date)
 
 
 @router.message(AppStates.set_birth_date, F.text)
-async def set_birth_date(message: types.Message, state: FSMContext):
-    assert message.text
+async def set_birth_date(message: types.Message, state: FSMContext) -> None:
+    """Process the user's birth date input and validate it."""
+    if not message.text:
+        return
 
     try:
         validate_birth_date(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
     await state.update_data(birth_date=message.text)
     await set_gender_start(message, state)
 
 
-async def set_gender_start(message: types.Message, state: FSMContext):
+async def set_gender_start(message: types.Message, state: FSMContext) -> None:
+    """Start the gender selection process."""
     await message.answer(_("What is your gender?"), reply_markup=get_genders_keyboard())
     await state.set_state(AppStates.set_gender)
 
 
 @router.message(AppStates.set_gender, F.text.in_([x[0] for x in GENDERS]))
-async def set_gender(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def set_gender(message: types.Message, state: FSMContext) -> None:
+    """Process the selected gender and proceed to bio setup."""
+    if not message.text or not message.from_user:
+        return
+
     gender = None
     for k, v in GENDERS:
         if k == message.text:
@@ -189,64 +210,76 @@ async def set_gender(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_gender)
-async def set_gender_invalid(message: types.Message):
+async def set_gender_invalid(message: types.Message) -> None:
+    """Handle invalid gender selection."""
     await message.answer(_("Select one of the given options"))
 
 
-async def set_bio_start(message: types.Message, state: FSMContext):
+async def set_bio_start(message: types.Message, state: FSMContext) -> None:
+    """Start the bio input process."""
     msg = _("Tell me more about yourself. What are your hobbies, interests, etc.?")
     await message.answer(msg, reply_markup=make_keyboard([[_("Skip")]]))
     await state.set_state(AppStates.set_bio)
 
 
 @router.message(AppStates.set_bio, F.text == __("Skip"))
-async def skip_bio(message: types.Message, state: FSMContext):
+async def skip_bio(message: types.Message, state: FSMContext) -> None:
+    """Skip bio input and proceed to preferred gender setup."""
     await state.update_data(bio=None)
     await set_preferred_gender_start(message, state)
 
 
 @router.message(AppStates.set_bio, F.text)
-async def set_bio(message: types.Message, state: FSMContext):
+async def set_bio(message: types.Message, state: FSMContext) -> None:
+    """Process the user's bio input and validate it."""
     try:
         validate_bio(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
     await state.update_data(bio=message.text)
     await set_preferred_gender_start(message, state)
 
 
-async def set_preferred_gender_start(message: types.Message, state: FSMContext):
+async def set_preferred_gender_start(message: types.Message, state: FSMContext) -> None:
+    """Start the preferred gender selection process."""
     await message.answer(
-        _("Who are you interested in?"), reply_markup=get_preferred_genders_keyboard()
+        _("Who are you interested in?"),
+        reply_markup=get_preferred_genders_keyboard(),
     )
     await state.set_state(AppStates.set_gender_preferences)
 
 
 @router.message(
-    AppStates.set_gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES])
+    AppStates.set_gender_preferences,
+    F.text.in_([x[0] for x in GENDER_PREFERENCES]),
 )
-async def set_preferred_gender(message: types.Message, state: FSMContext):
+async def set_preferred_gender(message: types.Message, state: FSMContext) -> None:
+    """Process the selected preferred gender and proceed to age preferences."""
     preferred_gender = None
     for k, v in GENDER_PREFERENCES:
         if k == message.text:
             preferred_gender = v
             break
-    assert preferred_gender
 
+    if preferred_gender is None:
+        return
     await state.update_data(preferred_gender=preferred_gender)
     await set_age_preferences_start(message, state)
 
 
 @router.message(AppStates.set_gender_preferences, F.text)
-async def set_gender_preferences_invalid(message: types.Message):
+async def set_gender_preferences_invalid(message: types.Message) -> None:
+    """Handle invalid gender preference selection."""
     await message.answer(
         _("Select one of the given options"),
         reply_markup=get_preferred_genders_keyboard(),
     )
 
 
-async def set_age_preferences_start(message: types.Message, state: FSMContext):
+async def set_age_preferences_start(message: types.Message, state: FSMContext) -> None:
+    """Start the age preferences input process."""
     await message.answer(
         _("What is your preferred age range? (e.g. 18-25)"),
         reply_markup=make_keyboard([[_("Skip")]]),
@@ -255,27 +288,32 @@ async def set_age_preferences_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_age_preferences, F.text == __("Skip"))
-async def skip_age_preferences(message: types.Message, state: FSMContext):
+async def skip_age_preferences(message: types.Message, state: FSMContext) -> None:
+    """Skip age preferences and proceed to location setup."""
     await state.update_data(preferred_min_age=None)
     await state.update_data(preferred_max_age=None)
     await set_location_start(message, state)
 
 
 @router.message(AppStates.set_age_preferences, F.text)
-async def set_age_preferences(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def set_age_preferences(message: types.Message, state: FSMContext) -> None:
+    """Process the user's age preferences input and validate it."""
+    if not message.text or not message.from_user:
+        return
 
     try:
         min_age, max_age = validate_preference_age_string(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
     await state.update_data(preferred_min_age=min_age)
     await state.update_data(preferred_max_age=max_age)
     await set_location_start(message, state)
 
 
-async def set_location_start(message: types.Message, state: FSMContext):
+async def set_location_start(message: types.Message, state: FSMContext) -> None:
+    """Start the location input process."""
     await message.answer(
         _("Share your location or type the name of your city"),
         reply_markup=get_ask_location_keyboard(),
@@ -284,28 +322,37 @@ async def set_location_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_location, F.text)
-async def set_location_by_name(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def set_location_by_name(message: types.Message, state: FSMContext) -> None:
+    """Process location input by name and show matching places."""
+    if not message.text or not message.from_user:
+        return
 
     language = await state.get_value("language")
-    assert language
+    if not language:
+        return
     cities = get_places(message.text, UILanguages[language])
     if not cities:
-        return await message.answer(_("City not found"))
+        await message.answer(_("City not found"))
+        return
 
     msg = _("Select your city")
     builder = InlineKeyboardBuilder()
     for city, place_id in cities:
         builder.row(
-            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}")
+            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}"),
         )
 
     await message.answer(msg, reply_markup=builder.as_markup())
 
 
 @router.callback_query(AppStates.set_location, F.data.startswith("place_id:"))
-async def set_location_by_name_selected(query: types.CallbackQuery, state: FSMContext):
-    assert query.data and isinstance(query.message, types.Message)
+async def set_location_by_name_selected(
+    query: types.CallbackQuery,
+    state: FSMContext,
+) -> None:
+    """Handle place selection from inline keyboard."""
+    if not query.data or not isinstance(query.message, types.Message):
+        return
     place_id = query.data.split(":")[1]
     lat, lng, _ = get_place(place_id)
 
@@ -319,8 +366,10 @@ async def set_location_by_name_selected(query: types.CallbackQuery, state: FSMCo
 
 
 @router.message(AppStates.set_location, F.location)
-async def set_location(message: types.Message, state: FSMContext):
-    assert message.location and message.from_user
+async def set_location(message: types.Message, state: FSMContext) -> None:
+    """Process location input from coordinates."""
+    if not message.location or not message.from_user:
+        return
 
     lat, lng = message.location.latitude, message.location.longitude
     await state.update_data(latitude=lat)
@@ -335,17 +384,19 @@ async def set_location(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_location)
-async def set_location_invalid(message: types.Message):
+async def set_location_invalid(message: types.Message) -> None:
+    """Handle invalid location input."""
     await message.answer(
         _("Share your location by clicking the button below"),
         reply_markup=get_ask_location_keyboard(),
     )
 
 
-async def set_media_start(message: types.Message, state: FSMContext):
+async def set_media_start(message: types.Message, state: FSMContext) -> None:
+    """Start the media upload process."""
     await message.answer(
         _(
-            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})",
         ).format(
             min_media_count=Params.media_min_count,
             max_media_count=Params.media_max_count,
@@ -356,12 +407,14 @@ async def set_media_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.set_media, F.text == __("Continue"))
-async def continue_registration(message: types.Message, state: FSMContext):
+async def continue_registration(message: types.Message, state: FSMContext) -> None:
+    """Continue with registration after media upload."""
     media = await state.get_value("media")
     try:
         validate_media_size(media or [])
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
     await finish_registration(message, state)
 
 
@@ -369,14 +422,17 @@ user_locks: dict[int, asyncio.Lock] = {}
 
 
 def get_user_lock(user_id: int) -> asyncio.Lock:
+    """Get or create an asyncio lock for a specific user ID."""
     if user_id not in user_locks:
         user_locks[user_id] = asyncio.Lock()
     return user_locks[user_id]
 
 
 @router.message(AppStates.set_media, F.photo | F.video)
-async def set_media(message: types.Message, state: FSMContext):
-    assert message.from_user
+async def set_media(message: types.Message, state: FSMContext) -> None:
+    """Process uploaded media and add it to the user's profile."""
+    if not message.from_user:
+        return
     file = None
     if message.photo:
         p = message.photo[-1]
@@ -415,9 +471,11 @@ async def set_media(message: types.Message, state: FSMContext):
                 "thumbnail": thumbnail,
             }
         except ValueError as e:
-            return await message.answer(str(e))
+            await message.answer(str(e))
+            return
 
-    assert file is not None
+    if file is None:
+        return
 
     lock = get_user_lock(message.from_user.id)
     async with lock:
@@ -429,24 +487,29 @@ async def set_media(message: types.Message, state: FSMContext):
         validate_media_size(media)
     except ValueError as e:
         await message.answer(str(e))
-        return await finish_registration(message, state)
+        await finish_registration(message, state)
+        return
 
     if len(media) >= Params.media_max_count:
         await message.answer(_("File has been uploaded"))
-        return await finish_registration(message, state)
+        await finish_registration(message, state)
+        return
 
     msg = _(
-        'File has been uploaded. Upload more media files if you want or press "Continue"'
+        "File has been uploaded. Upload more media files "
+        'if you want or press "Continue"',
     )
     await message.answer(msg, reply_markup=make_keyboard([[_("Continue")]]))
 
 
-async def finish_registration(message: types.Message, state: FSMContext):
-    assert message.from_user
+async def finish_registration(message: types.Message, state: FSMContext) -> None:
+    """Complete the registration process and create the user account."""
+    if not message.from_user:
+        return
     data = await state.get_data()
     telegram_id = message.from_user.id
-    if data["testing"]:
-        telegram_id = randint(1000000000, 9999999999)
+    if data.get("testing"):
+        telegram_id = secrets.randbelow(8999999999) + 1000000000
 
     media = [
         {
@@ -469,7 +532,9 @@ async def finish_registration(message: types.Message, state: FSMContext):
     }
 
     birth_date = validate_birth_date(data["birth_date"])
-    assert birth_date
+    if not birth_date:
+        await message.answer(_("Invalid birth date"))
+        return
     user_data = {
         "telegram_id": telegram_id,
         "name": data["name"],
@@ -504,37 +569,41 @@ async def finish_registration(message: types.Message, state: FSMContext):
         "X-Internal-Token": settings.INTERNAL_TOKEN,
         "X-Telegram-User-Id": str(telegram_id),
     }
-    async with aiohttp.ClientSession(raise_for_status=True) as session:
+    async with httpx.AsyncClient() as session:
         try:
             response = await session.post(
                 f"{settings.API_URL}/api/v1/auth/register",
                 json=user_data,
                 headers=headers,
             )
+            response.raise_for_status()
             user = UserSchema.model_validate(await response.json())
             response = await session.post(
                 f"{settings.API_URL}/api/v1/media/batch-add",
                 json=media,
                 headers=headers,
             )
+            response.raise_for_status()
             media = [FileSchema.model_validate(m) for m in await response.json()]
-            await session.post(
+            response = await session.post(
                 f"{settings.API_URL}/api/v1/preferences",
                 json=preferences_data,
                 headers=headers,
                 params={"user_id": str(user.id)},
             )
-        except aiohttp.ClientError as e:
+            response.raise_for_status()
+        except httpx.HTTPError:
             await message.answer(
                 _(
                     "An error occurred while registering your account. "
-                    "Please try again later or contact support."
-                )
+                    "Please try again later or contact support.",
+                ),
             )
-            raise e
+            raise
 
     await message.answer(
-        _("Registration has been completed!"), reply_markup=get_menu_keyboard()
+        _("Registration has been completed!"),
+        reply_markup=get_menu_keyboard(),
     )
 
     profile = await get_profile_card(user, media)

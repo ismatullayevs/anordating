@@ -52,7 +52,7 @@ class IsActiveHumanUser(Filter):
 
     async def __call__(self, message: Message):
         result = await IsHumanUser(self.with_media, self.with_preferences).__call__(
-            message
+            message,
         )
         if not result:
             return False
@@ -70,7 +70,7 @@ class IsInactiveHumanUser(Filter):
 
     async def __call__(self, message: Message):
         result = await IsHumanUser(self.with_media, self.with_preferences).__call__(
-            message
+            message,
         )
         if not result:
             return False

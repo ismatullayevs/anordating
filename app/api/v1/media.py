@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 
 from app.api.dependencies import CurrentUserDep, DbDep
+from app.models.file import File
 from app.schemas.media import FileInSchema, FileOutSchema
 from app.services.media import (
     add_user_media,
@@ -15,15 +16,17 @@ router = APIRouter(prefix="/media", tags=["media"])
 
 
 @router.get("", response_model=list[FileOutSchema])
-async def get_media(db: DbDep, user_id: UUID):
-    """Fetches media files associated with a user."""
+async def get_media(db: DbDep, user_id: UUID) -> list[File]:
+    """Fetch media files associated with a user."""
     media = await get_user_media(db, user_id)
-    return media
+    return list(media)
 
 
 @router.post("/batch-add", response_model=list[FileOutSchema])
 async def batch_add_media(
-    db: DbDep, current_user: CurrentUserDep, files_data: list[FileInSchema]
+    db: DbDep,
+    current_user: CurrentUserDep,
+    files_data: list[FileInSchema],
 ):
     """Adds multiple media files to a user."""
     if not files_data:

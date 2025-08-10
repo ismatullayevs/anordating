@@ -6,21 +6,36 @@ from aiogram.utils.web_app import WebAppInitData
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import exc, exists, select
 
-from app.api.dependencies import validate_init_data
+from app.api.dependencies import CurrentUserDep, DbDep, validate_init_data
 from app.core.db import session_factory
 from app.models.chat import Chat, ChatMember
+from app.models.user import User
 from app.queries import get_user
+from app.schemas.user import UserOutSchema, UserUpdateSchema
 
 router = APIRouter()
 
 
-@router.get("/users/me")
+@router.get("/users/me", response_model=UserOutSchema)
 async def read_users_me(
-    init_data: Annotated[WebAppInitData, Depends(validate_init_data)],
-):
-    assert init_data.user
-    user = await get_user(telegram_id=init_data.user.id, is_active=True)
-    return user
+    current_user: CurrentUserDep,
+) -> User:
+    """Get current user."""
+    return current_user
+
+
+@router.put("/users/me")
+async def update_current_user(
+    db: DbDep,
+    current_user: CurrentUserDep,
+    user_update: UserUpdateSchema,
+) -> dict[str, str]:
+    """Update current user."""
+    for field, value in user_update.model_dump(exclude_unset=True).items():
+        setattr(current_user, field, value)
+    db.add(current_user)
+    await db.commit()
+    return {"message": "User updated"}
 
 
 @router.get("/users/{user_id}")
@@ -51,10 +66,10 @@ async def get_user_chat(
     async with session_factory() as session:
         query = select(Chat).where(
             exists().where(
-                and_(ChatMember.chat_id == Chat.id, ChatMember.user_id == match_id)
+                and_(ChatMember.chat_id == Chat.id, ChatMember.user_id == match_id),
             ),
             exists().where(
-                and_(ChatMember.chat_id == Chat.id, ChatMember.user_id == user.id)
+                and_(ChatMember.chat_id == Chat.id, ChatMember.user_id == user.id),
             ),
         )
         res = await session.scalars(query)

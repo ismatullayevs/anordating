@@ -13,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.types import DateTime
 
 from app.core.config import settings
 from app.enums import (
@@ -39,7 +40,7 @@ class PlaceName(Base):
 
     id: Mapped[intpk]
     place_id: Mapped[str] = mapped_column(
-        ForeignKey("place.id", ondelete="CASCADE"), index=True
+        ForeignKey("place.id", ondelete="CASCADE"), index=True,
     )
     language: Mapped[UILanguages]
     name: Mapped[str]
@@ -53,13 +54,13 @@ class User(Base):
     __tablename__ = "user_account"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4,
     )
     telegram_id: Mapped[int] = mapped_column(BIGINT, unique=True, index=True)
     name: Mapped[str]
-    birth_date: Mapped[datetime]
+    birth_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     rating: Mapped[int] = mapped_column(
-        server_default=text(str(settings.DEFAULT_RATING))
+        server_default=text(str(settings.DEFAULT_RATING)),
     )
     # TODO: make it a method
     is_active: Mapped[bool] = mapped_column(server_default=text("true"), index=True)
@@ -70,7 +71,7 @@ class User(Base):
     latitude: Mapped[float]
     longitude: Mapped[float]
     place_id: Mapped[str | None] = mapped_column(
-        ForeignKey("place.id", ondelete="SET NULL"), index=True
+        ForeignKey("place.id", ondelete="SET NULL"), index=True,
     )
     place: Mapped[Place | None] = relationship("Place", back_populates="users")
     is_location_precise: Mapped[bool] = mapped_column(server_default=text("true"))
@@ -81,10 +82,14 @@ class User(Base):
     updated_at: Mapped[updated_at]
 
     preferences: Mapped["Preferences"] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
+        back_populates="user", cascade="all, delete-orphan",
     )
-    chat_members: Mapped[list["ChatMember"]] = relationship(back_populates="user", cascade="all")  # type: ignore
-    messages: Mapped[list["Message"]] = relationship(back_populates="user", cascade="all, delete-orphan")  # type: ignore
+    chat_members: Mapped[list["ChatMember"]] = relationship(
+        back_populates="user", cascade="all",
+    )  # type: ignore
+    messages: Mapped[list["Message"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan",
+    )  # type: ignore
 
     is_superuser: Mapped[bool] = mapped_column(server_default=text("false"))
 
@@ -108,7 +113,7 @@ class Preferences(Base):
 
     id: Mapped[intpk]
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True, unique=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True, unique=True,
     )
     min_age: Mapped[int | None] = mapped_column(index=True)
     max_age: Mapped[int | None] = mapped_column(index=True)
@@ -122,10 +127,10 @@ class Reaction(Base):
 
     id: Mapped[intpk]
     from_user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
     to_user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
     reaction_type: Mapped[ReactionType] = mapped_column(index=True)
     is_match_notified: Mapped[bool] = mapped_column(server_default=text("false"))
@@ -142,14 +147,14 @@ class Report(Base):
 
     id: Mapped[intpk]
     from_user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
     to_user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
     reason: Mapped[str]
     status: Mapped[ReportStatusTypes] = mapped_column(
-        index=True, server_default=text("'pending'")
+        index=True, server_default=text("'pending'"),
     )
 
     created_at: Mapped[created_at]

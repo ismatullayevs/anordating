@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.core.config import settings
 from app.models.file import File, UserMedia
@@ -14,6 +15,7 @@ async def get_user_media(db: AsyncSession, user_id: UUID):
         select(File)
         .join(UserMedia, UserMedia.file_id == File.id)
         .where(UserMedia.user_id == user_id)
+        .options(joinedload(File.thumbnail)),
     )
     return result.all()
 
@@ -23,7 +25,7 @@ async def add_user_media(db: AsyncSession, user_id: UUID, file_data: FileInSchem
     try:
         # with_for_update() prevents race conditions
         result = await db.scalars(
-            select(UserMedia).where(UserMedia.user_id == user_id).with_for_update()
+            select(UserMedia).where(UserMedia.user_id == user_id).with_for_update(),
         )
         if len(result.all()) >= settings.MAX_USER_MEDIA_FILES:
             raise ValueError("User has reached the maximum number of media files")
@@ -43,12 +45,12 @@ async def add_user_media(db: AsyncSession, user_id: UUID, file_data: FileInSchem
 
 
 async def batch_add_user_media(
-    db: AsyncSession, user_id: UUID, files_data: list[FileInSchema]
+    db: AsyncSession, user_id: UUID, files_data: list[FileInSchema],
 ):
     """Adds multiple media files to a user."""
     try:
         result = await db.scalars(
-            select(UserMedia).where(UserMedia.user_id == user_id).with_for_update()
+            select(UserMedia).where(UserMedia.user_id == user_id).with_for_update(),
         )
         if len(result.all()) + len(files_data) > settings.MAX_USER_MEDIA_FILES:
             raise ValueError("User has reached the maximum number of media files")
@@ -72,8 +74,8 @@ async def remove_user_media(db: AsyncSession, user_id: UUID, file_id: UUID):
     try:
         user_media = await db.scalar(
             select(UserMedia).where(
-                UserMedia.user_id == user_id, UserMedia.file_id == file_id
-            )
+                UserMedia.user_id == user_id, UserMedia.file_id == file_id,
+            ),
         )
         if not user_media:
             raise ValueError("User media not found")
@@ -90,8 +92,8 @@ async def delete_user_media(db: AsyncSession, user_id: UUID, file_id: int):
     try:
         user_file = await db.scalar(
             select(UserMedia).where(
-                UserMedia.user_id == user_id, UserMedia.file_id == file_id
-            )
+                UserMedia.user_id == user_id, UserMedia.file_id == file_id,
+            ),
         )
         if not user_file:
             raise ValueError("User media not found")
