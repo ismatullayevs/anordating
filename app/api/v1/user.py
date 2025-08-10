@@ -38,6 +38,17 @@ async def update_current_user(
     return {"message": "User updated"}
 
 
+@router.delete("/users/me")
+async def delete_current_user(
+    db: DbDep,
+    current_user: CurrentUserDep,
+) -> dict[str, str]:
+    """Delete current user."""
+    await db.delete(current_user)
+    await db.commit()
+    return {"message": "User deleted"}
+
+
 @router.get("/users/{user_id}")
 async def read_user(
     init_data: Annotated[WebAppInitData, Depends(validate_init_data)],

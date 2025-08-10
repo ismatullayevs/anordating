@@ -44,3 +44,18 @@ async def update_user(telegram_id: int, user_data: UserUpdateSchema) -> UserSche
         )
         response.raise_for_status()
         return UserSchema(**response.json())
+
+
+async def delete_user(telegram_id: int) -> None:
+    """Delete user."""
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "X-Internal-Token": settings.INTERNAL_TOKEN,
+            "X-Telegram-User-Id": str(telegram_id),
+        }
+
+        response = await client.delete(
+            f"{settings.API_URL}/v1/users/me",
+            headers=headers,
+        )
+        response.raise_for_status()
