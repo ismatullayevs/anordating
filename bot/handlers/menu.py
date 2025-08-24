@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from aiogram import F, Router, types
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
@@ -54,8 +52,10 @@ async def report_reason(message: types.Message, state: FSMContext) -> None:
         return
 
     match_id = await state.get_value("match_id")
+    if not match_id:
+        return
 
-    await create_report(message.from_user.id, UUID(match_id), message.text)
+    await create_report(message.from_user.id, match_id, message.text)
     await message.answer(_("User has been reported"))
     await show_menu(message, state)
 

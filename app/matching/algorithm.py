@@ -1,11 +1,14 @@
 import logging
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import lru_cache
+from uuid import UUID
 
 from sqlalchemy import and_, exists, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
-from app.core.db import session_factory
 from app.enums import PreferredGenders, ReactionType
 from app.models.user import Ban, Preferences, Reaction, Report, User
 from bot.utils import haversine_distance
@@ -32,77 +35,76 @@ def calculate_age_similarity(age1: int, age2: int):
 
 
 async def get_potential_matches_batch(
-    current_user: User, limit: int = 50, offset: int = 0
-):
-    """Get potential matches in batches for better performance"""
-    assert current_user.is_active
+    current_user: User,
+    db: AsyncSession,
+    limit: int = 50,
+    offset: int = 0,
+) -> Sequence[User]:
+    """Get potential matches in batches for better performance."""
+    if not current_user.is_active:
+        raise ValueError("User is not active")
 
-    async with session_factory() as session:
-        session.add(current_user)
-        await current_user.awaitable_attrs.preferences
+    query = (
+        select(User)
+        .join(Preferences)
+        .where(
+            User.id != current_user.id,
+            User.is_active,
+            or_(
+                Preferences.preferred_gender == current_user.gender,
+                Preferences.preferred_gender == PreferredGenders.both,
+            ),
+            ~exists().where(
+                and_(
+                    Reaction.from_user_id == current_user.id,
+                    Reaction.to_user_id == User.id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Reaction.from_user_id == User.id,
+                    Reaction.to_user_id == current_user.id,
+                    Reaction.reaction_type == ReactionType.dislike,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Report.from_user_id == current_user.id,
+                    Report.to_user_id == User.id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Report.from_user_id == User.id,
+                    Report.to_user_id == current_user.id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Ban.user_telegram_id == User.telegram_id,
+                    or_(Ban.expires_at.is_(None), Ban.expires_at > func.now()),
+                ),
+            ),
+        )
+        .order_by(User.rating.desc())
+        .limit(limit)
+        .offset(offset)
+    )
 
-        query = (
-            select(User)
-            .join(Preferences)
-            .where(
-                User.id != current_user.id,
-                User.is_active,
-                or_(
-                    Preferences.preferred_gender == current_user.gender,
-                    Preferences.preferred_gender == PreferredGenders.both,
-                ),
-                ~exists().where(
-                    and_(
-                        Reaction.from_user_id == current_user.id,
-                        Reaction.to_user_id == User.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Reaction.from_user_id == User.id,
-                        Reaction.to_user_id == current_user.id,
-                        Reaction.reaction_type == ReactionType.dislike,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Report.from_user_id == current_user.id,
-                        Report.to_user_id == User.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Report.from_user_id == User.id,
-                        Report.to_user_id == current_user.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Ban.user_telegram_id == User.telegram_id,
-                        or_(Ban.expires_at == None, Ban.expires_at > func.now()),
-                    )
-                ),
-            )
-            .order_by(User.rating.desc())
-            .limit(limit)
-            .offset(offset)
+    min_age, max_age = (
+        current_user.preferences.min_age,
+        current_user.preferences.max_age,
+    )
+    if min_age and max_age:
+        query = query.where(User.age.between(min_age, max_age))
+
+    if current_user.preferences.preferred_gender != PreferredGenders.both:
+        query = query.where(
+            User.gender == current_user.preferences.preferred_gender,
         )
 
-        min_age, max_age = (
-            current_user.preferences.min_age,
-            current_user.preferences.max_age,
-        )
-        if min_age and max_age:
-            query = query.where(User.age.between(min_age, max_age))
-
-        if not current_user.preferences.preferred_gender == PreferredGenders.both:
-            query = query.where(
-                User.gender == current_user.preferences.preferred_gender,
-            )
-
-        res = await session.scalars(query)
-        potential_matches = res.all()
-        return potential_matches
+    res = await db.scalars(query)
+    return res.all()
 
 
 async def calculate_similarity(current_user: User, potential_match: User) -> float:
@@ -139,8 +141,7 @@ async def calculate_similarity(current_user: User, potential_match: User) -> flo
 
 
 async def calculate_total_score(user1: User, user2: User) -> float:
-    """
-    Calculate total score combining similarity and Elo rating.
+    """Calculate total score combining similarity and Elo rating.
     Returns a score between 0 and 1.
 
     Args:
@@ -150,6 +151,7 @@ async def calculate_total_score(user1: User, user2: User) -> float:
 
     Returns:
         float: Combined score between 0 and 1
+
     """
 
     @dataclass
@@ -171,12 +173,15 @@ async def calculate_total_score(user1: User, user2: User) -> float:
     return round(total_score, 3)
 
 
-async def get_best_match(current_user: User):
+async def get_best_match(user_id: UUID, db: AsyncSession) -> User | None:
+    """Get the best match for a user based on similarity and Elo rating."""
     start_time = time.time()
 
-    async with session_factory() as session:
-        session.add(current_user)
-        await current_user.awaitable_attrs.preferences
+    user = await db.scalar(
+        select(User).where(User.id == user_id).options(joinedload(User.preferences)),
+    )
+    if not user:
+        raise ValueError("User not found")
 
     batch_size = 50
     offset = 0
@@ -186,7 +191,10 @@ async def get_best_match(current_user: User):
     while True:
         batch_start = time.time()
         potential_matches = await get_potential_matches_batch(
-            current_user, limit=batch_size, offset=offset
+            user,
+            db=db,
+            limit=batch_size,
+            offset=offset,
         )
         batch_time = time.time() - batch_start
 
@@ -195,7 +203,7 @@ async def get_best_match(current_user: User):
 
         score_start = time.time()
         for match in potential_matches:
-            score = await calculate_total_score(current_user, match)
+            score = await calculate_total_score(user, match)
             total_checked += 1
             if score > best_score:
                 best_match = match
@@ -203,8 +211,8 @@ async def get_best_match(current_user: User):
         score_time = time.time() - score_start
 
         logger.debug(
-            f"Batch {offset//batch_size + 1}: {len(potential_matches)} matches, "
-            f"query_time={batch_time:.3f}s, score_time={score_time:.3f}s"
+            f"Batch {offset // batch_size + 1}: {len(potential_matches)} matches, "
+            f"query_time={batch_time:.3f}s, score_time={score_time:.3f}s",
         )
 
         if best_score > 0.7:
@@ -218,7 +226,7 @@ async def get_best_match(current_user: User):
     total_time = time.time() - start_time
     logger.info(
         f"Matching completed: checked {total_checked} users, "
-        f"best_score={best_score:.3f}, total_time={total_time:.3f}s"
+        f"best_score={best_score:.3f}, total_time={total_time:.3f}s",
     )
 
     return best_match

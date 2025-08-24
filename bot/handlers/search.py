@@ -1,5 +1,7 @@
 import asyncio
+import logging
 
+import httpx
 from aiogram import F, Router, types
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
@@ -9,95 +11,121 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import exc
 
-from app.core.config import settings
-from app.core.db import session_factory
 from app.enums import ReactionType
-from app.matching.algorithm import get_best_match
-from app.models.user import User
-from app.queries import (
-    create_or_update_reaction,
-    delete_chat_between_users,
-    get_nth_last_reacted_match,
-    get_user,
-    is_mutual,
-)
-from bot.filters import IsActiveHumanUser, IsHuman
+from bot.config import settings
+from bot.filters import IsHuman
 from bot.handlers.likes import show_likes
 from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_empty_search_keyboard, get_search_keyboard
+from bot.services.match import get_best_match, get_rewinds
+from bot.services.media import get_media
+from bot.services.user import get_current_user
 from bot.states import AppStates
 from bot.utils import get_profile_card, send_message
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 router.message.filter(IsHuman())
 
 
-@router.message(AppStates.menu, F.text == __("🔎 Watch profiles"), IsActiveHumanUser())
+async def search_with_keyboard(message: types.Message, state: FSMContext) -> None:
+    """Send a keyboard to the user to search for profiles."""
+    await message.answer("🔎", reply_markup=get_search_keyboard())
+    return await search(message, state)
+
+
+@router.message(AppStates.menu, F.text == __("🔎 Watch profiles"))
 async def search(
-    message: types.Message, state: FSMContext, user: User, with_keyboard: bool = True
-):
+    message: types.Message,
+    state: FSMContext,
+) -> None:
+    """Send a keyboard to the user to search for profiles."""
+    if not message.from_user:
+        return None
+
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
 
-    match = await get_best_match(user)
+    try:
+        user = await get_current_user(message.from_user.id)
+        match = await get_best_match(message.from_user.id)
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error occurred: {e}")
+        await message.answer(_("An error occurred while fetching data."))
+        return await state.set_state(AppStates.search)
     if not match:
         await message.answer(
             _("No one left to match with right now."),
             reply_markup=get_empty_search_keyboard(),
         )
         return await state.set_state(AppStates.search)
+    media = await get_media(match.id)
 
-    if with_keyboard:
-        await message.answer("🔎", reply_markup=get_search_keyboard())
-
-    card = await get_profile_card(match, user)
+    card = await get_profile_card(match, media, user)
     await message.answer_media_group(card)
     await state.update_data(match_id=match.id)
     await state.set_state(AppStates.search)
+    return None
 
 
-@router.message(AppStates.search, F.text == __("⏪ Rewind"), IsActiveHumanUser())
-async def rewind_empty(message: types.Message, state: FSMContext, user: User):
-    await rewind(message, state, user, with_keyboard=True)
+@router.message(AppStates.search, F.text == __("⏪ Rewind"))
+async def rewind_with_keyboard(message: types.Message, state: FSMContext) -> None:
+    """Rewind to the previous match with keyboard."""
+    await message.answer(_("⏪ Rewinding"), reply_markup=get_search_keyboard())
+    await rewind(message, state)
 
 
-@router.message(AppStates.search, F.text == "⏪", IsActiveHumanUser())
-@router.message(AppStates.likes, F.text == "⏪", IsActiveHumanUser())
-@router.message(AppStates.matches, F.text == "⏪", IsActiveHumanUser())
+@router.message(AppStates.search, F.text == "⏪")
+@router.message(AppStates.likes, F.text == "⏪")
+@router.message(AppStates.matches, F.text == "⏪")
 async def rewind(
-    message: types.Message, state: FSMContext, user: User, with_keyboard: bool = False
-):
+    message: types.Message,
+    state: FSMContext,
+) -> None:
+    """Rewind to the previous match."""
+    if not message.from_user:
+        return
+
+    user = await get_current_user(message.from_user.id)
     rewind_index = await state.get_value("rewind_index") or 0
-
-    if rewind_index >= settings.REWIND_LIMIT:
-        await message.answer(
-            _("You can't rewind more than {rewind_limit} times").format(
-                rewind_limit=settings.REWIND_LIMIT
-            )
+    try:
+        rewinds = await get_rewinds(
+            telegram_id=message.from_user.id,
+            limit=1,
+            offset=rewind_index,
         )
-        return await show_menu(message, state)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 400:
+            await message.answer(
+                _("You can't rewind more than {rewind_limit} times").format(
+                    rewind_limit=settings.REWIND_LIMIT,
+                ),
+            )
+        raise
 
-    match = await get_nth_last_reacted_match(user, rewind_index)
-    if not match:
+    if not rewinds:
         await message.answer(_("No more matches to rewind"))
         await show_menu(message, state)
         return
 
-    if with_keyboard:
-        await message.answer(_("⏪ Rewinding"), reply_markup=get_search_keyboard())
-
-    card = await get_profile_card(match, user)
+    rewind = rewinds[0]
+    media = await get_media(rewind.id)
+    card = await get_profile_card(rewind, media, user)
     await message.answer_media_group(card)
-    await state.update_data(match_id=match.id)
+    await state.update_data(match_id=rewind.id)
     await state.update_data(rewind_index=rewind_index + 1)
 
 
-@router.message(AppStates.search, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
-@router.message(AppStates.likes, F.text.in_(["👎", "👍"]), IsActiveHumanUser())
-@router.message(AppStates.matches, F.text == "👎", IsActiveHumanUser())
-async def react(message: types.Message, state: FSMContext, user: User):
-    assert message.text
+@router.message(AppStates.search, F.text.in_(["👎", "👍"]))
+@router.message(AppStates.likes, F.text.in_(["👎", "👍"]))
+@router.message(AppStates.matches, F.text == "👎")
+async def react(message: types.Message, state: FSMContext) -> None:
+    """Handle reactions to matches."""
+    if not message.text:
+        return None
+
     current_state = await state.get_state()
     reactions = {
         "👍": ReactionType.like,
@@ -112,13 +140,15 @@ async def react(message: types.Message, state: FSMContext, user: User):
     except exc.NoResultFound:
         await message.answer(_("User not found"))
         if current_state == AppStates.likes.state:
-            return await show_likes(message, state, user, with_keyboard=False)
+            return await show_likes(message, state, user)
         if current_state == AppStates.matches.state:
             return await show_matches(message, state, user)
-        return await search(message, state, user, with_keyboard=False)
+        return await search_with_keyboard(message, state)
 
     is_created, reaction = await create_or_update_reaction(
-        user, match, reactions[message.text]
+        user,
+        match,
+        reactions[message.text],
     )
 
     if message.text == "👍" and not reaction.is_match_notified:
@@ -138,10 +168,10 @@ async def react(message: types.Message, state: FSMContext, user: User):
             pass
 
     if current_state == AppStates.likes.state:
-        return await show_likes(message, state, user, with_keyboard=False)
+        return await show_likes(message, state, user)
     if current_state == AppStates.matches.state:
         return await show_matches(message, state, user)
-    return await search(message, state, user, with_keyboard=False)
+    return await search_with_keyboard(message, state)
 
 
 async def notify_mutual(user: User, match: User):
@@ -152,11 +182,11 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.APP_URL}/users/{match.id}/chat"
+                        url=f"{settings.APP_URL}/users/{match.id}/chat",
                     ),
-                )
+                ),
             ],
-        ]
+        ],
     )
     mk2 = types.InlineKeyboardMarkup(
         inline_keyboard=[
@@ -164,11 +194,11 @@ async def notify_mutual(user: User, match: User):
                 types.InlineKeyboardButton(
                     text=_("Start a chat"),
                     web_app=types.WebAppInfo(
-                        url=f"{settings.APP_URL}/users/{user.id}/chat"
+                        url=f"{settings.APP_URL}/users/{user.id}/chat",
                     ),
-                )
+                ),
             ],
-        ]
+        ],
     )
     msg1 = _v(
         "Congratulations 🎉. You have matched with {match.name}."
@@ -206,10 +236,12 @@ async def notify_match(match: User):
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
-            text=_v("Yes", locale=match.ui_language.name), callback_data="show_likes"
+            text=_v("Yes", locale=match.ui_language.name),
+            callback_data="show_likes",
         ),
         types.InlineKeyboardButton(
-            text=_v("No", locale=match.ui_language.name), callback_data="delete_message"
+            text=_v("No", locale=match.ui_language.name),
+            callback_data="delete_message",
         ),
     )
     msg = _v(

@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, exc, exists, func, or_, select
@@ -25,8 +26,8 @@ async def get_user(
                 and_(
                     Ban.user_telegram_id == User.telegram_id,
                     or_(Ban.expires_at == None, Ban.expires_at > func.now()),
-                )
-            )
+                ),
+            ),
         )
         if id:
             query = query.where(User.id == id)
@@ -54,56 +55,60 @@ async def is_user_banned(telegram_id: int):
         return res.one_or_none() is not None
 
 
-async def get_likes(user: User, limit: int | None = None):
-    async with session_factory() as session:
-        their_reaction = aliased(Reaction)
-        my_reaction = aliased(Reaction)
+async def get_likes(
+    db: AsyncSession,
+    user_id: UUID,
+    limit: int | None = None,
+) -> Sequence[User]:
+    """Get users who liked the given user."""
+    their_reaction = aliased(Reaction)
+    my_reaction = aliased(Reaction)
 
-        query = (
-            select(User)
-            .join(
-                their_reaction,
-                and_(
-                    their_reaction.from_user_id == User.id,
-                    their_reaction.to_user_id == user.id,
-                    their_reaction.reaction_type == ReactionType.like,
-                ),
-            )
-            .where(
-                User.is_active,
-                ~exists().where(
-                    and_(
-                        my_reaction.from_user_id == user.id,
-                        my_reaction.to_user_id == User.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Report.from_user_id == user.id,
-                        Report.to_user_id == User.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Report.from_user_id == User.id,
-                        Report.to_user_id == user.id,
-                    )
-                ),
-                ~exists().where(
-                    and_(
-                        Ban.user_telegram_id == User.telegram_id,
-                        or_(Ban.expires_at == None, Ban.expires_at > func.now()),
-                    )
-                ),
-            )
-            .order_by(their_reaction.updated_at.desc())
+    query = (
+        select(User)
+        .join(
+            their_reaction,
+            and_(
+                their_reaction.from_user_id == User.id,
+                their_reaction.to_user_id == user_id,
+                their_reaction.reaction_type == ReactionType.like,
+            ),
         )
+        .where(
+            User.is_active,
+            ~exists().where(
+                and_(
+                    my_reaction.from_user_id == user_id,
+                    my_reaction.to_user_id == User.id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Report.from_user_id == user_id,
+                    Report.to_user_id == User.id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Report.from_user_id == User.id,
+                    Report.to_user_id == user_id,
+                ),
+            ),
+            ~exists().where(
+                and_(
+                    Ban.user_telegram_id == User.telegram_id,
+                    or_(Ban.expires_at.is_(None), Ban.expires_at > func.now()),
+                ),
+            ),
+        )
+        .order_by(their_reaction.updated_at.desc())
+    )
 
-        if limit:
-            query = query.limit(limit)
+    if limit:
+        query = query.limit(limit)
 
-        res = await session.scalars(query)
-        return res.all()
+    res = await db.scalars(query)
+    return res.all()
 
 
 async def get_matches(user: User, limit: int | None = None, offset: int | None = None):
@@ -135,23 +140,23 @@ async def get_matches(user: User, limit: int | None = None, offset: int | None =
                     and_(
                         Report.from_user_id == user.id,
                         Report.to_user_id == User.id,
-                    )
+                    ),
                 ),
                 ~exists().where(
                     and_(
                         Report.from_user_id == User.id,
                         Report.to_user_id == user.id,
-                    )
+                    ),
                 ),
                 ~exists().where(
                     and_(
                         Ban.user_telegram_id == User.telegram_id,
                         or_(Ban.expires_at == None, Ban.expires_at > func.now()),
-                    )
+                    ),
                 ),
             )
             .order_by(
-                func.greatest(my_reaction.updated_at, their_reaction.updated_at).desc()
+                func.greatest(my_reaction.updated_at, their_reaction.updated_at).desc(),
             )
         )
 
@@ -164,15 +169,18 @@ async def get_matches(user: User, limit: int | None = None, offset: int | None =
 
 
 async def create_or_update_reaction(
-    user: User, match: User, reaction_type: ReactionType
+    user: User,
+    match: User,
+    reaction_type: ReactionType,
 ):
     assert user.is_active and match.is_active
     is_created = False
     async with session_factory() as session:
         res = await session.scalars(
             select(Reaction).where(
-                Reaction.from_user_id == user.id, Reaction.to_user_id == match.id
-            )
+                Reaction.from_user_id == user.id,
+                Reaction.to_user_id == match.id,
+            ),
         )
         try:
             reaction = res.one()
@@ -271,7 +279,7 @@ async def get_chat_by_users(session: AsyncSession, user_id: UUID, match_id: UUID
                 mych.user_id == user_id,
                 theirch.user_id == match_id,
                 mych.chat_id == theirch.chat_id,
-            )
+            ),
         )
     )
     res = await session.scalars(query)
@@ -288,21 +296,23 @@ async def select_chat_members(session: AsyncSession, chat_id: int, with_user=Fal
 
 async def get_chat_member(session: AsyncSession, user_id: UUID, chat_id: int):
     query = select(ChatMember).where(
-        and_(ChatMember.user_id == user_id, ChatMember.chat_id == chat_id)
+        and_(ChatMember.user_id == user_id, ChatMember.chat_id == chat_id),
     )
     res = await session.scalars(query)
     return res.one_or_none()
 
 
 async def get_city_name(
-    place_id: str | None = None, language: UILanguages = UILanguages.en
+    place_id: str | None = None,
+    language: UILanguages = UILanguages.en,
 ):
     if not place_id:
         return None
 
     async with session_factory() as session:
         query = select(PlaceName).where(
-            PlaceName.place_id == place_id, PlaceName.language == language
+            PlaceName.place_id == place_id,
+            PlaceName.language == language,
         )
         res = await session.scalars(query)
         try:

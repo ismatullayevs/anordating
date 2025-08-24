@@ -24,18 +24,18 @@ async def read_users_me(
     return current_user
 
 
-@router.put("/users/me")
+@router.put("/users/me", response_model=UserOutSchema)
 async def update_current_user(
     db: DbDep,
     current_user: CurrentUserDep,
     user_update: UserUpdateSchema,
-) -> dict[str, str]:
+) -> User:
     """Update current user."""
     for field, value in user_update.model_dump(exclude_unset=True).items():
         setattr(current_user, field, value)
     db.add(current_user)
     await db.commit()
-    return {"message": "User updated"}
+    return current_user
 
 
 @router.delete("/users/me")

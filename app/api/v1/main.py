@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from .auth import router as auth_router
 from .ban import router as ban_router
 from .chat import router as chats_router
+from .like import router as likes_router
 from .match import router as match_router
 from .media import router as media_router
 from .preferences import router as preferences_router
@@ -20,3 +21,4 @@ router.include_router(media_router)
 router.include_router(ban_router)
 router.include_router(report_router)
 router.include_router(match_router)
+router.include_router(likes_router)

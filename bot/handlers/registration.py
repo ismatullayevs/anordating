@@ -572,27 +572,28 @@ async def finish_registration(message: types.Message, state: FSMContext) -> None
     async with httpx.AsyncClient() as session:
         try:
             response = await session.post(
-                f"{settings.API_URL}/api/v1/auth/register",
+                f"{settings.API_URL}/v1/auth/register",
                 json=user_data,
                 headers=headers,
             )
             response.raise_for_status()
-            user = UserSchema.model_validate(await response.json())
+            user = UserSchema.model_validate(response.json())
             response = await session.post(
-                f"{settings.API_URL}/api/v1/media/batch-add",
+                f"{settings.API_URL}/v1/media/batch-add",
                 json=media,
                 headers=headers,
             )
             response.raise_for_status()
-            media = [FileSchema.model_validate(m) for m in await response.json()]
+            media = [FileSchema.model_validate(m) for m in response.json()]
             response = await session.post(
-                f"{settings.API_URL}/api/v1/preferences",
+                f"{settings.API_URL}/v1/preferences",
                 json=preferences_data,
                 headers=headers,
                 params={"user_id": str(user.id)},
             )
             response.raise_for_status()
-        except httpx.HTTPError:
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Error registering user: {e}")
             await message.answer(
                 _(
                     "An error occurred while registering your account. "

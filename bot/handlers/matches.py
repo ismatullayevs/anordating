@@ -12,7 +12,7 @@ from bot.handlers.menu import show_menu
 from bot.keyboards import get_matches_keyboard
 from bot.services.match import get_matches
 from bot.services.media import get_media
-from bot.services.menu import get_current_user
+from bot.services.user import get_current_user
 from bot.states import AppStates
 from bot.utils import get_profile_card
 

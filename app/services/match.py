@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, exists, func, select
@@ -5,7 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import or_
 
+from app.core.config import Settings
 from app.enums import ReactionType
+from app.exceptions import RewindLimitExceededError
 from app.models.user import Ban, Reaction, Report, User
 
 
@@ -66,3 +69,24 @@ async def get_matches(
     )
 
     return list((await db.scalars(query)).all())
+
+
+async def get_rewinds(
+    user_id: UUID,
+    db: AsyncSession,
+    limit: int,
+    offset: int,
+) -> Sequence[User]:
+    """Get rewinds for a user."""
+    if limit + offset >= Settings.REWIND_LIMIT:
+        raise RewindLimitExceededError("Rewind limit exceeded")
+
+    result = await db.scalars(
+        select(User)
+        .join(Reaction, Reaction.to_user_id == User.id)
+        .where(and_(Reaction.from_user_id == user_id, User.is_active))
+        .order_by(Reaction.updated_at.desc())
+        .limit(limit)
+        .offset(offset),
+    )
+    return result.all()
