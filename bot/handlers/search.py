@@ -1,15 +1,10 @@
-import asyncio
 import logging
 
 import httpx
 from aiogram import F, Router, types
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
-from aiogram.utils.i18n import gettext as _v
 from aiogram.utils.i18n import lazy_gettext as __
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import exc
 
 from app.enums import ReactionType
 from bot.config import settings
@@ -18,11 +13,16 @@ from bot.handlers.likes import show_likes
 from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_empty_search_keyboard, get_search_keyboard
-from bot.services.match import get_best_match, get_rewinds
+from bot.schemas.reaction import ReactionInSchema
+from bot.services.match import (
+    create_or_update_reaction,
+    get_best_match,
+    get_rewinds,
+)
 from bot.services.media import get_media
 from bot.services.user import get_current_user
 from bot.states import AppStates
-from bot.utils import get_profile_card, send_message
+from bot.utils import get_profile_card
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ async def rewind(
 @router.message(AppStates.matches, F.text == "👎")
 async def react(message: types.Message, state: FSMContext) -> None:
     """Handle reactions to matches."""
-    if not message.text:
+    if not message.text or not message.from_user:
         return None
 
     current_state = await state.get_state()
@@ -133,143 +133,60 @@ async def react(message: types.Message, state: FSMContext) -> None:
     }
 
     match_id = await state.get_value("match_id")
-    assert match_id
+    if not match_id:
+        return None
 
     try:
-        match = await get_user(id=match_id, is_active=True)
-    except exc.NoResultFound:
-        await message.answer(_("User not found"))
-        if current_state == AppStates.likes.state:
-            return await show_likes(message, state, user)
-        if current_state == AppStates.matches.state:
-            return await show_matches(message, state, user)
+        await create_or_update_reaction(
+            message.from_user.id,
+            ReactionInSchema(
+                to_user_id=match_id,
+                reaction_type=reactions[message.text],
+            ),
+        )
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Failed to create or update reaction: {e}")
+        if e.response.status_code == 404 or (
+            e.response.status_code == 403 and "Inactive user" in e.response.text
+        ):
+            await message.answer(_("User not found"))
+            if current_state == AppStates.likes.state:
+                return await show_likes(message, state)
+            if current_state == AppStates.matches.state:
+                return await show_matches(message, state)
         return await search_with_keyboard(message, state)
 
-    is_created, reaction = await create_or_update_reaction(
-        user,
-        match,
-        reactions[message.text],
-    )
-
-    if message.text == "👍" and not reaction.is_match_notified:
-        mutual = await is_mutual(reaction)
-        if mutual:
-            asyncio.ensure_future(notify_mutual(user, match))
-        else:
-            asyncio.ensure_future(notify_match(match))
-        async with session_factory() as session:
-            reaction.is_match_notified = True
-            session.add(reaction)
-            await session.commit()
-    if not is_created and message.text == "👎":
-        try:
-            await delete_chat_between_users(user.id, match.id)
-        except exc.NoResultFound:
-            pass
-
     if current_state == AppStates.likes.state:
-        return await show_likes(message, state, user)
+        return await show_likes(message, state)
     if current_state == AppStates.matches.state:
-        return await show_matches(message, state, user)
+        return await show_matches(message, state)
     return await search_with_keyboard(message, state)
 
 
-async def notify_mutual(user: User, match: User):
-    # duplicate messages so pybabel could extract them
-    mk1 = types.InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                types.InlineKeyboardButton(
-                    text=_("Start a chat"),
-                    web_app=types.WebAppInfo(
-                        url=f"{settings.APP_URL}/users/{match.id}/chat",
-                    ),
-                ),
-            ],
-        ],
-    )
-    mk2 = types.InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                types.InlineKeyboardButton(
-                    text=_("Start a chat"),
-                    web_app=types.WebAppInfo(
-                        url=f"{settings.APP_URL}/users/{user.id}/chat",
-                    ),
-                ),
-            ],
-        ],
-    )
-    msg1 = _v(
-        "Congratulations 🎉. You have matched with {match.name}."
-        "\nStart a chat with them by clicking the button below 👇",
-        locale=user.ui_language.name,
-    )
-    msg2 = _v(
-        "Congratulations 🎉. You have matched with {match.name}."
-        "\nStart a chat with them by clicking the button below 👇",
-        locale=match.ui_language.name,
-    )
-
-    try:
-        await send_message(
-            user.telegram_id,
-            msg1.format(match=match),
-            parse_mode="HTML",
-            reply_markup=mk1,
-        )
-    except (TelegramBadRequest, TelegramForbiddenError):
-        pass
-
-    try:
-        await send_message(
-            match.telegram_id,
-            msg2.format(match=user),
-            parse_mode="HTML",
-            reply_markup=mk2,
-        )
-    except (TelegramBadRequest, TelegramForbiddenError):
-        pass
-
-
-async def notify_match(match: User):
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        types.InlineKeyboardButton(
-            text=_v("Yes", locale=match.ui_language.name),
-            callback_data="show_likes",
-        ),
-        types.InlineKeyboardButton(
-            text=_v("No", locale=match.ui_language.name),
-            callback_data="delete_message",
-        ),
-    )
-    msg = _v(
-        "Someone liked your profile. Do you want to see who liked you?",
-        locale=match.ui_language.name,
-    )
-    try:
-        await send_message(match.telegram_id, msg, reply_markup=builder.as_markup())
-    except (TelegramBadRequest, TelegramForbiddenError):
-        pass
-
-
 @router.callback_query(F.data == "delete_message")
-async def delete_message(callback: types.CallbackQuery):
+async def delete_message(callback: types.CallbackQuery) -> None:
+    """Delete message."""
     if callback.message and isinstance(callback.message, types.Message):
         await callback.message.delete()
     await callback.answer()
 
 
 @router.callback_query(F.data == "show_matches")
-async def show_matches_callback(callback: types.CallbackQuery, state: FSMContext):
+async def show_matches_callback(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+) -> None:
+    """Show matches."""
     await callback.answer()
-    user = await get_user(telegram_id=callback.from_user.id, is_active=True)
-    await show_matches(callback.message, state, user)
+    if not isinstance(callback.message, types.Message):
+        return
+    await show_matches(callback.message, state, from_user=callback.from_user)
 
 
 @router.callback_query(F.data == "show_likes")
-async def show_likes_callback(callback: types.CallbackQuery, state: FSMContext):
+async def show_likes_callback(callback: types.CallbackQuery, state: FSMContext) -> None:
+    """Show likes."""
     await callback.answer()
-    user = await get_user(telegram_id=callback.from_user.id, is_active=True)
-    await show_likes(callback.message, state, user)
+    if not isinstance(callback.message, types.Message):
+        return
+    await show_likes(callback.message, state, from_user=callback.from_user)

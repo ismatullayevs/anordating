@@ -1,6 +1,9 @@
+from uuid import UUID
+
 import httpx
 
 from app.core.config import settings
+from bot.schemas.reaction import ReactionInSchema, ReactionSchema
 from bot.schemas.user import UserSchema
 
 
@@ -78,3 +81,41 @@ async def get_rewinds(
         )
         response.raise_for_status()
         return [UserSchema(**user) for user in response.json()]
+
+
+async def create_or_update_reaction(
+    user_telegram_id: int,
+    reaction_data: ReactionInSchema,
+) -> ReactionSchema:
+    """React to a user."""
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "X-Telegram-User-Id": str(user_telegram_id),
+            "X-Internal-Token": settings.INTERNAL_TOKEN,
+        }
+        response = await client.put(
+            f"{settings.API_URL}/v1/reactions",
+            headers=headers,
+            json={
+                "to_reaction_id": str(reaction_data.to_user_id),
+                "reaction_type": reaction_data.reaction_type,
+            },
+        )
+        response.raise_for_status()
+        return ReactionSchema(**response.json())
+
+
+async def check_match(user_telegram_id: int, match_id: UUID) -> bool:
+    """Check if a match exists."""
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "X-Telegram-User-Id": str(user_telegram_id),
+            "X-Internal-Token": settings.INTERNAL_TOKEN,
+        }
+        response = await client.get(
+            f"{settings.API_URL}/v1/matches/check",
+            headers=headers,
+            params={"match_id": str(match_id)},
+        )
+        response.raise_for_status()
+        return response.json()["is_match"]

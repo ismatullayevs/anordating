@@ -24,12 +24,16 @@ logger = logging.getLogger(__name__)
 
 @router.message(AppStates.matches, F.text.in_(["⬅️", "➡️"]))
 @router.message(AppStates.menu, F.text == __("❤️ Matches"))
-async def show_matches(message: types.Message, state: FSMContext) -> None:
+async def show_matches(
+    message: types.Message,
+    state: FSMContext,
+    from_user: types.User | None = None,
+) -> None:
     """Show matches for the user."""
-    if not message.from_user:
+    from_user = from_user or message.from_user
+    if not from_user:
         return
-
-    user = await get_current_user(message.from_user.id)
+    user = await get_current_user(from_user.id)
 
     index = 0 if message.text == _("❤️ Matches") else await state.get_value("index") or 0
 

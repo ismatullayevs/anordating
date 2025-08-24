@@ -11,9 +11,9 @@ class ReactionInSchema(BaseModel):
     reaction_type: ReactionType
 
 
-class ReactionOutSchema(ReactionInSchema):
+class ReactionSchema(ReactionInSchema):
     id: int
-    is_match_notified: bool
     created_at: datetime
     updated_at: datetime
     is_created: bool
+    is_match_notified: bool

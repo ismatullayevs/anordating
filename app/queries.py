@@ -7,6 +7,7 @@ from sqlalchemy.orm import aliased, joinedload, selectinload
 
 from app.core.db import session_factory
 from app.enums import ReactionType, UILanguages
+from app.exceptions import InactiveUserError
 from app.geocoding import get_place
 from app.matching.rating import get_new_rating
 from app.models.chat import Chat, ChatMember
@@ -169,41 +170,49 @@ async def get_matches(user: User, limit: int | None = None, offset: int | None =
 
 
 async def create_or_update_reaction(
-    user: User,
-    match: User,
+    user_id: UUID,
+    match_id: UUID,
     reaction_type: ReactionType,
-):
-    assert user.is_active and match.is_active
+    db: AsyncSession,
+) -> tuple[bool, Reaction]:
+    """Create or update a reaction between two users."""
+    user = (await db.scalars(select(User).where(User.id == user_id))).one()
+    if not user.is_active:
+        raise InactiveUserError
+
+    match = (await db.scalars(select(User).where(User.id == match_id))).one()
+    if not match.is_active:
+        raise InactiveUserError
+
     is_created = False
-    async with session_factory() as session:
-        res = await session.scalars(
-            select(Reaction).where(
-                Reaction.from_user_id == user.id,
-                Reaction.to_user_id == match.id,
-            ),
+    res = await db.scalars(
+        select(Reaction).where(
+            Reaction.from_user_id == user_id,
+            Reaction.to_user_id == match_id,
+        ),
+    )
+    try:
+        reaction = res.one()
+        if reaction.reaction_type == reaction_type:
+            return is_created, reaction
+
+        previous_rating = match.rating - reaction.added_rating
+        match.rating = get_new_rating(previous_rating, user.rating, reaction_type)
+
+        reaction.reaction_type = reaction_type
+        reaction.added_rating = match.rating - previous_rating
+    except exc.NoResultFound:
+        previous_rating = match.rating
+        match.rating = get_new_rating(match.rating, user.rating, reaction_type)
+        reaction = Reaction(
+            from_user_id=user.id,
+            to_user_id=match.id,
+            reaction_type=reaction_type,
+            added_rating=match.rating - previous_rating,
         )
-        try:
-            reaction = res.one()
-            if reaction.reaction_type == reaction_type:
-                return is_created, reaction
-
-            previous_rating = match.rating - reaction.added_rating
-            match.rating = get_new_rating(previous_rating, user.rating, reaction_type)
-
-            reaction.reaction_type = reaction_type
-            reaction.added_rating = match.rating - previous_rating
-        except exc.NoResultFound:
-            previous_rating = match.rating
-            match.rating = get_new_rating(match.rating, user.rating, reaction_type)
-            reaction = Reaction(
-                from_user_id=user.id,
-                to_user_id=match.id,
-                reaction_type=reaction_type,
-                added_rating=match.rating - previous_rating,
-            )
-            is_created = True
-        session.add_all((reaction, match))
-        await session.commit()
+        db.add(reaction)
+        is_created = True
+    await db.commit()
     return is_created, reaction
 
 
@@ -225,18 +234,23 @@ async def get_nth_last_reacted_match(user: User, n: int):
     return matches[0]
 
 
-async def is_mutual(reaction: Reaction):
-    if reaction.reaction_type != ReactionType.like:
-        return False
-
-    async with session_factory() as session:
-        query = select(Reaction).where(
-            Reaction.from_user_id == reaction.to_user_id,
-            Reaction.to_user_id == reaction.from_user_id,
+async def is_match(user_id: UUID, match_id: UUID, db: AsyncSession) -> bool:
+    """Check if two users have liked each other."""
+    reaction1 = await db.scalar(
+        select(Reaction).where(
+            Reaction.from_user_id == user_id,
+            Reaction.to_user_id == match_id,
             Reaction.reaction_type == ReactionType.like,
-        )
-        res = await session.scalars(query)
-        return res.one_or_none() is not None
+        ),
+    )
+    reaction2 = await db.scalar(
+        select(Reaction).where(
+            Reaction.from_user_id == match_id,
+            Reaction.to_user_id == user_id,
+            Reaction.reaction_type == ReactionType.like,
+        ),
+    )
+    return reaction1 is not None and reaction2 is not None
 
 
 async def can_write(session: AsyncSession, user_id: UUID, match_id: UUID):

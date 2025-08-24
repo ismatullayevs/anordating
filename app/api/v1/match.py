@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
@@ -6,6 +7,7 @@ from app.api.dependencies import CurrentActiveUserDep, DbDep
 from app.exceptions import RewindLimitExceededError
 from app.matching.algorithm import get_best_match
 from app.models.user import User
+from app.queries import is_match
 from app.schemas.user import UserOutSchema
 from app.services.match import get_matches, get_rewinds
 
@@ -30,6 +32,17 @@ async def fetch_best_match(
 ) -> User | None:
     """Fetch the best match for the current user."""
     return await get_best_match(current_user.id, db)
+
+
+@router.get("/matches/check")
+async def check_if_match(
+    current_user: CurrentActiveUserDep,
+    match_id: UUID,
+    db: DbDep,
+) -> dict[str, bool]:
+    """Check if the current user is a match with the specified user."""
+    match = await is_match(current_user.id, match_id, db)
+    return {"is_match": match}
 
 
 @router.get("/rewinds", response_model=list[UserOutSchema])
