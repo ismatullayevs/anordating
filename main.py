@@ -1,3 +1,5 @@
+import logging
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +20,8 @@ from app.api.admin.views import (
 from app.api.v1.main import router as v1_router
 from app.core.config import settings
 from app.core.db import engine
+
+logging.basicConfig(level=logging.DEBUG if settings.DEBUG else logging.INFO)
 
 app = FastAPI()
 app.include_router(v1_router)

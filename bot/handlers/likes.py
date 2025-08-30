@@ -16,29 +16,29 @@ router = Router()
 router.message.filter(IsHuman())
 
 
-async def show_likes_with_keyboard(message: types.Message, state: FSMContext) -> None:
-    """Show likes with keyboard."""
-    if not message.from_user:
-        return
-    await message.answer(_("Likes"), reply_markup=get_search_keyboard())
-    await show_likes(message.from_user.id, state)
-
-
 @router.message(AppStates.menu, F.text == __("👍 Likes"))
+async def show_likes_with_keyboard(
+    message: types.Message, state: FSMContext, from_user: types.User | None = None,
+) -> None:
+    """Show likes with keyboard."""
+    await message.answer(_("Likes"), reply_markup=get_search_keyboard())
+    await show_likes(message, state, from_user)
+
+
 async def show_likes(
-    message: types.Message,
-    state: FSMContext,
+    message: types.Message, state: FSMContext, from_user: types.User | None = None,
 ) -> None:
     """Show likes."""
-    if not message.from_user:
+    from_user = from_user or message.from_user
+    if not from_user:
         return None
 
     await state.update_data(match_id=None)
     await state.update_data(rewind_index=0)
 
-    user = await get_current_user(message.from_user.id)
+    user = await get_current_user(from_user.id)
 
-    likes = await get_likes(message.from_user.id, limit=1)
+    likes = await get_likes(from_user.id, limit=1)
     if not likes:
         await message.answer(_("No likes found"))
         return await show_menu(message, state)

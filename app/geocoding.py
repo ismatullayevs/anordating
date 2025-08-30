@@ -27,7 +27,9 @@ def get_place_id(latitude: float, longitude: float) -> str | None:
 
 
 def get_places(
-    city_name: str, language: UILanguages = UILanguages.en, max_results: int = 5
+    city_name: str,
+    language: UILanguages = UILanguages.en,
+    max_results: int = 5,
 ) -> list[tuple[str, str]]:
     client = get_maps_client()
     result = geocode(client, city_name, language=language.name)
@@ -38,14 +40,15 @@ def get_places(
                 (
                     res["formatted_address"],
                     res["place_id"],
-                )
+                ),
             )
 
     return cities[:max_results]
 
 
 def get_place(
-    place_id: str, language: UILanguages = UILanguages.en
+    place_id: str,
+    language: UILanguages = UILanguages.en,
 ) -> tuple[float, float, str]:
     client = get_maps_client()
     result = geocode(client, place_id=place_id, language=language.name)

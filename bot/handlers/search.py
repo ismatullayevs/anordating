@@ -6,10 +6,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
-from app.enums import ReactionType
 from bot.config import settings
+from bot.enums import ReactionType
 from bot.filters import IsHuman
-from bot.handlers.likes import show_likes
+from bot.handlers.likes import show_likes, show_likes_with_keyboard
 from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_empty_search_keyboard, get_search_keyboard
@@ -30,13 +30,13 @@ router = Router()
 router.message.filter(IsHuman())
 
 
+@router.message(AppStates.menu, F.text == __("🔎 Watch profiles"))
 async def search_with_keyboard(message: types.Message, state: FSMContext) -> None:
     """Send a keyboard to the user to search for profiles."""
     await message.answer("🔎", reply_markup=get_search_keyboard())
     return await search(message, state)
 
 
-@router.message(AppStates.menu, F.text == __("🔎 Watch profiles"))
 async def search(
     message: types.Message,
     state: FSMContext,
@@ -150,17 +150,14 @@ async def react(message: types.Message, state: FSMContext) -> None:
             e.response.status_code == 403 and "Inactive user" in e.response.text
         ):
             await message.answer(_("User not found"))
-            if current_state == AppStates.likes.state:
-                return await show_likes(message, state)
-            if current_state == AppStates.matches.state:
-                return await show_matches(message, state)
-        return await search_with_keyboard(message, state)
+        else:
+            await message.answer(_("Something went wrong"))
 
     if current_state == AppStates.likes.state:
         return await show_likes(message, state)
     if current_state == AppStates.matches.state:
         return await show_matches(message, state)
-    return await search_with_keyboard(message, state)
+    return await search(message, state)
 
 
 @router.callback_query(F.data == "delete_message")
@@ -189,4 +186,6 @@ async def show_likes_callback(callback: types.CallbackQuery, state: FSMContext) 
     await callback.answer()
     if not isinstance(callback.message, types.Message):
         return
-    await show_likes(callback.message, state, from_user=callback.from_user)
+    await show_likes_with_keyboard(
+        callback.message, state, from_user=callback.from_user,
+    )

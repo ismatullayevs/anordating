@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.exc import NoResultFound
@@ -7,6 +9,7 @@ from app.exceptions import InactiveUserError
 from app.queries import create_or_update_reaction
 from app.schemas.reaction import ReactionInSchema, ReactionOutSchema
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/reactions", tags=["Reactions"])
 
 
@@ -31,4 +34,4 @@ async def create_or_update_user_reaction(
     except InactiveUserError as e:
         raise HTTPException(status_code=403, detail="Inactive user") from e
 
-    return ReactionOutSchema.model_validate(reaction)
+    return ReactionOutSchema.model_validate(reaction, from_attributes=True)

@@ -11,8 +11,7 @@ from app.api.i18n import get_translator
 from app.core.config import settings
 from app.core.db import session_factory
 from app.dto.chat import MessageAddDTO
-from app.models.chat import Chat, ChatMember
-from app.queries import can_write, get_chat_by_users, get_user, select_chat_members
+from app.queries import get_user, select_chat_members
 from bot.utils import send_message
 
 
@@ -36,7 +35,7 @@ class ConnectionManager:
 
     def is_connected(self, user_id: str) -> bool:
         return user_id in self.active_connections and bool(
-            self.active_connections[user_id]
+            self.active_connections[user_id],
         )
 
 
@@ -58,9 +57,9 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData):
                 message_in = data.get("payload")
                 async with session_factory() as session:
                     members = await select_chat_members(
-                        session, chat_id=message_in["chat_id"], with_user=True
+                        session, chat_id=message_in["chat_id"], with_user=True,
                     )
-                    if not user.id in [m.user_id for m in members]:
+                    if user.id not in [m.user_id for m in members]:
                         await manager.disconnect(str(user.id), websocket)
                         return
                     message = MessageAddDTO(**message_in, user_id=user.id)
@@ -93,11 +92,11 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData):
                                     types.InlineKeyboardButton(
                                         text=_("Open chat"),
                                         web_app=types.WebAppInfo(
-                                            url=f"{settings.APP_URL}/users/{user.id}/chat"
+                                            url=f"{settings.APP_URL}/users/{user.id}/chat",
                                         ),
-                                    )
+                                    ),
                                 ],
-                            ]
+                            ],
                         )
                         msg = _("You have a new message from {name}")
                         asyncio.ensure_future(
@@ -105,10 +104,10 @@ async def handle_websocket(websocket: WebSocket, init_data: WebAppInitData):
                                 str(member.user.telegram_id),
                                 msg.format(name=user.name),
                                 reply_markup=mk,
-                            )
+                            ),
                         )
                     await manager.send_message(
-                        str(member.user_id), json.dumps(ws_message, default=str)
+                        str(member.user_id), json.dumps(ws_message, default=str),
                     )
     except WebSocketDisconnect:
         print("WebSocket disconnected")

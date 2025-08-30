@@ -8,11 +8,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.media_group import MediaGroupBuilder
 
-from app.core.config import EnvironmentTypes, settings
-from app.core.db import session_factory
-from app.enums import FileTypes
-from app.models.user import User
 from app.queries import get_city_name
+from bot.config import EnvironmentTypes, settings
+from bot.enums import FileTypes
 from bot.schemas.media import FileSchema
 from bot.schemas.user import UserSchema
 
@@ -31,7 +29,9 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 async def get_profile_card(
-    user: UserSchema, media: list[FileSchema], from_user: UserSchema | None = None
+    user: UserSchema,
+    media: list[FileSchema],
+    from_user: UserSchema | None = None,
 ):
     assert user.is_active
     caption = f"{user.name}, {user.age}"
@@ -41,7 +41,10 @@ async def get_profile_card(
     location_str = f"📍 {city}" if city else ""
     if from_user and from_user.is_location_precise and user.is_location_precise:
         dist = haversine_distance(
-            user.latitude, user.longitude, from_user.latitude, from_user.longitude
+            user.latitude,
+            user.longitude,
+            from_user.latitude,
+            from_user.longitude,
         )
         if dist <= 20 and dist != 0:
             location_str = _("📍 {dist} km").format(dist=int(math.ceil(dist)))
@@ -69,7 +72,7 @@ async def clear_state(state: FSMContext, except_locale=False):
 
 async def send_message(*args, **kwargs):
     bot = Bot(token=settings.BOT_TOKEN)
-    if settings.ENVIRONMENT == EnvironmentTypes.testing:
+    if EnvironmentTypes.testing == settings.ENVIRONMENT:
         session = AiohttpSession(api=TEST)
         bot = Bot(token=settings.BOT_TOKEN, session=session)
     try:

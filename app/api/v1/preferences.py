@@ -25,19 +25,22 @@ async def get_preferences(db: DbDep, user_id: UUID):
 
 @router.post("", response_model=PreferencesOutSchema)
 async def create_preferences(
-    db: DbDep, user_id: UUID, preferences_data: PreferencesInSchema
+    db: DbDep,
+    user_id: UUID,
+    preferences_data: PreferencesInSchema,
 ):
     """Create user preferences."""
     try:
-        preferences = await create_user_preferences(db, user_id, preferences_data)
-        return preferences
+        return await create_user_preferences(db, user_id, preferences_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("", response_model=PreferencesOutSchema)
 async def update_preferences(
-    db: DbDep, user_id: UUID, preferences_data: PreferencesInSchema
+    db: DbDep,
+    user_id: UUID,
+    preferences_data: PreferencesInSchema,
 ):
     """Update user preferences."""
     try:

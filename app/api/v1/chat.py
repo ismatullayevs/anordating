@@ -62,7 +62,7 @@ async def create_chat(
                     "payload": {
                         "id": chat_db.id,
                     },
-                }
+                },
             ),
         )
         return chat_db
@@ -89,7 +89,7 @@ async def delete_chat(
         chat = res.one_or_none()
         if not chat:
             raise HTTPException(
-                status_code=403, detail="You are not a member of this chat"
+                status_code=403, detail="You are not a member of this chat",
             )
 
         await session.delete(chat)
@@ -106,13 +106,13 @@ async def get_messages(
     user = await get_user(telegram_id=init_data.user.id, is_active=True)
     async with session_factory() as session:
         query = select(ChatMember).where(
-            ChatMember.chat_id == chat_id, ChatMember.user_id == user.id
+            ChatMember.chat_id == chat_id, ChatMember.user_id == user.id,
         )
         res = await session.scalars(query)
         member = res.one_or_none()
         if not member:
             raise HTTPException(
-                status_code=403, detail="You are not a member of this chat"
+                status_code=403, detail="You are not a member of this chat",
             )
 
         query = (

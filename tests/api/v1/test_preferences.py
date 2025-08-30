@@ -9,19 +9,19 @@ async def test_get_preferences_success(client: AsyncClient, test_user, session):
     """Test getting user preferences."""
     # First create preferences for the user
     from app.models.user import Preferences
-    
+
     prefs = Preferences(
         user_id=test_user.id,
         min_age=18,
         max_age=35,
-        preferred_gender=PreferredGenders.both
+        preferred_gender=PreferredGenders.both,
     )
     session.add(prefs)
     await session.commit()
     await session.refresh(prefs)
-    
+
     response = await client.get(f"/v1/preferences?user_id={test_user.id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["user_id"] == str(test_user.id)
@@ -35,7 +35,7 @@ async def test_get_preferences_success(client: AsyncClient, test_user, session):
 async def test_get_preferences_not_found(client: AsyncClient, test_user):
     """Test getting preferences for user with no preferences."""
     response = await client.get(f"/v1/preferences?user_id={test_user.id}")
-    
+
     assert response.status_code == 400
     assert "not found" in response.json()["detail"].lower()
 
@@ -46,14 +46,14 @@ async def test_create_preferences_success(client: AsyncClient, test_user):
     preferences_data = {
         "min_age": 20,
         "max_age": 30,
-        "preferred_gender": PreferredGenders.female.value
+        "preferred_gender": PreferredGenders.female.value,
     }
-    
+
     response = await client.post(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=preferences_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=preferences_data,
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["user_id"] == str(test_user.id)
@@ -68,27 +68,27 @@ async def test_create_preferences_duplicate(client: AsyncClient, test_user, sess
     """Test creating preferences when they already exist."""
     # First create preferences for the user
     from app.models.user import Preferences
-    
+
     prefs = Preferences(
         user_id=test_user.id,
         min_age=25,
         max_age=40,
-        preferred_gender=PreferredGenders.male
+        preferred_gender=PreferredGenders.male,
     )
     session.add(prefs)
     await session.commit()
-    
+
     preferences_data = {
         "min_age": 22,
         "max_age": 32,
-        "preferred_gender": PreferredGenders.female.value
+        "preferred_gender": PreferredGenders.female.value,
     }
-    
+
     response = await client.post(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=preferences_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=preferences_data,
     )
-    
+
     assert response.status_code == 400
     assert "already exist" in response.json()["detail"].lower()
 
@@ -99,14 +99,14 @@ async def test_create_preferences_invalid_data(client: AsyncClient, test_user):
     preferences_data = {
         "min_age": "invalid_age",
         "max_age": -5,
-        "preferred_gender": "invalid_gender"
+        "preferred_gender": "invalid_gender",
     }
-    
+
     response = await client.post(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=preferences_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=preferences_data,
     )
-    
+
     assert response.status_code == 422  # Validation error
 
 
@@ -115,15 +115,15 @@ async def test_create_preferences_missing_required_field(client: AsyncClient, te
     """Test creating preferences without required field."""
     preferences_data = {
         "min_age": 20,
-        "max_age": 30
+        "max_age": 30,
         # Missing preferred_gender
     }
-    
+
     response = await client.post(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=preferences_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=preferences_data,
     )
-    
+
     assert response.status_code == 422  # Validation error
 
 
@@ -132,27 +132,27 @@ async def test_update_preferences_success(client: AsyncClient, test_user, sessio
     """Test updating user preferences."""
     # First create preferences for the user
     from app.models.user import Preferences
-    
+
     prefs = Preferences(
         user_id=test_user.id,
         min_age=18,
         max_age=35,
-        preferred_gender=PreferredGenders.female
+        preferred_gender=PreferredGenders.female,
     )
     session.add(prefs)
     await session.commit()
-    
+
     update_data = {
         "min_age": 21,
         "max_age": 28,
-        "preferred_gender": PreferredGenders.both.value
+        "preferred_gender": PreferredGenders.both.value,
     }
-    
+
     response = await client.put(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=update_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=update_data,
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["user_id"] == str(test_user.id)
@@ -167,14 +167,14 @@ async def test_update_preferences_not_found(client: AsyncClient, test_user):
     update_data = {
         "min_age": 21,
         "max_age": 28,
-        "preferred_gender": PreferredGenders.both.value
+        "preferred_gender": PreferredGenders.both.value,
     }
-    
+
     response = await client.put(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=update_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=update_data,
     )
-    
+
     assert response.status_code == 400
     assert "not found" in response.json()["detail"].lower()
 
@@ -184,27 +184,27 @@ async def test_update_preferences_invalid_data(client: AsyncClient, test_user, s
     """Test updating preferences with invalid data."""
     # First create preferences
     from app.models.user import Preferences
-    
+
     prefs = Preferences(
         user_id=test_user.id,
         min_age=18,
         max_age=35,
-        preferred_gender=PreferredGenders.female
+        preferred_gender=PreferredGenders.female,
     )
     session.add(prefs)
     await session.commit()
-    
+
     update_data = {
         "min_age": "not_a_number",
         "max_age": -10,
-        "preferred_gender": "invalid_gender"
+        "preferred_gender": "invalid_gender",
     }
-    
+
     response = await client.put(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=update_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=update_data,
     )
-    
+
     assert response.status_code == 422  # Validation error
 
 
@@ -214,14 +214,14 @@ async def test_preferences_with_null_ages(client: AsyncClient, test_user):
     preferences_data = {
         "min_age": None,
         "max_age": None,
-        "preferred_gender": PreferredGenders.both.value
+        "preferred_gender": PreferredGenders.both.value,
     }
-    
+
     response = await client.post(
-        f"/v1/preferences?user_id={test_user.id}", 
-        json=preferences_data
+        f"/v1/preferences?user_id={test_user.id}",
+        json=preferences_data,
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["min_age"] is None
@@ -235,14 +235,14 @@ async def test_preferences_invalid_user_id(client: AsyncClient):
     preferences_data = {
         "min_age": 20,
         "max_age": 30,
-        "preferred_gender": PreferredGenders.male.value
+        "preferred_gender": PreferredGenders.male.value,
     }
-    
+
     response = await client.post("/v1/preferences?user_id=invalid-uuid", json=preferences_data)
     assert response.status_code == 422  # Validation error
-    
+
     response = await client.get("/v1/preferences?user_id=invalid-uuid")
     assert response.status_code == 422  # Validation error
-    
+
     response = await client.put("/v1/preferences?user_id=invalid-uuid", json=preferences_data)
     assert response.status_code == 422  # Validation error

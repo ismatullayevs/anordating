@@ -6,7 +6,7 @@ async def set_bot_profile(bot: Bot):
     await bot.set_my_name("Anor - match and meet new friends ✨")
     await bot.set_my_name("Anor - знакомства и новые друзья ✨", language_code="ru")
     await bot.set_my_name(
-        "Anor - tanishing va do'stlar orttiring ✨", language_code="uz"
+        "Anor - tanishing va do'stlar orttiring ✨", language_code="uz",
     )
     await bot.set_my_commands(
         [

@@ -1,0 +1,75 @@
+{
+  "id": "approval_1756536304833_2kxmc1uut",
+  "title": "API-Bot Separation Design Document",
+  "filePath": ".spec-workflow/specs/api-bot-separation/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-08-30T06:45:04.833Z",
+  "category": "spec",
+  "categoryName": "api-bot-separation",
+  "response": "Feedback Summary (5 comments):\n\nSpecific Text Comments:\n1. \"**Media Handling**: API service expands to handle ...\": Right now, we aren't storing any media. It is all in telegram servers, and we only provide file_id and telegram figures out which files to include. In the future, we are planning to support file uploads/downloads when we create web client, but for now, you don't need to worry about it\n2. \"MDB[(MongoDB - Bot Sessions)]\": MongoDB shouldn't be shared. It should only be used by the bot. If you have any specific reasons to make it shared, please tell. Maybe I'm missing something.\n3. \"FS[File System - Media]\": File storage is not necessary for now\n4. \"- **Handling:** HTTP 401 responses trigger token r...\": Right now, it doesn't need refresh. This api is only used by bot service and it uses a shared internal token to authenticate itself. Later, we might add JWT authentication with refresh, but for now, it's not necessary. Also, this authentication mechanism is defined in deps.py and doesn't need any modification, unless you have specific reasons to do so\n5. \"- **Database Transactions**: Test rollback scenari...\": In conftest.py file, you can see how it is implemented\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Right now, we aren't storing any media. It is all in telegram servers, and we only provide file_id and telegram figures out which files to include. In the future, we are planning to support file uploads/downloads when we create web client, but for now, you don't need to worry about it\",\n      \"timestamp\": \"2025-08-30T06:50:42.369Z\",\n      \"selectedText\": \"**Media Handling**: API service expands to handle file upload/download via HTTP\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756536642369_h7w88wffq\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"MongoDB shouldn't be shared. It should only be used by the bot. If you have any specific reasons to make it shared, please tell. Maybe I'm missing something.\",\n      \"timestamp\": \"2025-08-30T06:53:04.472Z\",\n      \"selectedText\": \"MDB[(MongoDB - Bot Sessions)]\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756536784472_m33i7vtus\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"File storage is not necessary for now\",\n      \"timestamp\": \"2025-08-30T06:53:51.283Z\",\n      \"selectedText\": \"FS[File System - Media]\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756536831283_fszxu7fio\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Right now, it doesn't need refresh. This api is only used by bot service and it uses a shared internal token to authenticate itself. Later, we might add JWT authentication with refresh, but for now, it's not necessary. Also, this authentication mechanism is defined in deps.py and doesn't need any modification, unless you have specific reasons to do so\",\n      \"timestamp\": \"2025-08-30T07:00:20.011Z\",\n      \"selectedText\": \"- **Handling:** HTTP 401 responses trigger token refresh or service restart\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756537220011_w4vvnrmex\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"In conftest.py file, you can see how it is implemented\",\n      \"timestamp\": \"2025-08-30T07:02:11.512Z\",\n      \"selectedText\": \"- **Database Transactions**: Test rollback scenarios and data consistency\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756537331512_vxqbadcyl\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (5 comments):\\n\\nSpecific Text Comments:\\n1. \\\"**Media Handling**: API service expands to handle ...\\\": Right now, we aren't storing any media. It is all in telegram servers, and we only provide file_id and telegram figures out which files to include. In the future, we are planning to support file uploads/downloads when we create web client, but for now, you don't need to worry about it\\n2. \\\"MDB[(MongoDB - Bot Sessions)]\\\": MongoDB shouldn't be shared. It should only be used by the bot. If you have any specific reasons to make it shared, please tell. Maybe I'm missing something.\\n3. \\\"FS[File System - Media]\\\": File storage is not necessary for now\\n4. \\\"- **Handling:** HTTP 401 responses trigger token r...\\\": Right now, it doesn't need refresh. This api is only used by bot service and it uses a shared internal token to authenticate itself. Later, we might add JWT authentication with refresh, but for now, it's not necessary. Also, this authentication mechanism is defined in deps.py and doesn't need any modification, unless you have specific reasons to do so\\n5. \\\"- **Database Transactions**: Test rollback scenari...\\\": In conftest.py file, you can see how it is implemented\\n\",\n  \"timestamp\": \"2025-08-30T07:02:31.182Z\"\n}",
+  "respondedAt": "2025-08-30T07:02:31.203Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Right now, we aren't storing any media. It is all in telegram servers, and we only provide file_id and telegram figures out which files to include. In the future, we are planning to support file uploads/downloads when we create web client, but for now, you don't need to worry about it",
+      "timestamp": "2025-08-30T06:50:42.369Z",
+      "selectedText": "**Media Handling**: API service expands to handle file upload/download via HTTP",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756536642369_h7w88wffq"
+    },
+    {
+      "type": "selection",
+      "comment": "MongoDB shouldn't be shared. It should only be used by the bot. If you have any specific reasons to make it shared, please tell. Maybe I'm missing something.",
+      "timestamp": "2025-08-30T06:53:04.472Z",
+      "selectedText": "MDB[(MongoDB - Bot Sessions)]",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756536784472_m33i7vtus"
+    },
+    {
+      "type": "selection",
+      "comment": "File storage is not necessary for now",
+      "timestamp": "2025-08-30T06:53:51.283Z",
+      "selectedText": "FS[File System - Media]",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756536831283_fszxu7fio"
+    },
+    {
+      "type": "selection",
+      "comment": "Right now, it doesn't need refresh. This api is only used by bot service and it uses a shared internal token to authenticate itself. Later, we might add JWT authentication with refresh, but for now, it's not necessary. Also, this authentication mechanism is defined in deps.py and doesn't need any modification, unless you have specific reasons to do so",
+      "timestamp": "2025-08-30T07:00:20.011Z",
+      "selectedText": "- **Handling:** HTTP 401 responses trigger token refresh or service restart",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756537220011_w4vvnrmex"
+    },
+    {
+      "type": "selection",
+      "comment": "In conftest.py file, you can see how it is implemented",
+      "timestamp": "2025-08-30T07:02:11.512Z",
+      "selectedText": "- **Database Transactions**: Test rollback scenarios and data consistency",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756537331512_vxqbadcyl"
+    }
+  ]
+}

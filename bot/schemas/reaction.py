@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.enums import ReactionType
+from bot.enums import ReactionType
 
 
 class ReactionInSchema(BaseModel):
@@ -15,5 +15,4 @@ class ReactionSchema(ReactionInSchema):
     id: int
     created_at: datetime
     updated_at: datetime
-    is_created: bool
     is_match_notified: bool

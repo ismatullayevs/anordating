@@ -1,0 +1,27 @@
+{
+  "id": "approval_1756537494050_yufr3bwea",
+  "title": "Updated API-Bot Separation Design (Revised)",
+  "filePath": ".spec-workflow/specs/api-bot-separation/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-08-30T07:04:54.050Z",
+  "category": "spec",
+  "categoryName": "api-bot-separation",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"#### MatchSchema  \n```python\nclass MatchSchema(Bas...\": Note that I didn't create a separate table for matches. When getting a match for a user, I just get all of their reactions and if those people also reacted to this user with a like, they are a match. So a match is just a user schema and doesn't include any other metadata\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Note that I didn't create a separate table for matches. When getting a match for a user, I just get all of their reactions and if those people also reacted to this user with a like, they are a match. So a match is just a user schema and doesn't include any other metadata\",\n      \"timestamp\": \"2025-08-30T07:34:32.530Z\",\n      \"selectedText\": \"#### MatchSchema  \\n```python\\nclass MatchSchema(BaseModel):\\n    id: UUID\\n    user: UserSchema\\n    matched_at: datetime\\n    is_active: bool\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756539272530_jsipyerkb\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"#### MatchSchema  \\n```python\\nclass MatchSchema(Bas...\\\": Note that I didn't create a separate table for matches. When getting a match for a user, I just get all of their reactions and if those people also reacted to this user with a like, they are a match. So a match is just a user schema and doesn't include any other metadata\\n\",\n  \"timestamp\": \"2025-08-30T07:34:55.553Z\"\n}",
+  "respondedAt": "2025-08-30T07:34:55.564Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Note that I didn't create a separate table for matches. When getting a match for a user, I just get all of their reactions and if those people also reacted to this user with a like, they are a match. So a match is just a user schema and doesn't include any other metadata",
+      "timestamp": "2025-08-30T07:34:32.530Z",
+      "selectedText": "#### MatchSchema  \n```python\nclass MatchSchema(BaseModel):\n    id: UUID\n    user: UserSchema\n    matched_at: datetime\n    is_active: bool",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756539272530_jsipyerkb"
+    }
+  ]
+}

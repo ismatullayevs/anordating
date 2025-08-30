@@ -13,7 +13,7 @@ class ReactionInSchema(BaseModel):
 
 class ReactionOutSchema(ReactionInSchema):
     id: int
+    from_user_id: UUID
     is_match_notified: bool
     created_at: datetime
     updated_at: datetime
-    is_created: bool

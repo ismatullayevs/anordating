@@ -11,19 +11,10 @@ from sqlalchemy.orm import selectinload
 
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
-from app.enums import FileTypes, UILanguages
 from app.geocoding import get_place, get_place_id, get_places
 from app.models.user import Place, PlaceName, Preferences, User
 from app.queries import get_user
-from app.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from bot.enums import FileTypes, UILanguages
 from bot.filters import IsActiveHumanUser, IsHuman
 from bot.handlers.menu import show_settings
 from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
@@ -38,6 +29,15 @@ from bot.keyboards import (
 )
 from bot.states import AppStates
 from bot.utils import clear_state, get_profile_card
+from bot.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 router = Router()
 router.message.filter(IsHuman())
@@ -70,11 +70,14 @@ async def show_profile(message: types.Message, state: FSMContext, user: User):
 
 @router.message(AppStates.settings, F.text == __("🔎 Search settings"))
 async def update_preferences(
-    message: types.Message, state: FSMContext, with_keyboard: bool = True
+    message: types.Message,
+    state: FSMContext,
+    with_keyboard: bool = True,
 ):
     if with_keyboard:
         await message.answer(
-            _("Search settings"), reply_markup=get_preferences_update_keyboard()
+            _("Search settings"),
+            reply_markup=get_preferences_update_keyboard(),
         )
     await state.set_state(AppStates.preferences)
     await clear_state(state, except_locale=True)
@@ -124,10 +127,12 @@ async def update_birth_date_start(message: types.Message, state: FSMContext):
         "\n"
         "\n👉 <b>YYYY-MM-DD</b> (For example, 2000-12-31)"
         "\n👉 <b>DD.MM.YYYY</b> (For example, 31.12.2000)"
-        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)"
+        "\n👉 <b>MM/DD/YYYY</b> (For example, 12/31/2000)",
     )
     await message.answer(
-        msg, reply_markup=types.ReplyKeyboardRemove(), parse_mode="HTML"
+        msg,
+        reply_markup=types.ReplyKeyboardRemove(),
+        parse_mode="HTML",
     )
     await state.set_state(AppStates.update_age)
 
@@ -225,13 +230,15 @@ async def update_bio(message: types.Message, state: FSMContext):
 @router.message(AppStates.preferences, F.text == __("👩‍❤️‍👨 Gender preferences"))
 async def update_gender_preferences_start(message: types.Message, state: FSMContext):
     await message.answer(
-        _("Who are you interested in?"), reply_markup=get_preferred_genders_keyboard()
+        _("Who are you interested in?"),
+        reply_markup=get_preferred_genders_keyboard(),
     )
     await state.set_state(AppStates.update_gender_preferences)
 
 
 @router.message(
-    AppStates.update_gender_preferences, F.text.in_([x[0] for x in GENDER_PREFERENCES])
+    AppStates.update_gender_preferences,
+    F.text.in_([x[0] for x in GENDER_PREFERENCES]),
 )
 async def update_gender_preferences(message: types.Message, state: FSMContext):
     assert message.text and message.from_user
@@ -318,7 +325,7 @@ async def update_location_by_name(message: types.Message, state: FSMContext):
     builder = InlineKeyboardBuilder()
     for city, place_id in cities:
         builder.row(
-            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}")
+            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}"),
         )
 
     await message.answer(msg, reply_markup=builder.as_markup())
@@ -326,7 +333,8 @@ async def update_location_by_name(message: types.Message, state: FSMContext):
 
 @router.callback_query(AppStates.update_location, F.data.startswith("place_id:"))
 async def set_location_by_name_selected(
-    callback: types.CallbackQuery, state: FSMContext
+    callback: types.CallbackQuery,
+    state: FSMContext,
 ):
     assert callback.data and isinstance(callback.message, types.Message)
 
@@ -409,7 +417,7 @@ async def update_location(message: types.Message, state: FSMContext):
 async def update_media_start(message: types.Message, state: FSMContext):
     await message.answer(
         _(
-            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})"
+            "Upload photos or videos of yourself ({min_media_count}-{max_media_count})",
         ).format(
             min_media_count=Params.media_min_count,
             max_media_count=Params.media_max_count,
@@ -492,7 +500,7 @@ async def update_media(message: types.Message, state: FSMContext):
         return await update_media_finish(message, state)
 
     msg = _(
-        'File has been uploaded. Upload more media files if you want or press "Continue"'
+        'File has been uploaded. Upload more media files if you want or press "Continue"',
     )
     await message.answer(msg, reply_markup=make_keyboard([[_("Continue")]]))
 
@@ -503,7 +511,9 @@ async def update_media_finish(message: types.Message, state: FSMContext):
 
     media = [FileAddDTO.model_validate(m).to_orm() for m in data["media"]]
     user = await get_user(
-        telegram_id=message.from_user.id, with_media=True, is_active=True
+        telegram_id=message.from_user.id,
+        with_media=True,
+        is_active=True,
     )
 
     async with session_factory() as session:

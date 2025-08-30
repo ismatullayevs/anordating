@@ -1,12 +1,11 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from babel.support import LazyProxy
 
-# TODO: create a separate enums file for bot
-from app.enums import Genders, PreferredGenders, UILanguages
+from bot.enums import Genders, PreferredGenders, UILanguages
 
 CLEAR_TXT = __("❌ Clear")
 
@@ -28,7 +27,7 @@ GENDER_PREFERENCES = (
 
 
 def make_keyboard(
-    items: Iterable[Iterable[str | LazyProxy]], placeholder: str | None = None
+    items: Iterable[Iterable[str | LazyProxy]], placeholder: str | None = None,
 ) -> ReplyKeyboardMarkup:
     keyboard = [
         [
@@ -38,7 +37,7 @@ def make_keyboard(
         for row in items
     ]
     return ReplyKeyboardMarkup(
-        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder
+        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder,
     )
 
 
@@ -98,7 +97,7 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text=_("📍 Send location"), request_location=True)],
     ]
     return ReplyKeyboardMarkup(
-        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=_("City name")
+        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=_("City name"),
     )
 
 

@@ -1,0 +1,39 @@
+{
+  "id": "approval_1756539410037_8ugs2ytle",
+  "title": "API-Bot Separation Design (Match Logic Corrected)",
+  "filePath": ".spec-workflow/specs/api-bot-separation/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-08-30T07:36:50.037Z",
+  "category": "spec",
+  "categoryName": "api-bot-separation",
+  "response": "Feedback Summary (2 comments):\n\nSpecific Text Comments:\n1. \"media: list[MediaSchema]  # Only contains file_id ...\": Also, in fastapi, I prefer flat responses instead of nested. So you would make one request to get the user, and another request to get user's media files. Don't forget son: premature optimization is the root of all evil\n2. \"```mermaid\ngraph TB\n    subgraph \"Bot Service Cont...\": There seems to be a syntax error in mermaid code\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Also, in fastapi, I prefer flat responses instead of nested. So you would make one request to get the user, and another request to get user's media files. Don't forget son: premature optimization is the root of all evil\",\n      \"timestamp\": \"2025-08-30T07:39:39.388Z\",\n      \"selectedText\": \"media: list[MediaSchema]  # Only contains file_id for Telegram files\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756539579388_gpkhgok78\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"There seems to be a syntax error in mermaid code\",\n      \"timestamp\": \"2025-08-30T07:40:07.821Z\",\n      \"selectedText\": \"```mermaid\\ngraph TB\\n    subgraph \\\"Bot Service Container\\\"\\n        BH[Bot Handlers] --> BS[Bot Services]\\n        BS --> HC[HTTP Client]\\n        BH --> BK[Bot Keyboards]\\n        BS --> BCF[Bot Config]\\n        BM[Bot Models] --> BS\\n        BS --> MDB[(MongoDB - Bot Sessions Only)]\\n    end\\n    \\n    subgraph \\\"API Service Container\\\"\\n        AR[API Routers] --> AS[API Services]\\n        AS --> DB[(PostgreSQL)]\\n        AM[Auth Middleware<br/>dependencies.py] --> AR\\n    end\\n    \\n    HC -->|HTTP Requests<br/>X-Internal-Token<br/>X-Telegram-User-Id| AM\\n    \\n    style \\\"Bot Service Container\\\" fill:#e1f5fe\\n    style \\\"API Service Container\\\" fill:#f3e5f5\\n```\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1756539607821_vi035ps6w\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (2 comments):\\n\\nSpecific Text Comments:\\n1. \\\"media: list[MediaSchema]  # Only contains file_id ...\\\": Also, in fastapi, I prefer flat responses instead of nested. So you would make one request to get the user, and another request to get user's media files. Don't forget son: premature optimization is the root of all evil\\n2. \\\"```mermaid\\ngraph TB\\n    subgraph \\\"Bot Service Cont...\\\": There seems to be a syntax error in mermaid code\\n\",\n  \"timestamp\": \"2025-08-30T07:40:10.890Z\"\n}",
+  "respondedAt": "2025-08-30T07:40:10.902Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Also, in fastapi, I prefer flat responses instead of nested. So you would make one request to get the user, and another request to get user's media files. Don't forget son: premature optimization is the root of all evil",
+      "timestamp": "2025-08-30T07:39:39.388Z",
+      "selectedText": "media: list[MediaSchema]  # Only contains file_id for Telegram files",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756539579388_gpkhgok78"
+    },
+    {
+      "type": "selection",
+      "comment": "There seems to be a syntax error in mermaid code",
+      "timestamp": "2025-08-30T07:40:07.821Z",
+      "selectedText": "```mermaid\ngraph TB\n    subgraph \"Bot Service Container\"\n        BH[Bot Handlers] --> BS[Bot Services]\n        BS --> HC[HTTP Client]\n        BH --> BK[Bot Keyboards]\n        BS --> BCF[Bot Config]\n        BM[Bot Models] --> BS\n        BS --> MDB[(MongoDB - Bot Sessions Only)]\n    end\n    \n    subgraph \"API Service Container\"\n        AR[API Routers] --> AS[API Services]\n        AS --> DB[(PostgreSQL)]\n        AM[Auth Middleware<br/>dependencies.py] --> AR\n    end\n    \n    HC -->|HTTP Requests<br/>X-Internal-Token<br/>X-Telegram-User-Id| AM\n    \n    style \"Bot Service Container\" fill:#e1f5fe\n    style \"API Service Container\" fill:#f3e5f5\n```",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1756539607821_vi035ps6w"
+    }
+  ]
+}

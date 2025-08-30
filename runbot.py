@@ -1,60 +1,33 @@
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.telegram import TEST
-from aiogram.fsm.storage.mongo import MongoStorage
-from aiogram.types import MenuButtonWebApp
-from motor.motor_asyncio import AsyncIOMotorClient
+from bot.app import run_bot
 
-from app.core.config import EnvironmentTypes, settings
-from bot.bot_commands import set_bot_profile
-from bot.handlers.default import router as default_router
-from bot.handlers.likes import router as likes_router
-from bot.handlers.matches import router as matches_router
-from bot.handlers.menu import router as menu_router
-from bot.handlers.profile import router as profile_router
-from bot.handlers.registration import router as registration_router
-from bot.handlers.search import router as search_router
-from bot.handlers.test import router as test_router
-from bot.middlewares import i18n_middleware
+# Configure logging for the bot service
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+    ],
+)
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 async def main():
-    bot = Bot(token=settings.BOT_TOKEN)
-    if settings.ENVIRONMENT == EnvironmentTypes.testing:
-        session = AiohttpSession(api=TEST)
-        bot = Bot(token=settings.BOT_TOKEN, session=session)
+    """Main entry point for the bot service."""
+    logger.info("Starting AnorDating Bot Service...")
 
     try:
-        await set_bot_profile(bot)
-    except:
-        pass
-
-    mongo = AsyncIOMotorClient(
-        host=settings.mongo_url,
-        uuidRepresentation="standard",
-    )
-    mongo_storage = MongoStorage(mongo)
-    dp = Dispatcher(storage=mongo_storage)
-
-    i18n_middleware.setup(dp)
-
-    dp.include_router(registration_router)
-    dp.include_router(menu_router)
-    dp.include_router(search_router)
-    dp.include_router(likes_router)
-    dp.include_router(profile_router)
-    dp.include_router(matches_router)
-    dp.include_router(default_router)
-
-    if settings.DEBUG:
-        dp.include_router(test_router)
-
-    await dp.start_polling(bot)
+        await run_bot()
+    except KeyboardInterrupt:
+        logger.info("Bot service interrupted by user")
+    except Exception as e:
+        logger.error(f"Bot service failed with error: {e}")
+        raise
+    finally:
+        logger.info("Bot service shutdown complete")
 
 
 if __name__ == "__main__":

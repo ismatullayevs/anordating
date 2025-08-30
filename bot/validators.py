@@ -4,6 +4,8 @@ from aiogram.utils.i18n import gettext as _
 
 
 class Params:
+    """Bot validation parameters."""
+
     name_min_length = 3
     name_max_length = 50
 
@@ -20,6 +22,18 @@ class Params:
 
 
 def validate_name(value: str | None) -> str | None:
+    """Validate user name input.
+
+    Args:
+        value: The name string to validate
+
+    Returns:
+        str | None: The validated name
+
+    Raises:
+        ValueError: If name is invalid
+
+    """
     if value is None:
         return value
 
@@ -111,6 +125,18 @@ def validate_birth_date(value: str | None) -> datetime | None:
 
 
 def validate_bio(value: str | None) -> str | None:
+    """Validate user bio text.
+
+    Args:
+        value: The bio string to validate
+
+    Returns:
+        str | None: The validated bio
+
+    Raises:
+        ValueError: If bio is too long
+
+    """
     if value and len(value) > Params.bio_max_length:
         raise ValueError(
             _("Bio must be less than {max_length} characters long").format(
@@ -121,6 +147,18 @@ def validate_bio(value: str | None) -> str | None:
 
 
 def validate_media_size[T](value: list[T]) -> list[T]:
+    """Validate media list size.
+
+    Args:
+        value: List of media items to validate
+
+    Returns:
+        list[T]: The validated media list
+
+    Raises:
+        ValueError: If media count is invalid
+
+    """
     if len(value) < Params.media_min_count:
         raise ValueError(
             _("Please upload at least {min_length} media files").format(
@@ -137,6 +175,18 @@ def validate_media_size[T](value: list[T]) -> list[T]:
 
 
 def validate_preference_age_string(value: str):
+    """Validate age range string and parse it.
+
+    Args:
+        value: Age range string in format "min-max"
+
+    Returns:
+        tuple[int, int]: The validated min and max ages
+
+    Raises:
+        ValueError: If age range format is invalid
+
+    """
     try:
         min_age, max_age = map(int, value.split("-"))
     except ValueError:
@@ -148,6 +198,18 @@ def validate_preference_age_string(value: str):
 
 
 def validate_preference_age(value: int | None):
+    """Validate a single preference age value.
+
+    Args:
+        value: Age value to validate
+
+    Returns:
+        int | None: The validated age
+
+    Raises:
+        ValueError: If age is out of range
+
+    """
     if value is None:
         return value
     if value < Params.min_age:
@@ -162,6 +224,19 @@ def validate_preference_age(value: int | None):
 
 
 def validate_preference_ages(min_age: int | None, max_age: int | None):
+    """Validate min/max age combination.
+
+    Args:
+        min_age: Minimum age preference
+        max_age: Maximum age preference
+
+    Returns:
+        tuple[int | None, int | None]: The validated age range
+
+    Raises:
+        ValueError: If min_age >= max_age
+
+    """
     if not min_age or not max_age:
         return (None, None)
     if min_age >= max_age:
@@ -170,6 +245,18 @@ def validate_preference_ages(min_age: int | None, max_age: int | None):
 
 
 def validate_video_duration(value: int | None):
+    """Validate video duration.
+
+    Args:
+        value: Duration in seconds
+
+    Returns:
+        int | None: The validated duration
+
+    Raises:
+        ValueError: If duration exceeds maximum
+
+    """
     if value and value > Params.media_max_duration:
         raise ValueError(
             _("Video duration can't be longer than {max_duration} seconds").format(
@@ -180,6 +267,18 @@ def validate_video_duration(value: int | None):
 
 
 def validate_message_text(value: str | None):
+    """Validate message text.
+
+    Args:
+        value: Message text to validate
+
+    Returns:
+        str | None: The validated and stripped message text
+
+    Raises:
+        ValueError: If message is empty or too long
+
+    """
     if value is None:
         return None
 

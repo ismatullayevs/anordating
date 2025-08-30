@@ -1,4 +1,3 @@
-from typing import Type
 
 from pydantic import BaseModel, ConfigDict
 
@@ -7,7 +6,7 @@ from app.models.base import Base
 
 class BaseModelWithOrm[T: Base](BaseModel):
     @property
-    def orm_model(self) -> Type[T]:
+    def orm_model(self) -> type[T]:
         raise NotImplementedError
 
     def to_orm(self):
@@ -21,15 +20,14 @@ class BaseModelWithOrm[T: Base](BaseModel):
                     else:
                         lst.append(v)
                 parsed_schema[key] = lst
-            else:
-                if isinstance(value, BaseModelWithOrm):
-                    parsed_schema[key] = value.to_orm()
+            elif isinstance(value, BaseModelWithOrm):
+                parsed_schema[key] = value.to_orm()
 
         try:
             return self.orm_model(**parsed_schema)
         except AttributeError:
             raise AttributeError(
-                f"Schema {self} doesn't have a Meta.orm_model attribute"
+                f"Schema {self} doesn't have a Meta.orm_model attribute",
             )
 
     model_config = ConfigDict(from_attributes=True)

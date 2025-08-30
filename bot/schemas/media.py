@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from app.enums import FileTypes
+from bot.enums import FileTypes
 
 
 class FileInSchema(BaseModel):

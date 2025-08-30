@@ -18,7 +18,7 @@ class File(Base):
     file_size: Mapped[int | None]
     mime_type: Mapped[str | None]
     thumbnail_id: Mapped[int | None] = mapped_column(
-        ForeignKey("file.id", ondelete="SET NULL")
+        ForeignKey("file.id", ondelete="SET NULL"),
     )
     duration: Mapped[int | None]
     uploaded_at: Mapped[created_at]
@@ -31,10 +31,10 @@ class UserMedia(Base):
 
     id: Mapped[intpk]
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
     file_id: Mapped[int] = mapped_column(
-        ForeignKey("file.id", ondelete="CASCADE"), index=True
+        ForeignKey("file.id", ondelete="CASCADE"), index=True,
     )
 
     __table_args__ = (UniqueConstraint("user_id", "file_id"),)

@@ -12,21 +12,12 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
-from app.core.config import settings
 from app.core.db import session_factory
-from app.enums import FileTypes, UILanguages
 from app.geocoding import get_place, get_place_id, get_places
 from app.models.user import Place, PlaceName
 from app.queries import get_user, is_user_banned
-from app.validators import (
-    Params,
-    validate_bio,
-    validate_birth_date,
-    validate_media_size,
-    validate_name,
-    validate_preference_age_string,
-    validate_video_duration,
-)
+from bot.config import settings
+from bot.enums import FileTypes, UILanguages
 from bot.filters import IsHuman
 from bot.handlers.menu import activate_account_start, show_menu
 from bot.keyboards import (
@@ -45,6 +36,15 @@ from bot.schemas.media import FileSchema
 from bot.schemas.user import UserSchema
 from bot.states import AppStates
 from bot.utils import get_profile_card
+from bot.validators import (
+    Params,
+    validate_bio,
+    validate_birth_date,
+    validate_media_size,
+    validate_name,
+    validate_preference_age_string,
+    validate_video_duration,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

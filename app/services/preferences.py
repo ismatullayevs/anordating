@@ -16,7 +16,9 @@ async def get_user_preferences(db: AsyncSession, user_id: UUID):
 
 
 async def create_user_preferences(
-    db: AsyncSession, user_id: UUID, preferences_data: PreferencesInSchema
+    db: AsyncSession,
+    user_id: UUID,
+    preferences_data: PreferencesInSchema,
 ):
     """Create user preferences"""
     preferences = Preferences(user_id=user_id, **preferences_data.model_dump())
@@ -26,7 +28,9 @@ async def create_user_preferences(
 
 
 async def update_user_preferences(
-    db: AsyncSession, user_id: UUID, preferences_data: PreferencesInSchema
+    db: AsyncSession,
+    user_id: UUID,
+    preferences_data: PreferencesInSchema,
 ):
     """Update user preferences."""
     preferences = await get_user_preferences(db, user_id)

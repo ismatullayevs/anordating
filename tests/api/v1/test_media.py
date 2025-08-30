@@ -8,7 +8,7 @@ from app.enums import FileTypes
 async def test_get_media_success(authenticated_client: AsyncClient, test_user):
     """Test getting user media."""
     response = await authenticated_client.get(f"/v1/media?user_id={test_user.id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -22,11 +22,11 @@ async def test_add_media_success(authenticated_client: AsyncClient):
         "telegram_unique_id": "unique_456",
         "file_type": FileTypes.image.value,
         "file_size": 2048,
-        "mime_type": "image/png"
+        "mime_type": "image/png",
     }
-    
+
     response = await authenticated_client.post("/v1/media", json=file_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["telegram_id"] == file_data["telegram_id"]
@@ -44,11 +44,11 @@ async def test_add_media_invalid_data(authenticated_client: AsyncClient):
         "telegram_id": "",
         "file_type": "invalid_type",
         "file_size": "invalid_size",
-        "mime_type": None
+        "mime_type": None,
     }
-    
+
     response = await authenticated_client.post("/v1/media", json=file_data)
-    
+
     assert response.status_code == 422  # Validation error
 
 
@@ -61,19 +61,19 @@ async def test_batch_add_media_success(authenticated_client: AsyncClient):
             "telegram_unique_id": "batch_unique_1",
             "file_type": FileTypes.image.value,
             "file_size": 1024,
-            "mime_type": "image/jpeg"
+            "mime_type": "image/jpeg",
         },
         {
             "telegram_id": "batch_file_2",
             "telegram_unique_id": "batch_unique_2",
             "file_type": FileTypes.video.value,
             "file_size": 5120,
-            "mime_type": "video/mp4"
-        }
+            "mime_type": "video/mp4",
+        },
     ]
-    
+
     response = await authenticated_client.post("/v1/media/batch-add", json=files_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -86,7 +86,7 @@ async def test_batch_add_media_success(authenticated_client: AsyncClient):
 async def test_batch_add_media_empty_list(authenticated_client: AsyncClient):
     """Test batch adding with empty files list."""
     response = await authenticated_client.post("/v1/media/batch-add", json=[])
-    
+
     assert response.status_code == 400
     assert "No files provided" in response.json()["detail"]
 
@@ -98,17 +98,17 @@ async def test_batch_add_media_invalid_data(authenticated_client: AsyncClient):
         {
             "telegram_id": "valid_file",
             "file_type": FileTypes.image.value,
-            "file_size": 1024
+            "file_size": 1024,
         },
         {
             "telegram_id": "invalid_file",
             "file_type": "invalid_type",
-            "file_size": "invalid_size"
-        }
+            "file_size": "invalid_size",
+        },
     ]
-    
+
     response = await authenticated_client.post("/v1/media/batch-add", json=files_data)
-    
+
     assert response.status_code == 422  # Validation error
 
 
@@ -116,7 +116,7 @@ async def test_batch_add_media_invalid_data(authenticated_client: AsyncClient):
 async def test_delete_media_success(authenticated_client: AsyncClient, test_file):
     """Test deleting media file."""
     response = await authenticated_client.delete(f"/v1/media/{test_file.id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "deleted successfully" in data["detail"]
@@ -126,7 +126,7 @@ async def test_delete_media_success(authenticated_client: AsyncClient, test_file
 async def test_delete_media_not_found(authenticated_client: AsyncClient):
     """Test deleting non-existent media file."""
     response = await authenticated_client.delete("/v1/media/99999")
-    
+
     assert response.status_code == 400
     assert "not found" in response.json()["detail"].lower()
 
@@ -136,27 +136,27 @@ async def test_delete_media_not_owned(authenticated_client: AsyncClient, session
     """Test deleting media file not owned by current user."""
     # Create a file owned by test_user_2
     from app.models.file import File, UserMedia
-    
+
     other_file = File(
         telegram_id="other_file_123",
         telegram_unique_id="other_unique_123",
         file_type=FileTypes.image.value,
         file_size=1024,
-        mime_type="image/jpeg"
+        mime_type="image/jpeg",
     )
     session.add(other_file)
     await session.flush()
-    
+
     user_media = UserMedia(
         user_id=test_user_2.id,
-        file_id=other_file.id
+        file_id=other_file.id,
     )
     session.add(user_media)
     await session.commit()
     await session.refresh(other_file)
-    
+
     response = await authenticated_client.delete(f"/v1/media/{other_file.id}")
-    
+
     assert response.status_code == 400
     assert "not found" in response.json()["detail"].lower()
 
@@ -175,12 +175,12 @@ async def test_add_media_with_thumbnail(authenticated_client: AsyncClient):
             "telegram_unique_id": "thumb_unique_789",
             "file_type": FileTypes.image.value,
             "file_size": 512,
-            "mime_type": "image/jpeg"
-        }
+            "mime_type": "image/jpeg",
+        },
     }
-    
+
     response = await authenticated_client.post("/v1/media", json=file_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["telegram_id"] == file_data["telegram_id"]
@@ -198,11 +198,11 @@ async def test_add_media_with_duration(authenticated_client: AsyncClient):
         "file_type": FileTypes.video.value,
         "file_size": 15360,
         "mime_type": "video/mp4",
-        "duration": 120  # 2 minutes
+        "duration": 120,  # 2 minutes
     }
-    
+
     response = await authenticated_client.post("/v1/media", json=file_data)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["telegram_id"] == file_data["telegram_id"]
@@ -213,7 +213,7 @@ async def test_add_media_with_duration(authenticated_client: AsyncClient):
 async def test_get_media_different_user(authenticated_client: AsyncClient, test_user_2):
     """Test getting media for different user."""
     response = await authenticated_client.get(f"/v1/media?user_id={test_user_2.id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

@@ -6,7 +6,7 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from httpx import HTTPStatusError
 
-from app.core.config import settings
+from bot.config import settings
 from bot.filters import IsHuman
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_matches_keyboard

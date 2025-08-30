@@ -7,6 +7,6 @@ locales_dir = settings.BASE_DIR / "bot/locales"
 
 def get_translator(lang_code="en"):
     translation = gettext.translation(
-        "messages", localedir=locales_dir, languages=[lang_code], fallback=True
+        "messages", localedir=locales_dir, languages=[lang_code], fallback=True,
     )
     return translation.gettext

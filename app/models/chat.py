@@ -11,10 +11,10 @@ class Chat(Base):
     __tablename__ = "chat"
 
     members: Mapped[list["ChatMember"]] = relationship(
-        back_populates="chat", cascade="all, delete-orphan"
+        back_populates="chat", cascade="all, delete-orphan",
     )
     messages: Mapped[list["Message"]] = relationship(
-        back_populates="chat", cascade="all, delete-orphan"
+        back_populates="chat", cascade="all, delete-orphan",
     )
 
     id: Mapped[intpk]
@@ -27,10 +27,10 @@ class ChatMember(Base):
 
     id: Mapped[intpk]
     chat_id: Mapped[int] = mapped_column(
-        ForeignKey("chat.id", ondelete="CASCADE"), index=True
+        ForeignKey("chat.id", ondelete="CASCADE"), index=True,
     )
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
 
     created_at: Mapped[created_at]
@@ -47,10 +47,10 @@ class Message(Base):
 
     id: Mapped[intpk]
     chat_id: Mapped[int] = mapped_column(
-        ForeignKey("chat.id", ondelete="CASCADE"), index=True
+        ForeignKey("chat.id", ondelete="CASCADE"), index=True,
     )
     user_id: Mapped[str] = mapped_column(
-        ForeignKey("user_account.id", ondelete="CASCADE"), index=True
+        ForeignKey("user_account.id", ondelete="CASCADE"), index=True,
     )
 
     chat: Mapped["Chat"] = relationship(back_populates="messages")
