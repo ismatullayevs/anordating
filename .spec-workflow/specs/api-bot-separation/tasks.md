@@ -89,7 +89,7 @@
 
 ## Bot Handler Independence Tasks
 
-- [ ] 10. Remove direct database imports from registration handler
+- [x] 10. Remove direct database imports from registration handler
   - File: backend/bot/handlers/registration.py (modify existing)
   - Remove `from app.core.db import session_factory`
   - Remove `from app.models.user import Place, PlaceName, Preferences, User`

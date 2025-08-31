@@ -3,6 +3,7 @@ from typing import Annotated
 
 from aiogram.utils.web_app import WebAppInitData, safe_parse_webapp_init_data
 from fastapi import Depends, Header, HTTPException, WebSocket, WebSocketException
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -120,8 +121,8 @@ async def get_current_user(
             raise HTTPException(status_code=401, detail="User ID header missing")
         try:
             user = await get_user_by_telegram_id(db, int(x_telegram_user_id))
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e)) from e
+        except NoResultFound as e:
+            raise HTTPException(status_code=404, detail=str(e)) from e
         return user
 
     if not init_data:
@@ -132,8 +133,8 @@ async def get_current_user(
 
     try:
         user = await get_user_by_telegram_id(db, init_data.user.id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+    except NoResultFound as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
 
     return user
 

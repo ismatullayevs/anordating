@@ -9,15 +9,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import select
-from sqlalchemy.exc import NoResultFound
 
-from app.core.db import session_factory
-from app.geocoding import get_place, get_place_id, get_places
-from app.models.user import Place, PlaceName
-from app.queries import get_user, is_user_banned
 from bot.config import settings
-from bot.enums import FileTypes, UILanguages
+from bot.enums import FileTypes
 from bot.filters import IsHuman
 from bot.handlers.menu import activate_account_start, show_menu
 from bot.keyboards import (
@@ -34,6 +28,12 @@ from bot.keyboards import (
 from bot.middlewares import i18n_middleware
 from bot.schemas.media import FileSchema
 from bot.schemas.user import UserSchema
+from bot.services.place import (
+    get_place_by_coordinates,
+    get_place_details,
+    search_places,
+)
+from bot.services.user import get_current_user, is_user_banned
 from bot.states import AppStates
 from bot.utils import get_profile_card
 from bot.validators import (
@@ -90,7 +90,7 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
         return
 
     try:
-        user = await get_user(telegram_id=message.from_user.id, with_media=True)
+        user = await get_current_user(message.from_user.id)
         await i18n_middleware.set_locale(state, user.ui_language.name)
         await state.set_data({"locale": user.ui_language.name})
 
@@ -98,8 +98,13 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
             await show_menu(message, state)
         else:
             await activate_account_start(message, state)
-    except NoResultFound:
-        await set_language_start(message, state)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            # User not found - start registration
+            await set_language_start(message, state)
+        else:
+            # Other HTTP errors - re-raise
+            raise
 
 
 async def set_language_start(message: types.Message, state: FSMContext) -> None:
@@ -330,16 +335,24 @@ async def set_location_by_name(message: types.Message, state: FSMContext) -> Non
     language = await state.get_value("language")
     if not language:
         return
-    cities = get_places(message.text, UILanguages[language])
-    if not cities:
-        await message.answer(_("City not found"))
+
+    try:
+        places = await search_places(message.text, language)
+        if not places:
+            await message.answer(_("City not found"))
+            return
+    except httpx.HTTPError:
+        await message.answer(_("Error searching for cities. Please try again."))
         return
 
     msg = _("Select your city")
     builder = InlineKeyboardBuilder()
-    for city, place_id in cities:
+    for place in places:
         builder.row(
-            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}"),
+            types.InlineKeyboardButton(
+                text=place.name,
+                callback_data=f"place_id:{place.place_id}",
+            ),
         )
 
     await message.answer(msg, reply_markup=builder.as_markup())
@@ -354,12 +367,22 @@ async def set_location_by_name_selected(
     if not query.data or not isinstance(query.message, types.Message):
         return
     place_id = query.data.split(":")[1]
-    lat, lng, _ = get_place(place_id)
 
-    await state.update_data(place_id=place_id)
-    await state.update_data(latitude=lat)
-    await state.update_data(longitude=lng)
-    await state.update_data(is_location_precise=False)
+    try:
+        language = await state.get_value("language")
+        if not language:
+            language = "en"
+        place_details = await get_place_details(place_id, language)
+
+        await state.update_data(place_id=place_id)
+        await state.update_data(latitude=place_details.latitude)
+        await state.update_data(longitude=place_details.longitude)
+        await state.update_data(is_location_precise=False)
+    except httpx.HTTPError:
+        await query.message.answer(
+            _("Error getting place information. Please try again."),
+        )
+        return
 
     await query.message.delete()
     await set_media_start(query.message, state)
@@ -376,9 +399,15 @@ async def set_location(message: types.Message, state: FSMContext) -> None:
     await state.update_data(longitude=lng)
     await state.update_data(is_location_precise=True)
 
-    place_id = get_place_id(lat, lng)
-    if place_id:
-        await state.update_data(place_id=place_id)
+    try:
+        language = await state.get_value("language")
+        if not language:
+            language = "en"
+        place_details = await get_place_by_coordinates(lat, lng, language)
+        await state.update_data(place_id=place_details.place_id)
+    except httpx.HTTPError:
+        # If place not found, continue without place_id
+        pass
 
     await set_media_start(message, state)
 
@@ -548,22 +577,7 @@ async def finish_registration(message: types.Message, state: FSMContext) -> None
         "place_id": data.get("place_id"),
     }
 
-    async with session_factory() as session:
-        if "place_id" in data and data["place_id"] is not None:
-            query = select(Place).where(Place.id == data["place_id"])
-            result = await session.scalars(query)
-            place = result.one_or_none()
-            if not place:
-                place = Place(id=data["place_id"])
-                lat, lng, place_name = get_place(place.id, UILanguages.en)
-                place_name_db = PlaceName(
-                    place_id=place.id,
-                    language=UILanguages.en,
-                    name=place_name,
-                )
-                session.add(place)
-                session.add(place_name_db)
-                await session.commit()
+    # Place handling is now done by the API during registration
 
     headers = {
         "X-Internal-Token": settings.INTERNAL_TOKEN,

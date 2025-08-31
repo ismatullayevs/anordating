@@ -87,3 +87,24 @@ async def delete_user(telegram_id: int) -> None:
     response.raise_for_status()
 
     logger.debug(f"User {telegram_id} deleted successfully")
+
+
+async def is_user_banned(telegram_id: int) -> bool:
+    """Check if a user is currently banned.
+
+    Args:
+        telegram_id: Telegram user ID
+
+    Returns:
+        bool: True if the user is banned, False otherwise
+
+    """
+    http_client = get_http_client_manager()
+    response = await http_client.get(
+        f"/v1/bans/check/{telegram_id}",
+        telegram_user_id=telegram_id,
+    )
+    response.raise_for_status()
+    ban_status = response.json()
+    logger.debug(f"Ban status for user {telegram_id}: {ban_status}")
+    return ban_status.get("is_banned", False)

@@ -31,11 +31,9 @@ async def get_user(db: AsyncSession, user_id: UUID) -> User:
 
 
 async def get_user_by_telegram_id(db: AsyncSession, telegram_id: int) -> User:
-    """Fetches a user by Telegram ID."""
-    user = await db.scalar(select(User).where(User.telegram_id == telegram_id))
-    if not user:
-        raise ValueError("User not found")
-    return user
+    """Fetch a user by Telegram ID."""
+    response = await db.scalars(select(User).where(User.telegram_id == telegram_id))
+    return response.one()
 
 
 async def update_user(
