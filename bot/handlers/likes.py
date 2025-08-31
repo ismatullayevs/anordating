@@ -18,7 +18,9 @@ router.message.filter(IsHuman())
 
 @router.message(AppStates.menu, F.text == __("👍 Likes"))
 async def show_likes_with_keyboard(
-    message: types.Message, state: FSMContext, from_user: types.User | None = None,
+    message: types.Message,
+    state: FSMContext,
+    from_user: types.User | None = None,
 ) -> None:
     """Show likes with keyboard."""
     await message.answer(_("Likes"), reply_markup=get_search_keyboard())
@@ -26,7 +28,9 @@ async def show_likes_with_keyboard(
 
 
 async def show_likes(
-    message: types.Message, state: FSMContext, from_user: types.User | None = None,
+    message: types.Message,
+    state: FSMContext,
+    from_user: types.User | None = None,
 ) -> None:
     """Show likes."""
     from_user = from_user or message.from_user

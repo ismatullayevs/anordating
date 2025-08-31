@@ -12,10 +12,9 @@ from sqlalchemy.orm import selectinload
 from app.core.db import session_factory
 from app.dto.file import FileAddDTO
 from app.geocoding import get_place, get_place_id, get_places
-from app.models.user import Place, PlaceName, Preferences, User
-from app.queries import get_user
+from app.models.user import Place, PlaceName, User
 from bot.enums import FileTypes, UILanguages
-from bot.filters import IsActiveHumanUser, IsHuman
+from bot.filters import IsHuman
 from bot.handlers.menu import show_settings
 from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
 from bot.keyboards import (
@@ -27,6 +26,11 @@ from bot.keyboards import (
     get_profile_update_keyboard,
     make_keyboard,
 )
+from bot.schemas.preferences import PreferencesUpdateSchema
+from bot.schemas.user import UserUpdateSchema
+from bot.services import preferences as preferences_service
+from bot.services.media import get_media
+from bot.services.user import get_current_user, update_user
 from bot.states import AppStates
 from bot.utils import clear_state, get_profile_card
 from bot.validators import (
@@ -46,18 +50,21 @@ user_locks: dict[int, asyncio.Lock] = {}
 
 
 def get_user_lock(user_id: int) -> asyncio.Lock:
+    """Get user lock in order to prevent race conditions when uploading media."""
     if user_id not in user_locks:
         user_locks[user_id] = asyncio.Lock()
     return user_locks[user_id]
 
 
-@router.message(
-    AppStates.settings,
-    F.text == __("👤 My profile"),
-    IsActiveHumanUser(with_media=True),
-)
-async def show_profile(message: types.Message, state: FSMContext, user: User):
-    profile = await get_profile_card(user)
+@router.message(AppStates.settings, F.text == __("👤 My profile"))
+async def show_profile(message: types.Message, state: FSMContext) -> None:
+    """Show user profile."""
+    if not message.from_user:
+        return
+
+    user = await get_current_user(message.from_user.id)
+    media = await get_media(user.id)
+    profile = await get_profile_card(user, media)
     await message.answer_media_group(profile)
 
     await message.answer(
@@ -72,8 +79,10 @@ async def show_profile(message: types.Message, state: FSMContext, user: User):
 async def update_preferences(
     message: types.Message,
     state: FSMContext,
+    *,
     with_keyboard: bool = True,
-):
+) -> None:
+    """Update user preferences."""
     if with_keyboard:
         await message.answer(
             _("Search settings"),
@@ -81,47 +90,44 @@ async def update_preferences(
         )
     await state.set_state(AppStates.preferences)
     await clear_state(state, except_locale=True)
+    await update_preferences(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("⬅️ Back"))
 @router.message(AppStates.preferences, F.text == __("⬅️ Back"))
-async def back_to_settings(message: types.Message, state: FSMContext):
+async def back_to_settings(message: types.Message, state: FSMContext) -> None:
+    """Return to settings menu."""
     await show_settings(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("✏️ Name"))
-async def update_name_start(message: types.Message, state: FSMContext):
+async def update_name_start(message: types.Message, state: FSMContext) -> None:
+    """Start updating user's name."""
     await message.answer(_("Enter your name"), reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(AppStates.update_name)
 
 
 @router.message(AppStates.update_name, F.text)
-async def update_name(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_name(message: types.Message, state: FSMContext) -> None:
+    """Update user's name."""
+    if not message.text or not message.from_user:
+        return
 
     try:
         name = validate_name(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
-    async with session_factory() as session:
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(name=name)
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
-
+    # TODO: add error handling to all update operations
+    await update_user(message.from_user.id, UserUpdateSchema(name=name))
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("🔢 Birth date"))
-async def update_birth_date_start(message: types.Message, state: FSMContext):
+async def update_birth_date_start(message: types.Message, state: FSMContext) -> None:
+    """Send message to update user's birth date."""
     msg = _(
         "What's your birth date? Use one these formats:"
         "\n"
@@ -138,61 +144,50 @@ async def update_birth_date_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.update_age, F.text)
-async def update_birth_date(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_birth_date(message: types.Message, state: FSMContext) -> None:
+    """Send message to update user's birth date."""
+    if not message.text or not message.from_user:
+        return
 
     try:
         birth_date = validate_birth_date(message.text)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
-    async with session_factory() as session:
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(birth_date=birth_date)
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
-
+    await update_user(message.from_user.id, UserUpdateSchema(birth_date=birth_date))
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("👫 Gender"))
-async def update_gender_start(message: types.Message, state: FSMContext):
+async def update_gender_start(message: types.Message, state: FSMContext) -> None:
+    """Send message to update user's gender."""
     await message.answer(_("Select your gender"), reply_markup=get_genders_keyboard())
     await state.set_state(AppStates.update_gender)
 
 
 @router.message(AppStates.update_gender, F.text.in_([x[0] for x in GENDERS]))
-async def update_gender(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_gender(message: types.Message, state: FSMContext) -> None:
+    """Update user's gender."""
+    if not message.text or not message.from_user:
+        return
+
     gender = None
     for k, v in GENDERS:
         if k == message.text:
             gender = v
             break
 
-    async with session_factory() as session:
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(gender=gender)
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
+    await update_user(message.from_user.id, UserUpdateSchema(gender=gender))
 
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("📝 Bio"))
-async def update_bio_start(message: types.Message, state: FSMContext):
+async def update_bio_start(message: types.Message, state: FSMContext) -> None:
+    """Start updating user's bio."""
     await message.answer(
         _("Tell us more about yourself. What are your hobbies, interests, etc.?"),
         reply_markup=make_keyboard([[CLEAR_TXT]]),
@@ -201,8 +196,10 @@ async def update_bio_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.update_bio, F.text)
-async def update_bio(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_bio(message: types.Message, state: FSMContext) -> None:
+    """Update user's bio."""
+    if not message.text or not message.from_user:
+        return
 
     bio = message.text
     if bio == CLEAR_TXT:
@@ -210,25 +207,21 @@ async def update_bio(message: types.Message, state: FSMContext):
     try:
         bio = validate_bio(bio)
     except ValueError as e:
-        return await message.answer(str(e))
+        await message.answer(str(e))
+        return
 
-    async with session_factory() as session:
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(bio=bio)
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
+    await update_user(message.from_user.id, UserUpdateSchema(bio=bio))
 
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)
 
 
 @router.message(AppStates.preferences, F.text == __("👩‍❤️‍👨 Gender preferences"))
-async def update_gender_preferences_start(message: types.Message, state: FSMContext):
+async def update_gender_preferences_start(
+    message: types.Message,
+    state: FSMContext,
+) -> None:
+    """Start updating gender preferences."""
     await message.answer(
         _("Who are you interested in?"),
         reply_markup=get_preferred_genders_keyboard(),
@@ -240,24 +233,21 @@ async def update_gender_preferences_start(message: types.Message, state: FSMCont
     AppStates.update_gender_preferences,
     F.text.in_([x[0] for x in GENDER_PREFERENCES]),
 )
-async def update_gender_preferences(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_gender_preferences(message: types.Message, state: FSMContext) -> None:
+    """Update gender preferences."""
+    if not message.text or not message.from_user:
+        return
+
     preferred_gender = None
     for k, v in GENDER_PREFERENCES:
         if k == message.text:
             preferred_gender = v
             break
 
-    async with session_factory() as session:
-        query = (
-            update(Preferences)
-            .where(Preferences.user_id == User.id)
-            .where(User.telegram_id == message.from_user.id)
-            .values(preferred_gender=preferred_gender)
-        )
-        await session.execute(query)
-        await session.commit()
-
+    await preferences_service.update_preferences(
+        message.from_user.id,
+        PreferencesUpdateSchema(preferred_gender=preferred_gender),
+    )
     await message.answer(
         _("Search settings have been updated"),
         reply_markup=get_preferences_update_keyboard(),
@@ -266,7 +256,11 @@ async def update_gender_preferences(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.preferences, F.text == __("🔢 Age preferences"))
-async def update_age_preferences_start(message: types.Message, state: FSMContext):
+async def update_age_preferences_start(
+    message: types.Message,
+    state: FSMContext,
+) -> None:
+    """Start updating age preferences."""
     await message.answer(
         _("What is your preferred age range? (e.g. 18-25)"),
         reply_markup=make_keyboard([[CLEAR_TXT]]),
@@ -275,25 +269,23 @@ async def update_age_preferences_start(message: types.Message, state: FSMContext
 
 
 @router.message(AppStates.update_age_preferences, F.text)
-async def update_age_preferences(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_age_preferences(message: types.Message, state: FSMContext) -> None:
+    """Update age preferences."""
+    if not message.text or not message.from_user:
+        return
     if message.text == CLEAR_TXT:
         min_age, max_age = None, None
     else:
         try:
             min_age, max_age = validate_preference_age_string(message.text)
         except ValueError as e:
-            return await message.answer(str(e))
+            await message.answer(str(e))
+            return
 
-    async with session_factory() as session:
-        query = (
-            update(Preferences)
-            .where(Preferences.user_id == User.id)
-            .where(User.telegram_id == message.from_user.id)
-            .values(min_age=min_age, max_age=max_age)
-        )
-        await session.execute(query)
-        await session.commit()
+    await preferences_service.update_preferences(
+        message.from_user.id,
+        PreferencesUpdateSchema(min_age=min_age, max_age=max_age),
+    )
 
     await message.answer(
         _("Search settings have been updated"),
@@ -303,7 +295,8 @@ async def update_age_preferences(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.profile, F.text == __("📍 Location"))
-async def update_location_start(message: types.Message, state: FSMContext):
+async def update_location_start(message: types.Message, state: FSMContext) -> None:
+    """Start updating user's location."""
     await message.answer(
         _("Share your location or type the name of your city"),
         reply_markup=get_ask_location_keyboard(),
@@ -312,11 +305,12 @@ async def update_location_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.update_location, F.text)
-async def update_location_by_name(message: types.Message, state: FSMContext):
-    assert message.text and message.from_user
+async def update_location_by_name(message: types.Message, state: FSMContext) -> None:
+    """Update location by city name."""
+    if not message.text or not message.from_user:
+        return None
 
     language = await state.get_value("locale") or "en"
-    assert language
     cities = get_places(message.text, UILanguages[language])
     if not cities:
         return await message.answer(_("City not found"))

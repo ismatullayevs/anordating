@@ -27,7 +27,8 @@ GENDER_PREFERENCES = (
 
 
 def make_keyboard(
-    items: Iterable[Iterable[str | LazyProxy]], placeholder: str | None = None,
+    items: Iterable[Iterable[str | LazyProxy]],
+    placeholder: str | None = None,
 ) -> ReplyKeyboardMarkup:
     keyboard = [
         [
@@ -37,7 +38,9 @@ def make_keyboard(
         for row in items
     ]
     return ReplyKeyboardMarkup(
-        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder,
+        keyboard=keyboard,
+        resize_keyboard=True,
+        input_field_placeholder=placeholder,
     )
 
 
@@ -97,7 +100,9 @@ def get_ask_location_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text=_("📍 Send location"), request_location=True)],
     ]
     return ReplyKeyboardMarkup(
-        keyboard=keyboard, resize_keyboard=True, input_field_placeholder=_("City name"),
+        keyboard=keyboard,
+        resize_keyboard=True,
+        input_field_placeholder=_("City name"),
     )
 
 

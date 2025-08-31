@@ -65,7 +65,8 @@ async def show_matches(
 
     await message.answer(
         _(
-            "You both liked each other. Start a chat with them by clicking the button below 👇",
+            "You both liked each other. Start a chat with"
+            "them by clicking the button below 👇",
         ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[

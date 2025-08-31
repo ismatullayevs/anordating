@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import httpx
 
@@ -92,6 +93,7 @@ class HTTPClientManager:
 
         except Exception as e:
             logger.error(f"Error during HTTP client shutdown: {e}")
+            raise
 
     def get_client(self) -> httpx.AsyncClient:
         """Get the shared HTTP client instance.
@@ -113,7 +115,7 @@ class HTTPClientManager:
         method: str,
         url: str,
         telegram_user_id: int | None = None,
-        **kwargs,
+        **kwargs: dict[str, Any],
     ) -> httpx.Response:
         """Make an HTTP request with automatic header injection.
 
@@ -143,7 +145,7 @@ class HTTPClientManager:
         try:
             response = await client.request(method, url, **kwargs)
             response.raise_for_status()
-            return response
+            return response  # noqa: TRY300
 
         except httpx.HTTPStatusError as e:
             logger.error(
