@@ -1,19 +1,13 @@
 import asyncio
 
+import httpx
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import update
-from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import selectinload
 
-from app.core.db import session_factory
-from app.dto.file import FileAddDTO
-from app.geocoding import get_place, get_place_id, get_places
-from app.models.user import Place, PlaceName, User
-from bot.enums import FileTypes, UILanguages
+from bot.enums import FileTypes
 from bot.filters import IsHuman
 from bot.handlers.menu import show_settings
 from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
@@ -29,7 +23,12 @@ from bot.keyboards import (
 from bot.schemas.preferences import PreferencesUpdateSchema
 from bot.schemas.user import UserUpdateSchema
 from bot.services import preferences as preferences_service
-from bot.services.media import get_media
+from bot.services.media import get_user_media, replace_all_media
+from bot.services.place import (
+    get_place_by_coordinates,
+    get_place_details,
+    search_places,
+)
 from bot.services.user import get_current_user, update_user
 from bot.states import AppStates
 from bot.utils import clear_state, get_profile_card
@@ -57,22 +56,33 @@ def get_user_lock(user_id: int) -> asyncio.Lock:
 
 
 @router.message(AppStates.settings, F.text == __("👤 My profile"))
-async def show_profile(message: types.Message, state: FSMContext) -> None:
+async def show_profile(
+    message: types.Message,
+    state: FSMContext,
+    from_user: types.User | None = None,
+) -> None:
     """Show user profile."""
-    if not message.from_user:
+    from_user = from_user or message.from_user
+    if not from_user:
         return
 
-    user = await get_current_user(message.from_user.id)
-    media = await get_media(user.id)
-    profile = await get_profile_card(user, media)
-    await message.answer_media_group(profile)
+    try:
+        user = await get_current_user(from_user.id)
+        media = await get_user_media(from_user.id)
+        profile = await get_profile_card(user, media)
+        await message.answer_media_group(profile)
 
-    await message.answer(
-        _("Press the buttons below to update your profile"),
-        reply_markup=get_profile_update_keyboard(),
-    )
-    await state.set_state(AppStates.profile)
-    await clear_state(state, except_locale=True)
+        await message.answer(
+            _("Press the buttons below to update your profile"),
+            reply_markup=get_profile_update_keyboard(),
+        )
+        await state.set_state(AppStates.profile)
+        await clear_state(state, except_locale=True)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            await message.answer(_("User profile not found. Please try again."))
+        else:
+            await message.answer(_("Unable to load profile. Please try again later."))
 
 
 @router.message(AppStates.settings, F.text == __("🔎 Search settings"))
@@ -90,7 +100,6 @@ async def update_preferences(
         )
     await state.set_state(AppStates.preferences)
     await clear_state(state, except_locale=True)
-    await update_preferences(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("⬅️ Back"))
@@ -282,6 +291,7 @@ async def update_age_preferences(message: types.Message, state: FSMContext) -> N
             await message.answer(str(e))
             return
 
+    # TODO: show preferences info when updating preferences
     await preferences_service.update_preferences(
         message.from_user.id,
         PreferencesUpdateSchema(min_age=min_age, max_age=max_age),
@@ -308,18 +318,29 @@ async def update_location_start(message: types.Message, state: FSMContext) -> No
 async def update_location_by_name(message: types.Message, state: FSMContext) -> None:
     """Update location by city name."""
     if not message.text or not message.from_user:
-        return None
+        return
 
     language = await state.get_value("locale") or "en"
-    cities = get_places(message.text, UILanguages[language])
-    if not cities:
-        return await message.answer(_("City not found"))
+    try:
+        places = await search_places(message.text, language)
+        if not places:
+            await message.answer(_("City not found"))
+            return
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            await message.answer(_("No cities found for your search."))
+        else:
+            await message.answer(_("Error searching for cities. Please try again."))
+        return
 
     msg = _("Select your city")
     builder = InlineKeyboardBuilder()
-    for city, place_id in cities:
+    for place in places:
         builder.row(
-            types.InlineKeyboardButton(text=city, callback_data=f"place_id:{place_id}"),
+            types.InlineKeyboardButton(
+                text=place.name,
+                callback_data=f"place_id:{place.place_id}",
+            ),
         )
 
     await message.answer(msg, reply_markup=builder.as_markup())
@@ -329,86 +350,77 @@ async def update_location_by_name(message: types.Message, state: FSMContext) -> 
 async def set_location_by_name_selected(
     callback: types.CallbackQuery,
     state: FSMContext,
-):
-    assert callback.data and isinstance(callback.message, types.Message)
+) -> None:
+    """Handle place selection from inline keyboard."""
+    if not callback.data or not isinstance(callback.message, types.Message):
+        return
 
     place_id = callback.data.split(":")[1]
-    latitude, longitude, city_name = get_place(place_id, UILanguages.en)
 
-    async with session_factory() as session:
-        if place_id:
-            query = (
-                insert(Place)
-                .values(id=place_id)
-                .on_conflict_do_nothing(index_elements=["id"])
-            )
-            await session.execute(query)
-            query = (
-                insert(PlaceName)
-                .values(place_id=place_id, language=UILanguages.en, name=city_name)
-                .on_conflict_do_nothing(index_elements=["place_id", "language"])
-            )
-            await session.execute(query)
+    try:
+        language = await state.get_value("locale") or "en"
+        place_details = await get_place_details(place_id, language)
 
-        query = (
-            update(User)
-            .where(User.telegram_id == callback.from_user.id)
-            .values(
-                latitude=latitude,
-                longitude=longitude,
+        # Update user location via API
+        await update_user(
+            callback.from_user.id,
+            UserUpdateSchema(
+                latitude=place_details.latitude,
+                longitude=place_details.longitude,
                 place_id=place_id,
                 is_location_precise=False,
-            )
-            .returning(User)
-            .options(selectinload(User.media))
+            ),
         )
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            await callback.message.answer(_("Location not found. Please try again."))
+        else:
+            await callback.message.answer(
+                _("Error updating location. Please try again."),
+            )
+        return
 
     await callback.message.answer(_("Your profile has been updated"))
-    await show_profile(callback.message, state, user)
+    await show_profile(callback.message, state, callback.from_user)
 
     await callback.message.delete()
 
 
 @router.message(AppStates.update_location, F.location)
-async def update_location(message: types.Message, state: FSMContext):
-    assert message.location and message.from_user
+async def update_location(message: types.Message, state: FSMContext) -> None:
+    """Update location from coordinates."""
+    if not message.location or not message.from_user:
+        return
 
     latitude = message.location.latitude
     longitude = message.location.longitude
-    place_id = get_place_id(latitude, longitude)
 
-    async with session_factory() as session:
-        if place_id:
-            query = (
-                insert(Place)
-                .values(id=place_id)
-                .on_conflict_do_nothing(index_elements=["id"])
-            )
-            await session.execute(query)
+    try:
+        language = await state.get_value("locale") or "en"
+        place_details = await get_place_by_coordinates(latitude, longitude, language)
+        place_id = place_details.place_id
+    except httpx.HTTPStatusError:
+        # If place not found, continue without place_id
+        place_id = None
 
-        query = (
-            update(User)
-            .where(User.telegram_id == message.from_user.id)
-            .values(
-                latitude=latitude,
-                longitude=longitude,
-                place_id=place_id,
-                is_location_precise=True,
-            )
-            .returning(User)
-            .options(selectinload(User.media))
-        )
-        user = (await session.execute(query)).scalar_one()
-        await session.commit()
+    # Update user location via API
+    await update_user(
+        message.from_user.id,
+        UserUpdateSchema(
+            latitude=latitude,
+            longitude=longitude,
+            place_id=place_id,
+            is_location_precise=True,
+        ),
+    )
 
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)
 
 
 @router.message(AppStates.profile, F.text == __("📷 Media"))
-async def update_media_start(message: types.Message, state: FSMContext):
+async def update_media_start(message: types.Message, state: FSMContext) -> None:
+    """Start media update process."""
     await message.answer(
         _(
             "Upload photos or videos of yourself ({min_media_count}-{max_media_count})",
@@ -422,7 +434,8 @@ async def update_media_start(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.update_media, F.text == __("Continue"))
-async def continue_media(message: types.Message, state: FSMContext):
+async def continue_media(message: types.Message, state: FSMContext) -> None:
+    """Continue with current media selection."""
     media = await state.get_value("media")
     if not media:
         await message.answer(_("Please upload at least one photo"))
@@ -432,8 +445,10 @@ async def continue_media(message: types.Message, state: FSMContext):
 
 
 @router.message(AppStates.update_media, F.photo | F.video)
-async def update_media(message: types.Message, state: FSMContext):
-    assert message.from_user
+async def update_media(message: types.Message, state: FSMContext) -> None:
+    """Handle media file uploads."""
+    if not message.from_user:
+        return None
 
     file = None
     if message.photo:
@@ -473,9 +488,11 @@ async def update_media(message: types.Message, state: FSMContext):
                 "thumbnail": thumbnail,
             }
         except ValueError as e:
-            return await message.answer(str(e))
+            await message.answer(str(e))
+            return None
 
-    assert file is not None
+    if file is None:
+        return None
 
     lock = get_user_lock(message.from_user.id)
     async with lock:
@@ -494,26 +511,44 @@ async def update_media(message: types.Message, state: FSMContext):
         return await update_media_finish(message, state)
 
     msg = _(
-        'File has been uploaded. Upload more media files if you want or press "Continue"',
+        "File has been uploaded. Upload more media files or press Continue",
     )
     await message.answer(msg, reply_markup=make_keyboard([[_("Continue")]]))
+    return None
 
 
-async def update_media_finish(message: types.Message, state: FSMContext):
-    assert message.from_user
+async def update_media_finish(message: types.Message, state: FSMContext) -> None:
+    """Finish media update process."""
+    if not message.from_user:
+        return
+
     data = await state.get_data()
 
-    media = [FileAddDTO.model_validate(m).to_orm() for m in data["media"]]
-    user = await get_user(
-        telegram_id=message.from_user.id,
-        with_media=True,
-        is_active=True,
-    )
+    # Prepare media data for API
+    media_data = [
+        {
+            "telegram_id": m["telegram_id"],
+            "telegram_unique_id": m.get("telegram_unique_id"),
+            "file_type": m["file_type"],
+            "file_size": m["file_size"],
+            "mime_type": m.get("mime_type"),
+            "thumbnail": m.get("thumbnail"),
+            "duration": m.get("duration"),
+        }
+        for m in data["media"]
+    ]
 
-    async with session_factory() as session:
-        session.add(user)
-        user.media = media
-        await session.commit()
+    try:
+        # Replace all user media via API
+        await replace_all_media(message.from_user.id, media_data)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 400:
+            await message.answer(_("Invalid media files. Please check your uploads."))
+        elif e.response.status_code == 413:
+            await message.answer(_("Media files too large. Please use smaller files."))
+        else:
+            await message.answer(_("Error updating media. Please try again."))
+        return
 
     await message.answer(_("Your profile has been updated"))
-    await show_profile(message, state, user)
+    await show_profile(message, state)

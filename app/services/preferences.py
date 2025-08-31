@@ -3,13 +3,13 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.models.user import Preferences, User
+from app.models.user import Preferences
 from app.schemas.preferences import PreferencesInSchema
 
 
 async def get_user_preferences(db: AsyncSession, user_id: UUID) -> Preferences:
     """Fetch user preferences."""
-    result = await db.scalars(select(User.preferences).where(User.id == user_id))
+    result = await db.scalars(select(Preferences).where(Preferences.user_id == user_id))
     return result.one()
 
 
@@ -37,7 +37,7 @@ async def update_user_preferences(
     """Update user preferences."""
     try:
         preferences = await get_user_preferences(db, user_id)
-        for key, value in preferences_data.model_dump().items():
+        for key, value in preferences_data.model_dump(exclude_unset=True).items():
             setattr(preferences, key, value)
         db.add(preferences)
         await db.commit()

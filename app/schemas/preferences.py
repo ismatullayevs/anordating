@@ -9,7 +9,7 @@ from app.enums import PreferredGenders
 class PreferencesInSchema(BaseModel):
     min_age: int | None = None
     max_age: int | None = None
-    preferred_gender: PreferredGenders
+    preferred_gender: PreferredGenders | None = None
 
 
 class PreferencesOutSchema(PreferencesInSchema):

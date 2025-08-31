@@ -189,8 +189,8 @@ def validate_preference_age_string(value: str):
     """
     try:
         min_age, max_age = map(int, value.split("-"))
-    except ValueError:
-        raise ValueError(_("Please enter a valid age range"))
+    except ValueError as e:
+        raise ValueError(_("Please enter a valid age range")) from e
     min_age = validate_preference_age(min_age)
     max_age = validate_preference_age(max_age)
     min_age, max_age = validate_preference_ages(min_age, max_age)

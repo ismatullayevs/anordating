@@ -27,33 +27,40 @@ async def batch_add_media(
     db: DbDep,
     current_user: CurrentUserDep,
     files_data: list[FileInSchema],
-):
-    """Adds multiple media files to a user."""
+) -> list[File]:
+    """Add multiple media files to a user."""
     if not files_data:
         raise HTTPException(status_code=400, detail="No files provided")
 
     try:
         files = await batch_add_user_media(db, current_user.id, files_data)
-        return files
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    return files
 
 
 @router.post("", response_model=FileOutSchema)
-async def add_media(db: DbDep, current_user: CurrentUserDep, file_data: FileInSchema):
-    """Adds media files to a user."""
+async def add_media(
+    db: DbDep,
+    current_user: CurrentUserDep,
+    file_data: FileInSchema,
+) -> File:
+    """Add media files to a user."""
     try:
         file = await add_user_media(db, current_user.id, file_data)
-        return file
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    return file
 
 
 @router.delete("/{file_id}")
-async def delete_media(db: DbDep, current_user: CurrentUserDep, file_id: int):
-    """Deletes a media file associated with a user."""
+async def delete_media(db: DbDep, current_user: CurrentUserDep, file_id: int) -> dict:
+    """Delete a media file associated with a user."""
     try:
         await delete_user_media(db, current_user.id, file_id)
-        return {"detail": "Media file deleted successfully"}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    return {"detail": "Media file deleted successfully"}
