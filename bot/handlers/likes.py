@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
-from bot.filters import IsHuman
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_search_keyboard
 from bot.services.match import get_likes
@@ -13,7 +12,6 @@ from bot.states import AppStates
 from bot.utils import get_profile_card
 
 router = Router()
-router.message.filter(IsHuman())
 
 
 @router.message(AppStates.menu, F.text == __("👍 Likes"))

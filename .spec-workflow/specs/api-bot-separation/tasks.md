@@ -108,7 +108,7 @@
   - _Leverage: existing handler logic, enhanced services_
   - _Requirements: 1.1, 1.2_
 
-- [ ] 12. Remove direct database imports from search handler
+- [x] 12. Remove direct database imports from search handler
   - File: backend/bot/handlers/search.py (modify existing)
   - Remove direct database access and queries
   - Replace with API calls for user matching and reactions
@@ -117,7 +117,7 @@
   - _Leverage: existing search logic, enhanced services_
   - _Requirements: 1.1, 1.2_
 
-- [ ] 13. Remove direct database imports from matches handler
+- [x] 13. Remove direct database imports from matches handler
   - File: backend/bot/handlers/matches.py (modify existing)
   - Remove direct database queries and model imports
   - Replace with API calls for match retrieval and checking
@@ -126,7 +126,7 @@
   - _Leverage: existing match logic, enhanced services_
   - _Requirements: 1.1, 1.2_
 
-- [ ] 14. Remove direct database imports from likes handler
+- [x] 14. Remove direct database imports from likes handler
   - File: backend/bot/handlers/likes.py (modify existing)
   - Remove database imports and direct queries
   - Replace with API calls for likes retrieval
@@ -135,7 +135,7 @@
   - _Leverage: existing likes logic, enhanced services_
   - _Requirements: 1.1, 1.2_
 
-- [ ] 15. Update default handler to remove app dependencies
+- [x] 15. Update default handler to remove app dependencies
   - File: backend/bot/handlers/default.py (modify existing)
   - Remove `from app.queries import get_user, is_user_banned`
   - Replace with API calls through enhanced user service
@@ -165,7 +165,7 @@
   - _Leverage: existing bot initialization logic_
   - _Requirements: 8.1, 8.2_
 
-- [ ] 18. Remove outdated bot components
+- [x] 18. Remove outdated bot components
   - File: backend/bot/filters.py (remove or clean up)
   - Remove outdated filter implementations as mentioned
   - Clean up any unused imports or dependencies

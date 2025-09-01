@@ -8,7 +8,6 @@ from aiogram.utils.i18n import lazy_gettext as __
 
 from bot.config import settings
 from bot.enums import ReactionType
-from bot.filters import IsHuman
 from bot.handlers.likes import show_likes, show_likes_with_keyboard
 from bot.handlers.matches import show_matches
 from bot.handlers.menu import show_menu
@@ -27,7 +26,6 @@ from bot.utils import get_profile_card
 logger = logging.getLogger(__name__)
 
 router = Router()
-router.message.filter(IsHuman())
 
 
 @router.message(AppStates.menu, F.text == __("🔎 Watch profiles"))
@@ -187,5 +185,7 @@ async def show_likes_callback(callback: types.CallbackQuery, state: FSMContext) 
     if not isinstance(callback.message, types.Message):
         return
     await show_likes_with_keyboard(
-        callback.message, state, from_user=callback.from_user,
+        callback.message,
+        state,
+        from_user=callback.from_user,
     )

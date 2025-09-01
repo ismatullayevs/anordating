@@ -8,7 +8,6 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.enums import FileTypes
-from bot.filters import IsHuman
 from bot.handlers.menu import show_settings
 from bot.handlers.registration import GENDER_PREFERENCES, GENDERS
 from bot.keyboards import (
@@ -43,7 +42,6 @@ from bot.validators import (
 )
 
 router = Router()
-router.message.filter(IsHuman())
 
 user_locks: dict[int, asyncio.Lock] = {}
 

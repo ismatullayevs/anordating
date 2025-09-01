@@ -1,15 +1,12 @@
 import logging
-from typing import TYPE_CHECKING
 
 from bot.http_client import get_http_client_manager
-
-if TYPE_CHECKING:
-    from bot.schemas.place import PlaceDetailsSchema, PlaceSearchSchema
+from bot.schemas.place import PlaceDetailsSchema, PlaceSearchSchema
 
 logger = logging.getLogger(__name__)
 
 
-async def search_places(query: str, language: str = "en") -> list["PlaceSearchSchema"]:
+async def search_places(query: str, language: str = "en") -> list[PlaceSearchSchema]:
     """Search for places by name using the API.
 
     Args:
@@ -28,7 +25,6 @@ async def search_places(query: str, language: str = "en") -> list["PlaceSearchSc
     response.raise_for_status()
     places_data = response.json()
     logger.debug(f"Found {len(places_data)} places for query '{query}'")
-    from bot.schemas.place import PlaceSearchSchema
 
     return [PlaceSearchSchema.model_validate(place) for place in places_data]
 
@@ -36,7 +32,7 @@ async def search_places(query: str, language: str = "en") -> list["PlaceSearchSc
 async def get_place_details(
     place_id: str,
     language: str = "en",
-) -> "PlaceDetailsSchema":
+) -> PlaceDetailsSchema:
     """Get detailed place information by place ID using the API.
 
     Args:
@@ -55,7 +51,6 @@ async def get_place_details(
     response.raise_for_status()
     place_data = response.json()
     logger.debug(f"Retrieved place details for ID: {place_id}")
-    from bot.schemas.place import PlaceDetailsSchema
 
     return PlaceDetailsSchema.model_validate(place_data)
 
@@ -64,7 +59,7 @@ async def get_place_by_coordinates(
     latitude: float,
     longitude: float,
     language: str = "en",
-) -> "PlaceDetailsSchema":
+) -> PlaceDetailsSchema:
     """Get place information by coordinates using the API.
 
     Args:
@@ -85,6 +80,31 @@ async def get_place_by_coordinates(
     response.raise_for_status()
     place_data = response.json()
     logger.debug(f"Retrieved place details for coordinates ({latitude}, {longitude})")
-    from bot.schemas.place import PlaceDetailsSchema
 
     return PlaceDetailsSchema.model_validate(place_data)
+
+
+async def get_place_name(place_id: str, language: str = "en") -> str | None:
+    """Get place name by place ID using the API.
+
+    Args:
+        place_id: Google Maps place ID
+        language: Language code for place name
+
+    Returns:
+        str | None: Place name or None if not found
+
+    """
+    if not place_id:
+        return None
+
+    http_client = get_http_client_manager()
+    response = await http_client.get(
+        f"/v1/places/{place_id}/name",
+        params={"language": language},
+    )
+    response.raise_for_status()
+    place_data = response.json()
+    logger.debug(f"Retrieved place name for ID: {place_id}")
+
+    return place_data.get("name")

@@ -10,14 +10,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from bot.bot_commands import set_bot_profile
 from bot.config import EnvironmentTypes, settings
-from bot.handlers.default import router as default_router
 from bot.handlers.likes import router as likes_router
 from bot.handlers.matches import router as matches_router
 from bot.handlers.menu import router as menu_router
 from bot.handlers.profile import router as profile_router
 from bot.handlers.registration import router as registration_router
 from bot.handlers.search import router as search_router
-from bot.handlers.test import router as test_router
 from bot.http_client import initialize_http_client, shutdown_http_client
 from bot.middlewares import i18n_middleware
 
@@ -77,10 +75,8 @@ class BotApplication:
             self.dispatcher.include_router(likes_router)
             self.dispatcher.include_router(profile_router)
             self.dispatcher.include_router(matches_router)
-            self.dispatcher.include_router(default_router)
 
             if settings.DEBUG:
-                self.dispatcher.include_router(test_router)
                 logger.info("Test router included (DEBUG mode)")
 
             logger.info("Bot application startup completed successfully")

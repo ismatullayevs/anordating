@@ -7,7 +7,6 @@ from aiogram.utils.i18n import lazy_gettext as __
 from httpx import HTTPStatusError
 
 from bot.config import settings
-from bot.filters import IsHuman
 from bot.handlers.menu import show_menu
 from bot.keyboards import get_matches_keyboard
 from bot.services.match import get_matches
@@ -17,7 +16,6 @@ from bot.states import AppStates
 from bot.utils import get_profile_card
 
 router = Router()
-router.message.filter(IsHuman())
 
 logger = logging.getLogger(__name__)
 

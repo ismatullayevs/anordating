@@ -12,7 +12,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.config import settings
 from bot.enums import FileTypes
-from bot.filters import IsHuman
 from bot.handlers.menu import activate_account_start, show_menu
 from bot.keyboards import (
     GENDER_PREFERENCES,
@@ -50,7 +49,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = Router()
-router.message.filter(IsHuman())
 
 
 @router.message(Command("help"))

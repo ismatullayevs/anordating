@@ -95,3 +95,42 @@ async def get_place_by_coordinates_endpoint(
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+@router.get("/{place_id}/name")
+async def get_place_name(
+    db: DbDep,
+    place_id: str,
+    language: Annotated[str, Query()] = "en",
+) -> dict[str, str]:
+    """Get place name by place ID.
+
+    Returns the localized name for a place. If not found in database,
+    fetches from Google Maps and saves it.
+    """
+    try:
+        ui_language = UILanguages[language]
+    except KeyError:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Unsupported language: {language}. "
+                f"Supported: {[lang.name for lang in UILanguages]}"
+            ),
+        ) from None
+
+    from app.queries import get_city_name
+
+    try:
+        city_name = await get_city_name(place_id, ui_language)
+        if not city_name:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Place name not found for ID: {place_id}",
+            )
+        return {"name": city_name}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error retrieving place name: {e!s}",
+        ) from e

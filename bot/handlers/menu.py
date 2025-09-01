@@ -4,7 +4,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
-from bot.filters import IsHuman
 from bot.keyboards import (
     LANGUAGES,
     get_languages_keyboard,
@@ -19,7 +18,6 @@ from bot.services.user import delete_user, update_user
 from bot.states import AppStates
 
 router = Router()
-router.message.filter(IsHuman())
 
 
 @router.message(F.text == __("⬅️ Menu"))

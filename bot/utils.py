@@ -1,6 +1,8 @@
+import contextlib
 import math
 from math import atan2, cos, radians, sin, sqrt
 
+import httpx
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.telegram import TEST
@@ -8,15 +10,16 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.media_group import MediaGroupBuilder
 
-from app.queries import get_city_name
 from bot.config import EnvironmentTypes, settings
 from bot.enums import FileTypes
 from bot.schemas.media import FileSchema
 from bot.schemas.user import UserSchema
+from bot.services.place import get_place_name
 
 
-def haversine_distance(lat1, lon1, lat2, lon2):
-    R = 6371
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate the Haversine distance between two points on the Earth."""
+    r = 6371
 
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlat = lat2 - lat1
@@ -24,8 +27,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
     a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    distance = R * c
-    return distance
+    return r * c
 
 
 async def get_profile_card(
@@ -36,8 +38,11 @@ async def get_profile_card(
     assert user.is_active
     caption = f"{user.name}, {user.age}"
 
-    language = from_user.ui_language if from_user else user.ui_language
-    city = await get_city_name(user.place_id, language)
+    language = from_user.ui_language.name if from_user else user.ui_language.name
+    city = None
+    if user.place_id:
+        with contextlib.suppress(httpx.HTTPStatusError):
+            city = await get_place_name(user.place_id, language)
     location_str = f"📍 {city}" if city else ""
     if from_user and from_user.is_location_precise and user.is_location_precise:
         dist = haversine_distance(
